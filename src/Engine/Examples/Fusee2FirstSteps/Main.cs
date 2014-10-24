@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Fusee.Engine;
 using Fusee.Engine.SimpleScene;
@@ -37,7 +38,11 @@ namespace Examples.Fusee2FirstSteps
             return null;
         }
 
-        private SceneObjectContainer _wheel;
+        private SceneObjectContainer _wheelR;
+        private SceneObjectContainer _wheelL;
+        private SceneObjectContainer _wheelSL;
+        private SceneObjectContainer _wheelSR;
+        private SceneObjectContainer _wuggy;
 
         // is called on startup
         public override void Init()
@@ -51,24 +56,82 @@ namespace Examples.Fusee2FirstSteps
                 scene = ser.Deserialize(file, null, typeof(SceneContainer)) as SceneContainer;
                 _sr = new SceneRenderer(scene, "Assets");
             }
-            _wheel = FindByName("WheelBigR", scene);
+            _wheelR = FindByName("WheelBigR", scene);
+            _wheelL = FindByName("WheelBigL", scene);
+            _wheelSR = FindByName("WheelSmallR", scene);
+            _wheelSL = FindByName("WheelSmallL.", scene);
+            
+            _wuggy = FindByName("Wuggy", scene);
             _angle = 0.02f;
+
+                       
         }
+
+
         private float _angle;
+        private float3 _move = new float3(0, 0, 900);
+
         // is called once a frame
         public override void RenderAFrame()
         {
+            
             float mouseX = 0;
+            float xValue = 0;
+            float zValue = 0;
+
             if (Input.Instance.IsButton(MouseButtons.Left)) 
             {
-                mouseX = Input.Instance.GetAxis(InputAxis.MouseX);    
+                mouseX = Input.Instance.GetAxis(InputAxis.MouseX);
+                xValue = mouseX;
             }
+
+            
+            if (Input.Instance.IsKey(KeyCodes.Left))
+            {
+                xValue = 5f;
+            }
+
+            if (Input.Instance.IsKey(KeyCodes.Right))
+            {
+                xValue = -5f;
+            }
+
+            if (Input.Instance.IsKey(KeyCodes.Up))
+            {
+                zValue = 5f;
+            }
+
+            if (Input.Instance.IsKey(KeyCodes.Down))
+            {
+                zValue = -5f;
+            }
+
+                      
+
             RC.Clear(ClearFlags.Color | ClearFlags.Depth);
-            RC.ModelView = float4x4.CreateTranslation(0, -200, 500)*float4x4.CreateRotationY(_angle);
-            float3 rot = _wheel.Transform.Rotation;
+            RC.ModelView = float4x4.CreateTranslation(0,0,500) * float4x4.CreateRotationY(_angle)* float4x4.LookAt(0,200,700,0,150,900,0,1,0);
+            
+            float3 rot = _wheelR.Transform.Rotation;            
+
+            float3 mov = _wuggy.Transform.Translation;
+
             rot.x = _angle;
-            _wheel.Transform.Rotation = rot;
+
+            mov.x = _move.x;
+            mov.z = _move.z;
+
+            _wheelR.Transform.Rotation = rot;
+            _wheelL.Transform.Rotation = rot;
+            _wheelSR.Transform.Rotation = rot;
+            _wheelSL.Transform.Rotation = rot;
+           
+
+            _wuggy.Transform.Translation = mov;            
+
             _angle = _angle + mouseX * -10 * (float)Time.Instance.DeltaTime;
+            
+            _move.x = _move.x + xValue * -30 * (float)Time.Instance.DeltaTime;
+            _move.z = _move.z + zValue * -30 * (float)Time.Instance.DeltaTime;
             _sr.Render(RC);
             Present();
         }
