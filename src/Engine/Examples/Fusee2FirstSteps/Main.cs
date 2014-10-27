@@ -109,14 +109,17 @@ namespace Examples.Fusee2FirstSteps
                       
 
             RC.Clear(ClearFlags.Color | ClearFlags.Depth);
-            RC.ModelView = float4x4.CreateTranslation(0,0,500) * float4x4.CreateRotationY(_angle)* float4x4.LookAt(0,200,700,0,150,900,0,1,0);
+            RC.ModelView = float4x4.CreateTranslation(0, 0, 500) * float4x4.CreateRotationY(_angle) * float4x4.LookAt(0, 150, 0, 0, 150, 900, 0, 1, 0); //*float4x4.LookAt(0, 200, 700, 0, 150, 900, 0, 1, 0);
             
             float3 rot = _wheelR.Transform.Rotation;            
 
             float3 mov = _wuggy.Transform.Translation;
 
-            rot.x = _angle;
-
+            //rot.x = _angle;
+            ///////////////////////
+            rot.x = _move.x/100;
+            rot.x = _move.z/100;
+            ////////////////////////
             mov.x = _move.x;
             mov.z = _move.z;
 
@@ -128,7 +131,7 @@ namespace Examples.Fusee2FirstSteps
 
             _wuggy.Transform.Translation = mov;            
 
-            _angle = _angle + mouseX * -10 * (float)Time.Instance.DeltaTime;
+           _angle = _angle + mouseX * -10 * (float)Time.Instance.DeltaTime;
             
             _move.x = _move.x + xValue * -30 * (float)Time.Instance.DeltaTime;
             _move.z = _move.z + zValue * -30 * (float)Time.Instance.DeltaTime;
