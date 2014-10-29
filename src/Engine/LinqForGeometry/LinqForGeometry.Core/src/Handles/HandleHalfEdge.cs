@@ -9,7 +9,7 @@
 	Mr. Prof. W. Walter
 */
 
-namespace LinqForGeometry.Core.Handles
+namespace Fusee.LFG.Core.Handles
 {
 
     /// <summary>

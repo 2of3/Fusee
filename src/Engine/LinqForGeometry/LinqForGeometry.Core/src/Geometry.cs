@@ -16,12 +16,12 @@ using System.Linq;
 using System.Threading;
 using Fusee.Math;
 using Fusee.Engine;
-using LinqForGeometry.Core.Exceptions;
-using LinqForGeometry.Core.Handles;
-using LinqForGeometry.Core.Importer;
-using LinqForGeometry.Core.PtrContainer;
+using Fusee.LFG.Core.Exceptions;
+using Fusee.LFG.Core.Handles;
+using Fusee.LFG.Core.Importer;
+using Fusee.LFG.Core.PtrContainer;
 
-namespace LinqForGeometry.Core
+namespace Fusee.LFG.Core
 {
     /// <summary>
     /// This is the main object for the LINQForGeometry project.

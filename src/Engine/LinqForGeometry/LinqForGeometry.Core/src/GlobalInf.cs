@@ -9,7 +9,7 @@
 	Mr. Prof. W. Walter
 */
 
-namespace LinqForGeometry.Core
+namespace Fusee.LFG.Core
 {
     /// <summary>
     /// This class just handles some messages i use to generate output in the program.

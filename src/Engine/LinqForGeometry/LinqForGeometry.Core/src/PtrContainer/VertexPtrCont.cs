@@ -9,9 +9,9 @@
 	Mr. Prof. W. Waltre
 */
 
-using LinqForGeometry.Core.Handles;
+using Fusee.LFG.Core.Handles;
 
-namespace LinqForGeometry.Core.PtrContainer
+namespace Fusee.LFG.Core.PtrContainer
 {
     /// <summary>
     /// This is a vertex 'Pointer Container'.

@@ -7,7 +7,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{DFFDB3A9-2429-4E47-B65C-E2C0F3F66146}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>LinqForGeometry.Core</RootNamespace>
+    <RootNamespace>Fusee.LFG.Core</RootNamespace>
     <AssemblyName>LinqForGeometry.Core</AssemblyName>
     <StartupObject>
     </StartupObject>

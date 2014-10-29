@@ -13,7 +13,7 @@ using System;
 using System.Diagnostics;
 using Fusee.Engine;
 using Fusee.Math;
-using Geometry = LinqForGeometry.Core.Geometry;
+using Geometry = Fusee.LFG.Core.Geometry;
 using LFG.ExternalModules.Transformations;
 
 namespace Examples.LinqForGeometry

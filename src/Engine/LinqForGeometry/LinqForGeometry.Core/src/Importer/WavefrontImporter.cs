@@ -15,7 +15,7 @@ using System.IO;
 using Fusee.Engine;
 using Fusee.Math;
 
-namespace LinqForGeometry.Core.Importer
+namespace Fusee.LFG.Core.Importer
 {
     /// <summary>
     /// This is an importer for the <a href="http://en.wikipedia.org/wiki/Wavefront_.obj_file">Wavefront obj</a> computer graphics file

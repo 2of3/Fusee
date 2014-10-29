@@ -12,7 +12,7 @@
 using System.Collections.Generic;
 using Fusee.Math;
 
-namespace LinqForGeometry.Core.Importer
+namespace Fusee.LFG.Core.Importer
 {
     /// <summary>
     /// This struct is a helper 'container' to temporary save date during the import and convertion process.

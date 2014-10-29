@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LinqForGeometry.Core.Exceptions
+namespace Fusee.LFG.Core.Exceptions
 {
     /// <summary>
     /// This is an exception used in the importer.
