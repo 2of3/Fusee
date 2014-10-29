@@ -321,6 +321,7 @@ namespace FuExport
 
                 // The remaining polygons directly go into the original mesh
                 soc.Mesh = GetMesh(polyOb, normalOb, uvwTag, polyInxs);
+                // TODO: Integrate LFG here?
             }
         }
 

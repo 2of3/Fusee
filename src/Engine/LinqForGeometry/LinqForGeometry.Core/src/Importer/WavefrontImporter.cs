@@ -59,15 +59,15 @@ namespace Fusee.LFG.Core.Importer
                 
                 string[] contentAsLines = _SassetFileContent.Split(_SendOfLine, StringSplitOptions.None);
 
-                List<String> LitemList = new List<string>();
+                List<String> LfileLines = new List<string>();
                 foreach (string line in contentAsLines)
                 {
                     if (!line.StartsWith("#"))
                     {
-                        LitemList.Add(line);
+                        LfileLines.Add(line);
                     }
                 }
-                return LitemList;
+                return LfileLines;
             }
             return null;
         }
@@ -186,7 +186,7 @@ namespace Fusee.LFG.Core.Importer
 
                                         if (faceSplit.Length >= 1)
                                         {
-                                            string uvIndex = faceSplit[1]; // TODO: Changed for TESTING! Was 1
+                                            string uvIndex = faceSplit[1];
                                             int uvAdress = Convert.ToInt32(uvIndex);
                                             geoF._UV.Add(_LuvCoords[uvAdress - 1]);
                                             _LKVuvandvert.Add(new KeyValuePair<int, int>(uvAdress - 1, fv - 1));
@@ -227,10 +227,7 @@ namespace Fusee.LFG.Core.Importer
             {
                 return _LgeoFaces;
             }
-            else
-            {
-                return null;
-            }
+            return null;
         }
     }
 }
