@@ -50,6 +50,7 @@
     <Compile Include="src\Exceptions\ExcMeshLeak.cs" />
     <Compile Include="src\GlobalInf.cs" />
     <Compile Include="src\Importer\GeoFace.cs" />
+    <Compile Include="src\Importer\ILFGImporter.cs" />
     <Compile Include="src\Importer\WavefrontImporter.cs" />
     <Compile Include="src\Geometry.cs" />
     <Compile Include="src\Handles\HandleFaceNormal.cs" />

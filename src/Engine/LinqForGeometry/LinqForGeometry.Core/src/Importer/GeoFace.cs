@@ -15,7 +15,7 @@ using Fusee.Math;
 namespace Fusee.LFG.Core.Importer
 {
     /// <summary>
-    /// This struct is a helper 'container' to temporary save date during the import and convertion process.
+    /// This struct is a helper 'container' to temporary save data during the import and conversion process.
     /// </summary>
     public struct GeoFace
     {

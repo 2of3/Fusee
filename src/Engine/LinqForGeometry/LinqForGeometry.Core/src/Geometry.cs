@@ -29,7 +29,7 @@ namespace Fusee.LFG.Core
     /// </summary>
     public class Geometry
     {
-        private WavefrontImporter<float3> _objImporter;
+        private WavefrontImporter _objImporter;
 
         // Boolean helpers
         /// <summary>
@@ -105,7 +105,7 @@ namespace Fusee.LFG.Core
         /// </summary>
         public Geometry()
         {
-            _objImporter = new WavefrontImporter<float3>();
+            _objImporter = new WavefrontImporter();
 
             _LverticeHndl = new List<HandleVertex>();
             _LedgeHndl = new List<HandleEdge>();

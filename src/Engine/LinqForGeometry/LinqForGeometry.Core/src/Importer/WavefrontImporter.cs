@@ -13,6 +13,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Fusee.Engine;
+using Fusee.LFG.Core.Handles;
+using Fusee.LFG.Core.src.Importer;
 using Fusee.Math;
 
 namespace Fusee.LFG.Core.Importer
@@ -21,21 +23,36 @@ namespace Fusee.LFG.Core.Importer
     /// This is an importer for the <a href="http://en.wikipedia.org/wiki/Wavefront_.obj_file">Wavefront obj</a> computer graphics file
     /// To use it just create an instance and pass the file path to the LoadAsset() method
     /// </summary>
-    class WavefrontImporter<VertexType>
+    class WavefrontImporter : ILfgImporter
     {
-        // Sytem File related
-        String _SassetFileContent;
-        String[] _SendOfLine = { "\n" };
+        // Interface related
+        private String _FilePath;
+        public List<GeoFace> TmpData
+        {
+            get { return _LgeoFaces; }
+        }
+        public string Filepath
+        {
+            get { return _FilePath; }
+        }
 
+        // Sytem File related
+        private String _AssetFileContent;
+        private String[] _EndOfLine = { "\n" };
         // GeometryData related
         internal List<GeoFace> _LgeoFaces;
         internal List<float2> _LuvCoords;
         private List<KeyValuePair<int, int>> _LKVuvandvert;
+        List<float3> LvertexAttr = new List<float3>();
+        List<String> LgeoValues = new List<string>();
+        // String Handling
+        String[] splitChar = { " " };
+        String[] splitChar2 = { "/" };
 
         public WavefrontImporter()
         {
             // File related
-            _SassetFileContent = "";
+            _AssetFileContent = "";
 
             // GeometryData related
             _LgeoFaces = new List<GeoFace>();
@@ -44,20 +61,91 @@ namespace Fusee.LFG.Core.Importer
         }
 
         /// <summary>
-        /// This loads a file to the importer object
+        /// Loads an asset from file to the memory.
         /// </summary>
-        /// <param name="pathToAsset">The path to the asset to be loaded in the system</param>
-        private List<String> LoadFile(String pathToAsset)
+        /// <param name="path"></param>
+        public List<GeoFace> LoadAsset(String path)
         {
-            Console.WriteLine(LFGMessages.INFO_IMPORTERDISCLAIMER);
-            if (File.Exists(pathToAsset))
+            LoadFileToMemory(path);
+
+            foreach (String line in LgeoValues)
             {
-                using (var assetFile = new StreamReader(pathToAsset))
+
+                if (line.StartsWith("vt"))
                 {
-                    _SassetFileContent = assetFile.ReadToEnd();
+                    // vertex texture
+                    HandleVertexTextureCoordinates(line);
                 }
-                
-                string[] contentAsLines = _SassetFileContent.Split(_SendOfLine, StringSplitOptions.None);
+                else if (line.StartsWith("vn"))
+                {
+                    // vertex normals
+                    HandleVertexNormal(line);
+                }
+                else if (line.StartsWith("v"))
+                {
+                    // vertex
+                    HandleVertex(line);
+                }
+                else if (line.StartsWith("p"))
+                {
+                    // point
+                    HandlePoint(line);
+                }
+                else if (line.StartsWith("l"))
+                {
+                    // line
+                    HandleLine(line);
+                }
+                else if (line.StartsWith("f"))
+                {
+                    HandleFace(line);
+                }
+                else if (line.StartsWith("g"))
+                {
+                    HandleGroup(line);
+                }
+                else if (line.StartsWith("usemtl"))
+                {
+                    // use material
+                    HandleUseMaterial(line);
+                }
+                else if (line.StartsWith("usemtllib"))
+                {
+                    // material lib
+                    HandleMaterialLib(line);
+                }
+            }
+
+            if (_LgeoFaces == null)
+            {
+                throw new Exception("The content of the file did not match the wavefront.obj specifications this importer requires.");
+            }
+
+            // Some clean ups.
+            _LuvCoords = null;
+            _LKVuvandvert = null;
+            LvertexAttr = null;
+            LgeoValues = null;
+
+            return _LgeoFaces;
+        }
+
+        private void LoadFileToMemory(String path)
+        {
+            _AssetFileContent = "";
+
+            List<String> LvertexHelper = new List<string>();
+            List<String> LfaceHelper = new List<string>();          
+            // Load the file information to the memory
+            if (File.Exists(path))
+            {
+                _FilePath = path;
+                using (var assetFile = new StreamReader(path))
+                {
+                    _AssetFileContent = assetFile.ReadToEnd();
+                }
+
+                string[] contentAsLines = _AssetFileContent.Split(_EndOfLine, StringSplitOptions.None);
 
                 List<String> LfileLines = new List<string>();
                 foreach (string line in contentAsLines)
@@ -67,167 +155,138 @@ namespace Fusee.LFG.Core.Importer
                         LfileLines.Add(line);
                     }
                 }
-                return LfileLines;
+                LgeoValues = LfileLines;
             }
-            return null;
+            else
+            {
+                throw new Exception("The file that should be loaded is not present or corrupt. Please check the file.");
+            }
         }
 
-        /// <summary>
-        /// Loads an asset from file to the memory.
-        /// </summary>
-        /// <param name="pathToAsset"></param>
-        public List<GeoFace> LoadAsset(String pathToAsset)
+        private void HandleVertexTextureCoordinates(String line)
         {
-            _SassetFileContent = "";
+            string[] lineSplitted = line.Split(splitChar, StringSplitOptions.None);
 
-            List<String> LvertexHelper = new List<string>();
-            List<String> LfaceHelper = new List<string>();
-
-            String[] splitChar = { " " };
-            String[] splitChar2 = { "/" };
-
-            // Load the file information to the memory
-            List<String> LgeoValues = LoadFile(pathToAsset);
-            if (LgeoValues != null)
+            // vertex texture coordinates
+            if (LFGMessages._DEBUGOUTPUT)
             {
-                List<float3> LvertexAttr = new List<float3>();
+                Console.WriteLine(LFGMessages.INFO_UVFOUND + line);
+            }
 
-                foreach (String line in LgeoValues)
+            List<Double> tmpSave = new List<double>();
+            foreach (string str in lineSplitted)
+            {
+                if (!str.StartsWith("vt") && !str.Equals(""))
                 {
-                    string lineStart = line.Length > 2 ? line.Substring(0, 2) : line.Substring(0, line.Length);
+                    tmpSave.Add(MeshReader.Double_Parse(str));
+                }
+            }
+            float2 uvVal = new float2(
+                (float)tmpSave[0],
+                (float)tmpSave[1]
+                );
+            _LuvCoords.Add(uvVal);
+        }
 
-                    
-                    if (line.StartsWith("vt"))
+        private void HandleVertexNormal(String line)
+        {
+        }
+
+        private void HandleVertex(String line)
+        {
+            string[] lineSplitted = line.Split(splitChar, StringSplitOptions.None);
+            List<Double> tmpSave = new List<double>();
+            foreach (string str in lineSplitted)
+            {
+                if (!str.StartsWith("v") && !str.Equals(""))
+                {
+                    tmpSave.Add(MeshReader.Double_Parse(str));
+                }
+            }
+            float3 fVal = new float3(
+                    (float)tmpSave[0],
+                    (float)tmpSave[1],
+                    (float)tmpSave[2]
+            );
+            LvertexAttr.Add(fVal);
+        }
+
+        private void HandlePoint(String line)
+        {
+            
+        }
+
+        private void HandleLine(String line)
+        {
+
+        }
+
+        private void HandleFace(String line)
+        {
+            // there are faces, faces with texture coord, faces with vertex normals and faces with text and normals
+            if (LFGMessages._DEBUGOUTPUT)
+            {
+                Console.WriteLine(LFGMessages.INFO_FACEFOUND + line);
+            }
+            string[] lineSplitted = line.Split(splitChar, StringSplitOptions.None);
+            List<Double> tmpSave = new List<double>();
+
+            GeoFace geoF = new GeoFace();
+            geoF._LFVertices = new List<float3>();
+            geoF._UV = new List<float2>();
+            foreach (string str in lineSplitted)
+            {
+                if (!str.StartsWith("f"))
+                {
+                    string[] faceSplit = str.Split(splitChar2, StringSplitOptions.None);
+                    string s = faceSplit[0];
+
+                    if (LFGMessages._DEBUGOUTPUT)
                     {
-                        string[] lineSplitted = line.Split(splitChar, StringSplitOptions.None);
-
-                        // vertex texture coordinates
-                        if (LFGMessages._DEBUGOUTPUT)
+                        Console.WriteLine(LFGMessages.INFO_VERTEXIDFORFACE + s);
+                    }
+                    //if (s != null || s != "" || !s.Equals("") || !s.Equals(" ") || s != " " || !s.Equals("\n") || s != "\n" || s != "\0" || !s.Equals("\0") || !s.Equals("\r") || s != "\r")
+                    if (!s.Equals("\r"))
+                    {
+                        try
                         {
-                            Console.WriteLine(LFGMessages.INFO_UVFOUND + line);
-                        }
+                            int fv = Convert.ToInt32(s);
+                            geoF._LFVertices.Add(LvertexAttr[fv - 1]);
 
-                        List<Double> tmpSave = new List<double>();
-                        foreach (string str in lineSplitted)
-                        {
-                            if (!str.StartsWith("vt") && !str.Equals(""))
+                            if (faceSplit.Length >= 1)
                             {
-                                tmpSave.Add(MeshReader.Double_Parse(str));
+                                string uvIndex = faceSplit[1];
+                                int uvAdress = Convert.ToInt32(uvIndex);
+                                geoF._UV.Add(_LuvCoords[uvAdress - 1]);
+                                _LKVuvandvert.Add(new KeyValuePair<int, int>(uvAdress - 1, fv - 1));
                             }
                         }
-                        float2 uvVal = new float2(
-                            (float)tmpSave[0],
-                            (float)tmpSave[1]
-                            );
-                        _LuvCoords.Add(uvVal);
-                    }
-                    else if (line.StartsWith("vn"))
-                    {
-                        // vertex normals
-                    }
-                    else if (line.StartsWith("v"))
-                    {
-                        // vertex
-                        string[] lineSplitted = line.Split(splitChar, StringSplitOptions.None);
-                        List<Double> tmpSave = new List<double>();
-                        foreach (string str in lineSplitted)
+                        catch (FormatException e)
                         {
-                            if (!str.StartsWith("v") && !str.Equals(""))
+                            if (LFGMessages._DEBUGOUTPUT)
                             {
-                                tmpSave.Add(MeshReader.Double_Parse(str));
+                                Console.WriteLine(LFGMessages.WARNING_INVALIDCHAR + s + e);
                             }
+                            //Debug.WriteLine(e.StackTrace);
+                            continue;
                         }
-                        float3 fVal = new float3(
-                                (float)tmpSave[0],
-                                (float)tmpSave[1],
-                                (float)tmpSave[2]
-                        );
-                        LvertexAttr.Add(fVal);
-                    }
-                    else if (line.StartsWith("p"))
-                    {
-                        // point
-                    }
-                    else if (line.StartsWith("l"))
-                    {
-                        // line
-                    }
-                    else if (line.StartsWith("f"))
-                    {
-                        // there are faces, faces with texture coord, faces with vertex normals and faces with text and normals
-                        if (LFGMessages._DEBUGOUTPUT)
-                        {
-                            Console.WriteLine(LFGMessages.INFO_FACEFOUND + line);
-                        }
-                        string[] lineSplitted = line.Split(splitChar, StringSplitOptions.None);
-                        List<Double> tmpSave = new List<double>();
-
-                        GeoFace geoF = new GeoFace();
-                        geoF._LFVertices = new List<float3>();
-                        geoF._UV = new List<float2>();
-                        foreach (string str in lineSplitted)
-                        {
-                            if (!str.StartsWith("f"))
-                            {
-                                string[] faceSplit = str.Split(splitChar2, StringSplitOptions.None);
-                                string s = faceSplit[0];
-
-                                if (LFGMessages._DEBUGOUTPUT)
-                                {
-                                    Console.WriteLine(LFGMessages.INFO_VERTEXIDFORFACE + s);
-                                }
-                                //if (s != null || s != "" || !s.Equals("") || !s.Equals(" ") || s != " " || !s.Equals("\n") || s != "\n" || s != "\0" || !s.Equals("\0") || !s.Equals("\r") || s != "\r")
-                                if (!s.Equals("\r"))
-                                {
-                                    try
-                                    {
-                                        int fv = Convert.ToInt32(s);
-                                        geoF._LFVertices.Add(LvertexAttr[fv - 1]);
-
-                                        if (faceSplit.Length >= 1)
-                                        {
-                                            string uvIndex = faceSplit[1];
-                                            int uvAdress = Convert.ToInt32(uvIndex);
-                                            geoF._UV.Add(_LuvCoords[uvAdress - 1]);
-                                            _LKVuvandvert.Add(new KeyValuePair<int, int>(uvAdress - 1, fv - 1));
-                                        }
-                                    }
-                                    catch (FormatException e)
-                                    {
-                                        if (LFGMessages._DEBUGOUTPUT)
-                                        {
-                                            Console.WriteLine(LFGMessages.WARNING_INVALIDCHAR + s + e);
-                                        }
-                                        //Debug.WriteLine(e.StackTrace);
-                                        continue;
-                                    }
-                                }
-                            }
-                        }
-                        _LgeoFaces.Add(geoF);
-                    }
-                    else if (line.StartsWith("g"))
-                    {
-                        // group
-                    }
-                    else if (line.StartsWith("usemtl"))
-                    {
-                        // use material
-                    }
-                    else if (line.StartsWith("usemtllib"))
-                    {
-                        // material lib
                     }
                 }
             }
-            // Clear the content after the import is done
-            _SassetFileContent = "";
-
-            if (_LgeoFaces != null)
-            {
-                return _LgeoFaces;
-            }
-            return null;
+            _LgeoFaces.Add(geoF);
         }
+
+        private void HandleMaterialLib(String line)
+        {
+        }
+
+        private void HandleUseMaterial(String line)
+        {
+        }
+
+        private void HandleGroup(String line)
+        {
+        }
+
     }
 }

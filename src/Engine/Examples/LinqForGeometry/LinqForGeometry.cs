@@ -130,10 +130,10 @@ namespace Examples.LinqForGeometry
         public override void Init()
         {
             VSync = false;
-            SetWindowSize(1280, 720);
+            SetWindowSize(1280, 720, false, 200, 200);
 
             // Start the application in demo mode?
-            demoMode = true;
+            demoMode = false;
 
             #region MeshImports
             _Geo = new Geometry();
@@ -201,7 +201,7 @@ namespace Examples.LinqForGeometry
 
             // For Benchmarking only.
             _ShaderType = 1;
-            runDemoAnimation = true;
+            runDemoAnimation = false;
             _Geo._DoCalcVertexNormals = true;
         }
 
