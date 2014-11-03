@@ -62,69 +62,77 @@ namespace Examples.Fusee2FirstSteps
             _wheelSL = FindByName("WheelSmallL.", scene);
 
             _wuggy = FindByName("Wuggy", scene);
-            _angle = 0.2f;
-            _angleS = 0.4f;
+            _angleR = 0.2f;
+            _angleL = _angleR;
+            _angleSL = 0.4f;
+            _angleSL = _angleSR;
 
 
         }
 
-        private float _angle;
-        private float _angleS;
+        private float _angleR;
+        private float _angleL;
+        private float _angleSR;
+        private float _angleSL;
         private float _globalAngle;
         private float _modelAngle;
-        private float3 _move = new float3(0, 0, 900);
+        private float3 _move = new float3(0, 0, 0);
+
+        
 
         // is called once a frame
         public override void RenderAFrame()
         {
 
             float mouseX = 0;
-            float mouseX1 = 0;
+            //float mouseX1 = 0;
             float xValue = 0;
             float zValue = 0;
 
-            float3 rot = _wheelR.Transform.Rotation;
-            float3 rotS = _wheelSR.Transform.Rotation;
+            float3 rotR = _wheelR.Transform.Rotation;
+            float3 rotL = _wheelL.Transform.Rotation;
+            float3 rotSR = _wheelSR.Transform.Rotation;
+            float3 rotSL = _wheelSL.Transform.Rotation;
             float3 mov = _wuggy.Transform.Translation;
             float3 rotWuggy = _wuggy.Transform.Rotation;
 
             //rotate Cam by mouse click
-            if (Input.Instance.IsButton(MouseButtons.Right))
+            if (Input.Instance.IsButton(MouseButtons.Left))
             {
                 mouseX = Input.Instance.GetAxis(InputAxis.MouseX);              
                 
-            }
+            }            
 
-            //rotate Wuggy by mouse click
+            /*//rotate Wuggy by mouse click
             if (Input.Instance.IsButton(MouseButtons.Left))
             {
                 mouseX1 = Input.Instance.GetAxis(InputAxis.MouseX);
 
-            }            
+            } */          
 
             RC.Clear(ClearFlags.Color | ClearFlags.Depth);
 
             var mtxCam = float4x4.LookAt(0, 150, 700, 0, 150, 900, 0, 1, 0);
 
-            RC.Model = float4x4.CreateTranslation(0, 0, 500) * float4x4.CreateRotationY(_globalAngle);
+            RC.Model = float4x4.CreateTranslation(0, 0, 1500) * float4x4.CreateRotationY(_globalAngle);
             RC.View = mtxCam;
                         
             //take x,y,z value of float3 to create float
-            rot.x = _angle;
-            rotS.x = _angleS;
+            rotR.x = _angleR;
+            rotL.x = _angleL;
+            rotSR.x = _angleSR;
+            rotSL.x = _angleSL;
             rotWuggy.y = _modelAngle;
-           
 
             mov.x = _move.x;
             mov.z = _move.z;
 
-            _wheelR.Transform.Rotation = rot;
-            _wheelL.Transform.Rotation = rot;
-            _wheelSR.Transform.Rotation = rotS;
-            _wheelSL.Transform.Rotation = rotS;
+            _wheelR.Transform.Rotation = rotR;
+            _wheelL.Transform.Rotation = rotL;
+            _wheelSR.Transform.Rotation = rotSR;
+            _wheelSL.Transform.Rotation = rotSL;
 
-            _wuggy.Transform.Translation = mov;
-
+            _wuggy.Transform.Translation = mov;           
 
             if (Input.Instance.IsButton(MouseButtons.Left))
             {
@@ -135,51 +143,94 @@ namespace Examples.Fusee2FirstSteps
             //control Wuggy by WSAD
             if (Input.Instance.IsKey(KeyCodes.A))
             {
-                xValue = 5f;
-                _wuggy.Transform.Rotation = new float3(0, 1.570f, 0);               
+                xValue = 2f;
+               _wuggy.Transform.Rotation = rotWuggy;               
 
             }
 
             if (Input.Instance.IsKey(KeyCodes.D))
             {
-                xValue = -5f;
-                _wuggy.Transform.Rotation = new float3(0, -1.570f, 0);
+                xValue = -2f;
+                _wuggy.Transform.Rotation = rotWuggy;
 
             }
 
             if (Input.Instance.IsKey(KeyCodes.W))
             {
                 zValue = -5f;
-                _wuggy.Transform.Rotation = new float3(0, _modelAngle, 0);
+                //xValue = -5f;
+                _angleR = _angleR + (xValue + zValue) * 1 * (float)Time.Instance.DeltaTime;
+                _angleSR = _angleSL + (xValue + zValue) * 2 * (float)Time.Instance.DeltaTime;
+                _angleL = _angleR + (xValue + zValue) * 1 * (float)Time.Instance.DeltaTime;
+                _angleSL = _angleSL + (xValue + zValue) * 2 * (float)Time.Instance.DeltaTime;
 
             }
 
             if (Input.Instance.IsKey(KeyCodes.S))
             {
                 zValue = 5f;
-                _wuggy.Transform.Rotation = new float3(0, _modelAngle, 0);
+               // xValue = 5f;
+                _angleR = _angleR + (xValue + zValue) * 1 * (float)Time.Instance.DeltaTime;
+                _angleSR = _angleSL + (xValue + zValue) * 2 * (float)Time.Instance.DeltaTime;
+                _angleL = _angleR + (xValue + zValue) * 1 * (float)Time.Instance.DeltaTime;
+                _angleSL = _angleSL + (xValue + zValue) * 2 * (float)Time.Instance.DeltaTime;
 
             }
    
             //update & speed of rotations
-            _globalAngle = _globalAngle + mouseX * -50 * (float)Time.Instance.DeltaTime;
-            _modelAngle = _modelAngle + mouseX1 * -50 * (float)Time.Instance.DeltaTime;
+            _globalAngle = _globalAngle + mouseX * -50 * (float)Time.Instance.DeltaTime; //cam
+            _modelAngle = _modelAngle + xValue * (float)Time.Instance.DeltaTime;        //Wuggy
             
 
-            if (Input.Instance.IsKey(KeyCodes.Left) || Input.Instance.IsKey(KeyCodes.Down))
+            //change direction of wheel spin when wuggy is turned
+            if (Input.Instance.IsKey(KeyCodes.A))
             {
-                _angle = _angle + (xValue + zValue)* -1 * (float)Time.Instance.DeltaTime;
-                _angleS = _angleS + (xValue + zValue) * -2 * (float)Time.Instance.DeltaTime;
-            }
-            else
-            {
-                _angle = _angle + (xValue + zValue) * 1 * (float)Time.Instance.DeltaTime;
-                _angleS = _angleS + (xValue + zValue) * 2 * (float)Time.Instance.DeltaTime;
+                _angleR = _angleR + (xValue + zValue)* -1 * (float)Time.Instance.DeltaTime;
+                _angleSR = _angleSR + (xValue + zValue) * -2 * (float)Time.Instance.DeltaTime;
+                _angleL = _angleL + (xValue + zValue) * 1 * (float)Time.Instance.DeltaTime;
+                _angleSL = _angleSL + (xValue + zValue) * 2 * (float)Time.Instance.DeltaTime;
             }
 
-            _move.x = _move.x + xValue* -30 * (float)Time.Instance.DeltaTime; //task: control Wuggy by mouse(rotation) + W (move forward) --> try to move Wuggy on xz layer (involve _modelAngle?) 
-            _move.z = _move.z + zValue * -30 * (float)Time.Instance.DeltaTime;            
+            if (Input.Instance.IsKey(KeyCodes.D))
+            {
+                _angleR = _angleR + (xValue + zValue) * 1 * (float)Time.Instance.DeltaTime;
+                _angleSR = _angleSR + (xValue + zValue) * 2 * (float)Time.Instance.DeltaTime;
+                _angleL = _angleL + (xValue + zValue) * -1 * (float)Time.Instance.DeltaTime;
+                _angleSL = _angleSL + (xValue + zValue) * -2 * (float)Time.Instance.DeltaTime;
+            }
 
+                     
+            //just move if S or W is pressed
+            float _xz = _move.z/(float)Math.Cos(_modelAngle);           
+
+            if (Input.Instance.IsKey(KeyCodes.S) || Input.Instance.IsKey(KeyCodes.W))
+            {
+                Console.WriteLine("_modelAngle " + _modelAngle*180/MathHelper.Pi);
+                //_move = _move *60*(float)Time.Instance.DeltaTime;  //task: control Wuggy by mouse(rotation) + W (move forward) --> try to move Wuggy on xz layer (involve _modelAngle?)  
+                _move.z = _move.z +zValue * -30 * (float)Time.Instance.DeltaTime;
+                if (_modelAngle == 0 || _modelAngle == 180*Math.PI/180)
+                {
+                    _move.x = 0;      
+                    
+                }                
+                else
+                {
+                    _move.x = _xz + zValue * (float)Time.Instance.DeltaTime;
+                }
+
+                if (_modelAngle >= 3.141)
+                {
+                    _move.x = -_xz + zValue * (float)Time.Instance.DeltaTime;
+                }
+                   
+                
+                
+                Console.WriteLine("move" + _move);
+                
+            }
+
+            //Console.WriteLine("float 3 _move: " + _move);
+            
             _sr.Render(RC);
             Present();
         }
