@@ -43,12 +43,20 @@
       <Project>{1228EB3F-8BCC-453F-8A2E-D9246495A118}</Project>
       <Name>Core</Name>
     </ProjectReference>
+    <Reference Include="FuseeSerializer">
+      <HintPath>..\..\..\..\ExternalBinaries\protobuf\FuseeSerializer.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\ExternalBinaries\protobuf\protobuf-net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="src\Exceptions\ExcMeshLeak.cs" />
     <Compile Include="src\GlobalInf.cs" />
+    <Compile Include="src\Importer\FusContainerImporter.cs" />
     <Compile Include="src\Importer\GeoFace.cs" />
     <Compile Include="src\Importer\ILFGImporter.cs" />
     <Compile Include="src\Importer\WavefrontImporter.cs" />
