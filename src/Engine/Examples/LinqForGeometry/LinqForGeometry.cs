@@ -137,9 +137,9 @@ namespace Examples.LinqForGeometry
 
             #region MeshImports
             _Geo = new Geometry();
-            //_Geo.LoadAsset("Assets/Cube.obj.model");
+            _Geo.LoadAsset("Assets/Cube.obj.model");
             //_Geo.LoadAsset("Assets/Cube_quads.obj.model");
-            _Geo.LoadAsset("Assets/Sphere.obj.model");
+            //_Geo.LoadAsset("Assets/Sphere.obj.model");
             //_Geo.LoadAsset("Assets/Sphere_quads.obj.model");
             //_Geo.LoadAsset("Assets/SharedCorners.obj.model");
             //_Geo.LoadAsset("Assets/Cylinder.obj.model");
@@ -240,7 +240,7 @@ namespace Examples.LinqForGeometry
             if (Input.Instance.IsButton(MouseButtons.Left))
             {
                 _angleVelHorz = RotationSpeed * Input.Instance.GetAxis(InputAxis.MouseX);
-                _angleVelVert = RotationSpeed * Input.Instance.GetAxis(InputAxis.MouseY);
+                _angleVelVert = RotationSpeed * Input.Instance.GetAxis(InputAxis.MouseY) * -1;
 
                 if (Transformations.RotateY(_angleVelHorz * _InvertMouseAxis, ref _Geo))
                 {

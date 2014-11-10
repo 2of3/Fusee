@@ -137,40 +137,13 @@ namespace Fusee.LFG.Core
         /// <param name="path">Path to the wavefront.obj.model file.</param>
         public void LoadAsset(String path)
         {
-            /*
-                Stopwatch stopWatch = new Stopwatch();
-                TimeSpan timeSpan = new TimeSpan();
-                String timeDone;
-
-                if (Debugger.IsAttached)
-                    stopWatch.Start();
-             */
-
             List<GeoFace> faceList = _objImporter.LoadAsset(path);
-
-            /*
-                timeSpan = stopWatch.Elapsed;
-                timeDone = String.Format(LFGMessages.UTIL_STOPWFORMAT, timeSpan.Seconds, timeSpan.Milliseconds);
-                Debug.WriteLine("\n\n     Time needed to import the .obj file: " + timeDone);
-                stopWatch.Restart();
-                Debug.WriteLine(LFGMessages.INFO_PROCESSINGDS);
-             */
 
             // Work on the facelist and transform the data structure to the 'half-edge' data structure.
             foreach (GeoFace gf in faceList)
             {
                 AddFace(gf);
             }
-
-            /*
-                if (LFGMessages.FLAG_FUSEE_TRIANGLES)
-                {
-                    stopWatch.Stop();
-                    timeSpan = stopWatch.Elapsed;
-                    timeDone = String.Format(LFGMessages.UTIL_STOPWFORMAT, timeSpan.Seconds, timeSpan.Milliseconds);
-                    Debug.WriteLine("\n\n     Time needed to convert the object to the HES: " + timeDone);
-                }
-             */
 
             _LfaceNormals.Clear();
             foreach (HandleFace face in _LfaceHndl)
@@ -237,7 +210,7 @@ namespace Fusee.LFG.Core
             }
 
             Mesh fuseeMesh = new Mesh();
-            _LvertDataFuseeMesh.Reverse();
+            //_LvertDataFuseeMesh.Reverse();
             fuseeMesh.Vertices = _LvertDataFuseeMesh.ToArray();
 
             if (_VertexNormalActive || _LvertNormalsFuseeMesh != null)
@@ -454,6 +427,8 @@ namespace Fusee.LFG.Core
 
             // Insert all the vertices for the face.
             List<HandleVertex> LHandleVertsForFace = new List<HandleVertex>();
+            gf._LFVertices.Reverse(); // TODO: For test.
+            gf._UV.Reverse();
             foreach (float3 vVal in gf._LFVertices)
             {
                 LHandleVertsForFace.Add(
