@@ -137,9 +137,9 @@ namespace Examples.LinqForGeometry
 
             #region MeshImports
             _Geo = new Geometry();
-            _Geo.LoadAsset("Assets/Cube.obj.model");
+            //_Geo.LoadAsset("Assets/Cube.obj.model");
             //_Geo.LoadAsset("Assets/Cube_quads.obj.model");
-            //_Geo.LoadAsset("Assets/Sphere.obj.model");
+            _Geo.LoadAsset("Assets/Sphere.obj.model");
             //_Geo.LoadAsset("Assets/Sphere_quads.obj.model");
             //_Geo.LoadAsset("Assets/SharedCorners.obj.model");
             //_Geo.LoadAsset("Assets/Cylinder.obj.model");

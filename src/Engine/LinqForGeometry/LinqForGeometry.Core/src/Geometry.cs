@@ -209,24 +209,8 @@ namespace Fusee.LFG.Core
 
             if (_VertexNormalActive)
             {
-                /*
-                if (System.Diagnostics.Debugger.IsAttached)
-                {
-                    _NormalCalcStopWatch.Reset();
-                    _NormalCalcStopWatch.Start();
-                }
-                 */
-
                 _LVertexNormals.Clear();
                 _LverticeHndl.ForEach(CalcVertexNormal);
-
-                /*
-                if (System.Diagnostics.Debugger.IsAttached)
-                {
-                    _NormalCalcStopWatch.Stop();
-                    Debug.WriteLine("Time taken to compute vertex normals: " + _NormalCalcStopWatch.ElapsedMilliseconds + " ms");
-                }
-                 */
             }
 
             _LtrianglesFuseeMesh.Clear();
@@ -253,12 +237,19 @@ namespace Fusee.LFG.Core
             }
 
             Mesh fuseeMesh = new Mesh();
+            _LvertDataFuseeMesh.Reverse();
             fuseeMesh.Vertices = _LvertDataFuseeMesh.ToArray();
 
             if (_VertexNormalActive || _LvertNormalsFuseeMesh != null)
+            {
+                //_LvertDataFuseeMesh.Reverse();
                 fuseeMesh.Normals = _LvertNormalsFuseeMesh.ToArray();
+            }
+                
 
+            //_LvertuvFuseeMesh.Reverse();
             fuseeMesh.UVs = _LvertuvFuseeMesh.ToArray();
+            
             fuseeMesh.Triangles = _LtrianglesFuseeMesh.ToArray();
 
             return fuseeMesh;
