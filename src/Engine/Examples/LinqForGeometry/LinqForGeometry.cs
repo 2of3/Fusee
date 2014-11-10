@@ -12,6 +12,7 @@
 using System;
 using System.Diagnostics;
 using Fusee.Engine;
+using Fusee.LFG.Core;
 using Fusee.Math;
 using Geometry = Fusee.LFG.Core.Geometry;
 using LFG.ExternalModules.Transformations;
@@ -136,16 +137,20 @@ namespace Examples.LinqForGeometry
             demoMode = false;
 
             #region MeshImports
-            _Geo = new Geometry();
-            _Geo.LoadAsset("Assets/Cube.obj.model");
-            //_Geo.LoadAsset("Assets/Cube_quads.obj.model");
-            //_Geo.LoadAsset("Assets/Sphere.obj.model");
-            //_Geo.LoadAsset("Assets/Sphere_quads.obj.model");
-            //_Geo.LoadAsset("Assets/SharedCorners.obj.model");
-            //_Geo.LoadAsset("Assets/Cylinder.obj.model");
-            //_Geo.LoadAsset("Assets/Cylinder_quads.obj.model");
-            //_Geo.LoadAsset("Assets/SharedCorners_pro.obj.model");
-            //_Geo.LoadAsset("Assets/Teapot.obj.model");
+            //_Geo = new Geometry(LFGImporterType.wavefront);
+            //_Geo.LoadAsset(@"Assets/Cube.obj.model");
+            //_Geo.LoadAsset(@"Assets/Cube_quads.obj.model");
+            //_Geo.LoadAsset(@"Assets/Sphere.obj.model");
+            //_Geo.LoadAsset(@"Assets/Sphere_quads.obj.model");
+            //_Geo.LoadAsset(@"Assets/SharedCorners.obj.model");
+            //_Geo.LoadAsset(@"Assets/Cylinder.obj.model");
+            //_Geo.LoadAsset(@"Assets/Cylinder_quads.obj.model");
+            //_Geo.LoadAsset(@"Assets/SharedCorners_pro.obj.model");
+            //_Geo.LoadAsset(@"Assets/Teapot.obj.model");
+
+            // New protobuf loader
+            _Geo = new Geometry(LFGImporterType.protobuf);
+            _Geo.LoadAsset(@"Assets/Teapot.protobuf.model");
             #endregion MeshImports
 
             // Set the smoothing angle for the edge based vertex normal calculation

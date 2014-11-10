@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using Fusee.LFG.Core.src.Importer;
 using Fusee.Math;
 using Fusee.Engine;
 using Fusee.LFG.Core.Exceptions;
@@ -23,13 +24,19 @@ using Fusee.LFG.Core.PtrContainer;
 
 namespace Fusee.LFG.Core
 {
+    public enum LFGImporterType
+    {
+        wavefront,
+        protobuf
+    };
+
     /// <summary>
     /// This is the main object for the LINQForGeometry project.
     /// This object contains a complete model as a mesh and the basic iterators.
     /// </summary>
     public class Geometry
     {
-        private WavefrontImporter _objImporter;
+        private ILfgImporter _objImporter;
 
         // Boolean helpers
         /// <summary>
@@ -103,10 +110,22 @@ namespace Fusee.LFG.Core
         /// <summary>
         /// Constructor for the GeometryData class.
         /// </summary>
-        public Geometry()
+        public Geometry(LFGImporterType importer)
         {
-            _objImporter = new WavefrontImporter();
-
+            
+            switch (importer)
+            {
+                case LFGImporterType.protobuf:
+                    _objImporter = new FusContainerImporter();
+                break;
+                case LFGImporterType.wavefront:
+                    _objImporter = new WavefrontImporter();
+                break;
+                default:
+                    _objImporter = new WavefrontImporter();
+                break;
+            }
+            
             _LverticeHndl = new List<HandleVertex>();
             _LedgeHndl = new List<HandleEdge>();
             _LfaceHndl = new List<HandleFace>();
@@ -427,9 +446,9 @@ namespace Fusee.LFG.Core
 
             // Insert all the vertices for the face.
             List<HandleVertex> LHandleVertsForFace = new List<HandleVertex>();
-            gf._LFVertices.Reverse(); // TODO: For test.
+            gf._Vertices.Reverse(); // TODO: For test.
             gf._UV.Reverse();
-            foreach (float3 vVal in gf._LFVertices)
+            foreach (float3 vVal in gf._Vertices)
             {
                 LHandleVertsForFace.Add(
                     AddVertex(vVal)

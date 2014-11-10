@@ -19,7 +19,7 @@ namespace Fusee.LFG.Core.Importer
     /// </summary>
     public struct GeoFace
     {
-        internal List<float3> _LFVertices;
+        internal List<float3> _Vertices;
         internal List<float3> _Normals;
         
         internal List<float2> _UV;

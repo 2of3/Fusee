@@ -27,25 +27,49 @@ namespace Fusee.LFG.Core.src.Importer
         public List<GeoFace> LoadAsset(string path)
         {
             _Path = path;
+            LoadProtobufFile(path);
 
+            return TmpData;
         }
 
         private void LoadProtobufFile(string path)
         {
+            _Serializer = new FuseeSerializer();
             using (var file = File.OpenRead(path))
             {
                 _Mesh = _Serializer.Deserialize(file, null, typeof(Mesh)) as Mesh;
             }
-
+            _GeoFaces = new List<GeoFace>();
             ConvertMesh();
         }
 
         private void ConvertMesh()
         {
-            foreach (var vertice in _Mesh.Vertices)
+            int countTriangles = _Mesh.Triangles.Count();
+            int realTriangles = countTriangles / 3; // TODO: Support for quads.
+            int currentTriIndex = 0;
+
+            for (int i = 0; i < realTriangles; i++)
             {
-                
+                GeoFace gf = new GeoFace();
+                gf._Vertices = new List<float3>();
+                gf._Normals = new List<float3>();
+                gf._UV = new List<float2>();
+
+                for (int j = 0; j < 3; j++)
+                {
+                    uint vertID = _Mesh.Triangles[currentTriIndex + j];
+
+                    gf._Vertices.Add(_Mesh.Vertices[vertID]);
+                    gf._UV.Add(_Mesh.UVs[vertID]);
+                    gf._Normals.Add(_Mesh.Normals[vertID]);
+                }
+
+                _GeoFaces.Add(gf);
+                currentTriIndex++;
             }
+
+            
         }
     }
 }

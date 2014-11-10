@@ -232,7 +232,7 @@ namespace Fusee.LFG.Core.Importer
             List<Double> tmpSave = new List<double>();
 
             GeoFace geoF = new GeoFace();
-            geoF._LFVertices = new List<float3>();
+            geoF._Vertices = new List<float3>();
             geoF._UV = new List<float2>();
             foreach (string str in lineSplitted)
             {
@@ -251,7 +251,7 @@ namespace Fusee.LFG.Core.Importer
                         try
                         {
                             int fv = Convert.ToInt32(s);
-                            geoF._LFVertices.Add(LvertexAttr[fv - 1]);
+                            geoF._Vertices.Add(LvertexAttr[fv - 1]);
 
                             if (faceSplit.Length >= 1)
                             {
