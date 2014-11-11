@@ -218,12 +218,12 @@ namespace Fusee.Engine
 
         public void VideoWall(int monitorsHor, int monitorsVert, bool activate = true, bool borderHidden = true)
         {
-            // TODO: implement something useful here.
+            // TODO: implement something useful here?
         }
 
         public void SetWindowSize(int width, int height, bool borderHidden = false, int posx = 0, int posy = 0)
         {
-            // TODO: implement something useful here.
+            // TODO: implement something useful here?
         }
 
         /// <summary>
@@ -231,7 +231,7 @@ namespace Fusee.Engine
         /// </summary>
         public void CloseGameWindow()
         {
-            // TODO: implement something useful here.
+            // TODO: implement something useful here?
         }
 
         /// <summary>

@@ -11,6 +11,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using Fusee.Engine;
 using Fusee.LFG.Core;
 using Fusee.Math;
@@ -115,6 +116,9 @@ namespace Examples.LinqForGeometry
         private int demoRaxis = 0;
         private bool runDemoAnimation = false;
 
+        // DEBUG
+        private bool _DEBUG = false;
+
         /// <summary>
         /// Const variable for shader testing.
         /// 0 -> Color Shader
@@ -135,6 +139,7 @@ namespace Examples.LinqForGeometry
 
             // Start the application in demo mode?
             demoMode = false;
+            _DEBUG = !demoMode;
 
             #region MeshImports
             //_Geo = new Geometry(LFGImporterType.wavefront);
@@ -149,12 +154,12 @@ namespace Examples.LinqForGeometry
             //_Geo.LoadAsset(@"Assets/Teapot.obj.model");
 
             // New protobuf loader
-            _Geo = new Geometry(LFGImporterType.protobuf);
-            _Geo.LoadAsset(@"Assets/Teapot.protobuf.model");
+            //_Geo = new Geometry(LFGImporterType.protobuf);
+            //_Geo.LoadAsset(@"Assets/Teapot.protobuf.model");
             
             // New fus loader
-            //_Geo = new Geometry(LFGImporterType.fuscene);
-            //_Geo.LoadAsset(@"Assets/Cube.fus");
+            _Geo = new Geometry(LFGImporterType.fuscene);
+            _Geo.LoadAsset(@"Assets/Cube.fus");
 
             #endregion MeshImports
             // Set the smoothing angle for the edge based vertex normal calculation
@@ -222,11 +227,51 @@ namespace Examples.LinqForGeometry
             if (runDemoAnimation)
                 DemoRotation(demoActionInterval, 1f);
 
+            // For Debug only
+            if (_DEBUG)
+            {
+                RC.DebugLinesEnabled = true;
+                //RC.DebugLine(_Geo._LvertexVal[_Geo._LverticeHndl[i]], _Geo._LVertexNormals[i], new float4(1,1,1,0.5f));
+                
+                for(int i=0; i < _Geo._LfaceHndl.Count; i++)
+                {
+                    float3 start = new float3();
+                    float3 normal = new float3();
+                    foreach (var vert in _Geo.EnFaceAdjacentVertices(_Geo._LfaceHndl[i]))
+                    {
+                        float3 vertB = _Geo._LvertexVal[vert];
+                        start = float3.Add(start, vertB);
+                    }
+                    start = float3.Divide(start, 3);
+
+                    normal = _Geo.CalculateFaceNormalForFace(_Geo._LfaceHndl[i]);
+                    float3 end = float3.Multiply(float3.Add(start, normal), 3);
+
+                    RC.DebugLine(start, end, new float4(0, 1, 0, 1));
+                }
+                
+                /*
+                for (int i = 0; i < _lfgmesh.Vertices.Count(); i++)
+                {
+                    float3 start = _lfgmesh.Vertices[i];
+                    float3 normal = _lfgmesh.Normals[i];
+                    float3 end = float3.Multiply(float3.Add(start, normal), 3);
+                    RC.DebugLine(start, end, new float4(1,1,1,1));
+                }*/
+                
+            }
+                
+
             RC.Render(_lfgmesh);
-            //RC.Render(_FuseeMesh);
 
             // swap buffers
             Present();
+
+            if (_Geo._Changes)
+            {
+                _lfgmesh = _Geo.ToMesh();
+                _Geo._Changes = false;
+            }
 
             if (_ShaderChange)
             {
@@ -454,12 +499,6 @@ namespace Examples.LinqForGeometry
                 }
             }
 
-            if (_Geo._Changes)
-            {
-                _lfgmesh = _Geo.ToMesh();
-                _Geo._Changes = false;
-            }
-
             #region Shader Render Settings and demo
             if (Input.Instance.IsKeyDown(KeyCodes.F1) && Input.Instance.IsKey(KeyCodes.LControl))
             {
@@ -559,5 +598,8 @@ namespace Examples.LinqForGeometry
                 }
             }
         }
+
+
+
     }
 }

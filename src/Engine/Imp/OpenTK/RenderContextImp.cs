@@ -1062,7 +1062,11 @@ namespace Fusee.Engine
         /// <param name="color">The color of the DebugLine.</param>
         public void DebugLine(float3 start, float3 end, float4 color)
         {
+            GL.Color4(color.r, color.g, color.b, color.a);
+            GL.LineWidth(2);
+
             GL.Begin(BeginMode.Lines);
+            
             GL.Vertex3(start.x, start.y, start.z);
             GL.Vertex3(end.x, end.y, end.z);
             GL.End();

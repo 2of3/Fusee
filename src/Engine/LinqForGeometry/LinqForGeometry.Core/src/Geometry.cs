@@ -170,7 +170,7 @@ namespace Fusee.LFG.Core
             _LfaceNormals.Clear();
             foreach (HandleFace face in _LfaceHndl)
             {
-                CalcFaceNormal(face);
+                CalcFaceNormalsForMesh(face);
             }
 
             foreach (HandleVertex vertex in _LverticeHndl)
@@ -198,7 +198,7 @@ namespace Fusee.LFG.Core
             _LfaceNormals.Clear();
             foreach (HandleFace faceHandle in _LfaceHndl)
             {
-                CalcFaceNormal(faceHandle);
+                CalcFaceNormalsForMesh(faceHandle);
             }
 
 
@@ -658,7 +658,7 @@ namespace Fusee.LFG.Core
         /// The vector is calculated for the face which handle the method expects.
         /// </summary>
         /// <param name="faceHandle">Handle to a face to calculate the normal for.</param>
-        public void CalcFaceNormal(HandleFace faceHandle)
+        public void CalcFaceNormalsForMesh(HandleFace faceHandle)
         {
             List<HandleVertex> tmpList = EnFaceAdjacentVertices(faceHandle).ToList();
             if (tmpList.Count < 3)
@@ -668,9 +668,9 @@ namespace Fusee.LFG.Core
             var v1 = _LvertexVal[tmpList[1]];
             var v2 = _LvertexVal[tmpList[2]];
 
-            float3 c1 = float3.Subtract(v0, v1);
-            float3 c2 = float3.Subtract(v0, v2);
-            float3 n = float3.Cross(c1, c2);
+            float3 u = float3.Subtract(v1, v0);
+            float3 v = float3.Subtract(v2, v0);
+            float3 n = float3.Cross(u, v);
 
             _LfaceNormals.Add(float3.Normalize(n));
 
@@ -680,6 +680,24 @@ namespace Fusee.LFG.Core
                 _fn = new HandleFaceNormal(_LfaceNormals.Count - 1),
                 _h = fc._h
             };
+        }
+
+        public float3 CalculateFaceNormalForFace(HandleFace faceHandle)
+        {
+            List<HandleVertex> tmpList = EnFaceAdjacentVertices(faceHandle).ToList();
+            if (tmpList.Count < 3)
+                return new float3();
+
+            var v0 = _LvertexVal[tmpList[0]];
+            var v1 = _LvertexVal[tmpList[1]];
+            var v2 = _LvertexVal[tmpList[2]];
+            
+            float3 u = float3.Subtract(v1, v0);
+            float3 v = float3.Subtract(v2, v0);
+            float3 n = float3.Cross(u, v);
+
+            n.Normalize();
+            return n;
         }
 
         /// <summary>
