@@ -27,7 +27,8 @@ namespace Fusee.LFG.Core
     public enum LFGImporterType
     {
         wavefront,
-        protobuf
+        protobuf,
+        fuscene
     };
 
     /// <summary>
@@ -112,18 +113,20 @@ namespace Fusee.LFG.Core
         /// </summary>
         public Geometry(LFGImporterType importer)
         {
-            
             switch (importer)
             {
                 case LFGImporterType.protobuf:
-                    _objImporter = new FusContainerImporter();
-                break;
+                    _objImporter = new FusProtobufImporter();
+                    break;
                 case LFGImporterType.wavefront:
                     _objImporter = new WavefrontImporter();
-                break;
+                    break;
+                case LFGImporterType.fuscene:
+                    _objImporter = new FusContainerImporter();
+                    break;
                 default:
                     _objImporter = new WavefrontImporter();
-                break;
+                    break;
             }
             
             _LverticeHndl = new List<HandleVertex>();

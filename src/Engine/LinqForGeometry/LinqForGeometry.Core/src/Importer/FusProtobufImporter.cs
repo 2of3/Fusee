@@ -2,21 +2,19 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
-using Fusee.Engine;
-using Fusee.Engine.SimpleScene;
+using System.Text;
 using Fusee.LFG.Core.Importer;
+using Fusee.Engine;
 using Fusee.Math;
-using Fusee.Serialization;
 
 namespace Fusee.LFG.Core.src.Importer
 {
-    class FusContainerImporter : ILfgImporter
+    class FusProtobufImporter : ILfgImporter
     {
         private List<GeoFace> _GeoFaces;
         private String _Path = "";
+        private FuseeSerializer _Serializer;
         private Mesh _Mesh;
-        private SceneContainer _Scene;
 
         private List<float3> _Vertices;
         private List<float2> _UVList;
@@ -36,11 +34,10 @@ namespace Fusee.LFG.Core.src.Importer
 
         private void LoadProtobufFile(string path)
         {
-            var _serializer = new Serializer();
+            _Serializer = new FuseeSerializer();
             using (var file = File.OpenRead(path))
             {
-                _Scene = _serializer.Deserialize(file, null, typeof(SceneContainer)) as SceneContainer;
-                _Mesh = SceneRenderer.MakeMesh(_Scene.Children[0]);
+                _Mesh = _Serializer.Deserialize(file, null, typeof(Mesh)) as Mesh;
             }
             _GeoFaces = new List<GeoFace>();
             ConvertMesh();
@@ -67,12 +64,8 @@ namespace Fusee.LFG.Core.src.Importer
                     gf._Normals.Add(_Mesh.Normals[vertID]);
                 }
 
-                gf._Vertices.Reverse();
-                gf._Normals.Reverse();
-                gf._UV.Reverse();
-
                 _GeoFaces.Add(gf);
-            }    
+            }        
         }
 
 

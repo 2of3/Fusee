@@ -151,8 +151,12 @@ namespace Examples.LinqForGeometry
             // New protobuf loader
             _Geo = new Geometry(LFGImporterType.protobuf);
             _Geo.LoadAsset(@"Assets/Teapot.protobuf.model");
-            #endregion MeshImports
+            
+            // New fus loader
+            //_Geo = new Geometry(LFGImporterType.fuscene);
+            //_Geo.LoadAsset(@"Assets/Cube.fus");
 
+            #endregion MeshImports
             // Set the smoothing angle for the edge based vertex normal calculation
             // Feel free to test around.
             _Geo._SmoothingAngle = 89.0;
