@@ -62,8 +62,7 @@ namespace Fusee.LFG.Core.src.Importer
                     gf._Vertices.Add(_Mesh.Vertices[vertID]);
                     gf._UV.Add(_Mesh.UVs[vertID]);
                     gf._Normals.Add(_Mesh.Normals[vertID]);
-                }
-
+                }              
                 _GeoFaces.Add(gf);
             }        
         }
