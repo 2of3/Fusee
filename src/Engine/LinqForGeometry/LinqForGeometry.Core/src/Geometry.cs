@@ -170,7 +170,7 @@ namespace Fusee.LFG.Core
             _LfaceNormals.Clear();
             foreach (HandleFace face in _LfaceHndl)
             {
-                CalcFaceNormalsForMesh(face);
+                CalcFaceNormalForMesh(face);
             }
 
             foreach (HandleVertex vertex in _LverticeHndl)
@@ -198,7 +198,7 @@ namespace Fusee.LFG.Core
             _LfaceNormals.Clear();
             foreach (HandleFace faceHandle in _LfaceHndl)
             {
-                CalcFaceNormalsForMesh(faceHandle);
+                CalcFaceNormalForMesh(faceHandle);
             }
 
 
@@ -232,19 +232,14 @@ namespace Fusee.LFG.Core
             }
 
             Mesh fuseeMesh = new Mesh();
-            //_LvertDataFuseeMesh.Reverse();
             fuseeMesh.Vertices = _LvertDataFuseeMesh.ToArray();
 
             if (_VertexNormalActive || _LvertNormalsFuseeMesh != null)
             {
-                //_LvertDataFuseeMesh.Reverse();
                 fuseeMesh.Normals = _LvertNormalsFuseeMesh.ToArray();
             }
                 
-
-            //_LvertuvFuseeMesh.Reverse();
             fuseeMesh.UVs = _LvertuvFuseeMesh.ToArray();
-            
             fuseeMesh.Triangles = _LtrianglesFuseeMesh.ToArray();
 
             return fuseeMesh;
@@ -658,7 +653,7 @@ namespace Fusee.LFG.Core
         /// The vector is calculated for the face which handle the method expects.
         /// </summary>
         /// <param name="faceHandle">Handle to a face to calculate the normal for.</param>
-        public void CalcFaceNormalsForMesh(HandleFace faceHandle)
+        public void CalcFaceNormalForMesh(HandleFace faceHandle)
         {
             List<HandleVertex> tmpList = EnFaceAdjacentVertices(faceHandle).ToList();
             if (tmpList.Count < 3)

@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Linq;
 using Fusee.Engine;
 using Fusee.LFG.Core;
+using Fusee.LFG.Core.Handles;
 using Fusee.Math;
 using Geometry = Fusee.LFG.Core.Geometry;
 using LFG.ExternalModules.Transformations;
@@ -24,7 +25,7 @@ namespace Examples.LinqForGeometry
     /// This example is used to test the LinqForGeometry data structure.
     /// It provides different methods to manipulate geometry data !DIRECTLY! on the data structure.
     /// This should rather not be used in productive game code but in editing softare of for special purposes.
-    /// You want to use the transformation algorithms fusee provides to manipulate data.
+    /// You want to use the transformation algorithms fusee provides to manipulate data. Or implement your own.
     /// The here shown transformation algorithms are not ment to be used every frame in an engine. They are just examples for whats possible with the data structure.
     /// </summary>
     public class LinqForGeometry : RenderCanvas
@@ -118,6 +119,7 @@ namespace Examples.LinqForGeometry
 
         // DEBUG
         private bool _DEBUG = false;
+        private float _DEBUGVertexNormalHeight = 2f;
 
         /// <summary>
         /// Const variable for shader testing.
@@ -142,24 +144,24 @@ namespace Examples.LinqForGeometry
             _DEBUG = !demoMode;
 
             #region MeshImports
-            //_Geo = new Geometry(LFGImporterType.wavefront);
-            //_Geo.LoadAsset(@"Assets/Cube.obj.model");
-            //_Geo.LoadAsset(@"Assets/Cube_quads.obj.model");
-            //_Geo.LoadAsset(@"Assets/Sphere.obj.model");
-            //_Geo.LoadAsset(@"Assets/Sphere_quads.obj.model");
-            //_Geo.LoadAsset(@"Assets/SharedCorners.obj.model");
-            //_Geo.LoadAsset(@"Assets/Cylinder.obj.model");
-            //_Geo.LoadAsset(@"Assets/Cylinder_quads.obj.model");
-            //_Geo.LoadAsset(@"Assets/SharedCorners_pro.obj.model");
-            //_Geo.LoadAsset(@"Assets/Teapot.obj.model");
+            _Geo = new Geometry(LFGImporterType.wavefront);
+            _Geo.LoadAsset(@"Assets/Cube.obj.model");
+//            _Geo.LoadAsset(@"Assets/Cube_quads.obj.model");
+//            _Geo.LoadAsset(@"Assets/Sphere.obj.model");
+//            _Geo.LoadAsset(@"Assets/Sphere_quads.obj.model");
+//            _Geo.LoadAsset(@"Assets/SharedCorners.obj.model");
+//            _Geo.LoadAsset(@"Assets/Cylinder.obj.model");
+//            _Geo.LoadAsset(@"Assets/Cylinder_quads.obj.model");
+//            _Geo.LoadAsset(@"Assets/SharedCorners_pro.obj.model");
+//            _Geo.LoadAsset(@"Assets/Teapot.obj.model");
 
             // New protobuf loader
             //_Geo = new Geometry(LFGImporterType.protobuf);
             //_Geo.LoadAsset(@"Assets/Teapot.protobuf.model");
             
             // New fus loader
-            _Geo = new Geometry(LFGImporterType.fuscene);
-            _Geo.LoadAsset(@"Assets/Cube.fus");
+//            _Geo = new Geometry(LFGImporterType.fuscene);
+//            _Geo.LoadAsset(@"Assets/Cube.fus");
 
             #endregion MeshImports
             // Set the smoothing angle for the edge based vertex normal calculation
@@ -174,7 +176,7 @@ namespace Examples.LinqForGeometry
             _msDiffuse = MoreShaders.GetDiffuseTextureShader(RC);
             _vLightShaderParam = _msDiffuse.GetShaderParam("texture1");
 
-            //ImageData imgData = RC.LoadImage("Assets/Cube_Mat_uv.jpg");
+//            ImageData imgData = RC.LoadImage("Assets/Cube_Mat_uv.jpg");
             ImageData imgData = RC.LoadImage("Assets/world_map.jpg");
             //ImageData imgData = RC.LoadImage("Assets/Teapot_Texture.jpg");
 
@@ -198,12 +200,12 @@ namespace Examples.LinqForGeometry
             RC.SetLightActive(0, 0f);
             RC.SetLightAmbient(0, new float4(0.0f, 0.0f, 0.0f, 1.0f));
             RC.SetLightDiffuse(0, new float4(1.0f, 1.0f, 1.0f, 1.0f));
-            RC.SetLightDirection(0, new float3(0.0f, -1.0f, 0.0f));
+            RC.SetLightDirection(0, new float3(0.0f, 1.0f, 0.0f));
 
             RC.SetLightActive(1, 0f);
             RC.SetLightAmbient(1, new float4(0.0f, 0.0f, 0.0f, 1.0f));
             RC.SetLightDiffuse(1, new float4(0.5f, 0.5f, 0.5f, 1.0f));
-            RC.SetLightDirection(1, new float3(1.0f, 0.0f, 0.0f));
+            RC.SetLightDirection(1, new float3(0f, 0.0f, -1.0f));
 
             #endregion LightPos
             #endregion
@@ -230,34 +232,33 @@ namespace Examples.LinqForGeometry
             // For Debug only
             if (_DEBUG)
             {
+                RC.SetRenderState(RenderState.FillMode, 2);
                 RC.DebugLinesEnabled = true;
-                //RC.DebugLine(_Geo._LvertexVal[_Geo._LverticeHndl[i]], _Geo._LVertexNormals[i], new float4(1,1,1,0.5f));
                 
-                for(int i=0; i < _Geo._LfaceHndl.Count; i++)
+                foreach (HandleFace faceHandle in _Geo._LfaceHndl)
                 {
                     float3 start = new float3();
                     float3 normal = new float3();
-                    foreach (var vert in _Geo.EnFaceAdjacentVertices(_Geo._LfaceHndl[i]))
+                    foreach (var vert in _Geo.EnFaceAdjacentVertices(faceHandle))
                     {
                         float3 vertB = _Geo._LvertexVal[vert];
-                        start = float3.Add(start, vertB);
+                        start = new float3(start.x + vertB.x, start.y + vertB.y, start.z + vertB.z);
                     }
                     start = float3.Divide(start, 3);
 
-                    normal = _Geo.CalculateFaceNormalForFace(_Geo._LfaceHndl[i]);
-                    float3 end = float3.Multiply(float3.Add(start, normal), 3);
-
-                    RC.DebugLine(start, end, new float4(0, 1, 0, 1));
+                    normal = _Geo._LfaceNormals[faceHandle];
+                    float3 end = float3.Multiply(float3.Add(start, normal), _DEBUGVertexNormalHeight);
+                    RC.DebugLine(start, end, new float4(0, 0, 1, 1));
                 }
                 
-                /*
+                
                 for (int i = 0; i < _lfgmesh.Vertices.Count(); i++)
                 {
                     float3 start = _lfgmesh.Vertices[i];
                     float3 normal = _lfgmesh.Normals[i];
                     float3 end = float3.Multiply(float3.Add(start, normal), 3);
                     RC.DebugLine(start, end, new float4(1,1,1,1));
-                }*/
+                }
                 
             }
                 

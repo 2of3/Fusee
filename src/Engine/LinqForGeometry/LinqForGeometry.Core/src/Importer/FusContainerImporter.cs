@@ -68,8 +68,8 @@ namespace Fusee.LFG.Core.src.Importer
                 }
 
                 gf._Vertices.Reverse();
-                //gf._Normals.Reverse();
-                //gf._UV.Reverse();
+                gf._Normals.Reverse();
+                gf._UV.Reverse();
 
                 _GeoFaces.Add(gf);
             }    

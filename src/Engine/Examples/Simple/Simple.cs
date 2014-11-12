@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using Fusee.Engine;
 using Fusee.Math;
 
@@ -54,7 +55,6 @@ namespace Examples.Simple
         // is called once a frame
         public override void RenderAFrame()
         {
-            
             RC.Clear(ClearFlags.Color | ClearFlags.Depth);
             // move per mouse
             if (Input.Instance.IsButton(MouseButtons.Left))
@@ -132,6 +132,19 @@ namespace Examples.Simple
             // RC.SetShader(_spTexture);
             // RC.SetShaderParamTexture(_textureParam, _iTex);
             RC.SetShaderParam(_colorParam, new float4(1, 0, 0, 1));
+
+            // TODO: Remove
+            RC.SetRenderState(RenderState.FillMode, 2);
+            RC.DebugLinesEnabled = true;
+
+            for (int i = 0; i < _meshFace.Vertices.Count(); i++)
+            {
+                float3 start = _meshFace.Vertices[i];
+                float3 normal = _meshFace.Normals[i];
+                float3 end = float3.Multiply(float3.Add(start, normal), 1);
+                RC.DebugLine(start, end, new float4(0, 1, 0, 1));
+            }
+            // TODO: Remove
 
             RC.Render(_meshFace);
 
