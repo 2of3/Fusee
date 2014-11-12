@@ -76,7 +76,7 @@ namespace Examples.Fusee2FirstSteps
         private float _angleSL;
         private float _globalAngle;
         private float _modelAngle;
-        private float3 _move = new float3(0, 0, 0);
+        private float3 _move;
 
         
 
@@ -124,15 +124,10 @@ namespace Examples.Fusee2FirstSteps
             rotSL.x = _angleSL;
             rotWuggy.y = _modelAngle;
 
-            mov.x = _move.x;
-            mov.z = _move.z;
-
             _wheelR.Transform.Rotation = rotR;
             _wheelL.Transform.Rotation = rotL;
             _wheelSR.Transform.Rotation = rotSR;
             _wheelSL.Transform.Rotation = rotSL;
-
-            _wuggy.Transform.Translation = mov;           
 
             if (Input.Instance.IsButton(MouseButtons.Left))
             {
@@ -158,7 +153,6 @@ namespace Examples.Fusee2FirstSteps
             if (Input.Instance.IsKey(KeyCodes.W))
             {
                 zValue = -5f;
-                //xValue = -5f;
                 _angleR = _angleR + (xValue + zValue) * 1 * (float)Time.Instance.DeltaTime;
                 _angleSR = _angleSL + (xValue + zValue) * 2 * (float)Time.Instance.DeltaTime;
                 _angleL = _angleR + (xValue + zValue) * 1 * (float)Time.Instance.DeltaTime;
@@ -169,7 +163,6 @@ namespace Examples.Fusee2FirstSteps
             if (Input.Instance.IsKey(KeyCodes.S))
             {
                 zValue = 5f;
-               // xValue = 5f;
                 _angleR = _angleR + (xValue + zValue) * 1 * (float)Time.Instance.DeltaTime;
                 _angleSR = _angleSL + (xValue + zValue) * 2 * (float)Time.Instance.DeltaTime;
                 _angleL = _angleR + (xValue + zValue) * 1 * (float)Time.Instance.DeltaTime;
@@ -201,36 +194,20 @@ namespace Examples.Fusee2FirstSteps
 
                      
             //just move if S or W is pressed
-            float _xz = _move.z/(float)Math.Cos(_modelAngle);           
+            float angleInDeg = _modelAngle * 180 / MathHelper.Pi;
 
-            if (Input.Instance.IsKey(KeyCodes.S) || Input.Instance.IsKey(KeyCodes.W))
+           if (Input.Instance.IsKey(KeyCodes.S) || Input.Instance.IsKey(KeyCodes.W))
             {
-                Console.WriteLine("_modelAngle " + _modelAngle*180/MathHelper.Pi);
-                //_move = _move *60*(float)Time.Instance.DeltaTime;  //task: control Wuggy by mouse(rotation) + W (move forward) --> try to move Wuggy on xz layer (involve _modelAngle?)  
-                _move.z = _move.z +zValue * -30 * (float)Time.Instance.DeltaTime;
-                if (_modelAngle == 0 || _modelAngle == 180*Math.PI/180)
-                {
-                    _move.x = 0;      
-                    
-                }                
-                else
-                {
-                    _move.x = _xz + zValue * (float)Time.Instance.DeltaTime;
-                }
+                _move.z = (float)Math.Cos(_modelAngle)* zValue * 30 * (float)Time.Instance.DeltaTime;
+                _move.x = (float)Math.Sin(_modelAngle)* zValue * 30 * (float)Time.Instance.DeltaTime;
 
-                if (_modelAngle >= 3.141)
-                {
-                    _move.x = -_xz + zValue * (float)Time.Instance.DeltaTime;
-                }
-                   
-                
-                
-                Console.WriteLine("move" + _move);
-                
+                _wuggy.Transform.Translation += _move;
             }
 
-            //Console.WriteLine("float 3 _move: " + _move);
-            
+            Console.WriteLine("move" + _move);
+            Console.WriteLine("Winkel " + _modelAngle);
+            Console.WriteLine("Winkel1 " + angleInDeg);
+                       
             _sr.Render(RC);
             Present();
         }
