@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Fusee.Engine;
 using Fusee.Math;
@@ -8,6 +9,28 @@ using Fusee.Engine.SimpleScene;
 
 namespace Examples.SceneViewer
 {
+    internal class MySceneVisitor : SceneVisitor
+    {
+        [VisitMethod]
+        void HowzitMesh(MeshComponent mesh)
+        {
+            Diagnostics.Log("Here's a mesh with " + mesh.Vertices.Length + " vertices shaping " + mesh.Triangles.Length + " triangles.");
+        }
+
+        [VisitMethod]
+        void GDayMaterial(MaterialComponent material)
+        {
+            float3 col = material.Diffuse.Color;
+            Diagnostics.Log("Here's a material showing (" + col.r + ", " + col.g + ", " + col.b + ").");
+        }
+
+        [VisitMethod]
+        void HelloNode(SceneNodeContainer node)
+        {
+            Diagnostics.Log("A node called " + node.Name  + ".");
+        }
+    }
+
     public class SceneViewer : RenderCanvas
     {
         private float _angleHorz, _angleVert, _angleVelHorz, _angleVelVert;
@@ -80,6 +103,10 @@ namespace Examples.SceneViewer
             {
                 scene = ser.Deserialize(file, null, typeof(SceneContainer)) as SceneContainer;
             }
+
+            // Scene Visitor Test
+            new MySceneVisitor().Traverse(scene);
+
             _sr = new SceneRenderer(scene, "Assets");
             AdjustModelScaleOffset();
             _guiSubText.Text = "FUSEE 3D Scene";
@@ -205,7 +232,7 @@ namespace Examples.SceneViewer
         private void TestSerialize()
         {
             /**/
-            var aMesh = new MeshContainer
+            var aMesh = new MeshComponent
             {
                 Vertices = new[]
                 {
@@ -240,11 +267,11 @@ namespace Examples.SceneViewer
                 }
             };
 
-            var aChild = new SceneObjectContainer()
+            var aChild = new SceneNodeContainer()
             {
-                Mesh = aMesh,
                 Transform = new TransformContainer(){Rotation = new float3(0, 0, 0), Translation = new float3(0.11f, 0.11f, 0), Scale = new float3(1, 1, 1)}
             };
+            aChild.AddComponent(aMesh);
 
             var parent = new SceneContainer()
             {
@@ -252,17 +279,12 @@ namespace Examples.SceneViewer
                 {
                     Version = 1,
                     Generator = "Fusee.SceneViewer",
-                    CreatedBy = "FuseeProjetTeam"
+                    CreatedBy = "FuseeProjectTeam"
                 },
-                Children = new List<SceneObjectContainer>(new SceneObjectContainer[]
+                Children = new List<SceneNodeContainer>(new SceneNodeContainer[]
                 {
                     aChild,
                     aChild,
-                    new SceneObjectContainer()
-                    {
-                        Mesh = aMesh,
-                        Transform = new TransformContainer(){Rotation = new float3(0, 0, 0), Translation = new float3(0.22f, 0.22f, 0), Scale = new float3(1, 1, 1)}
-                    },
                 }),
             };
             var ser = new Serializer();

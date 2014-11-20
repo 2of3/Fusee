@@ -710,7 +710,7 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
             var context = canvas.getContext("2d");
 
             context.translate(canvas.width / 2, canvas.height / 2);
-            context.rotate(180 * Math.PI / 180);
+            context.scale(1, -1);
             context.translate(-canvas.width / 2, -canvas.height / 2);
             context.drawImage(image, 0, 0);
 
@@ -902,8 +902,7 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
                     canvas.width = bmpWidth;
                     canvas.height = bmpRows;
 
-                    var renderedGlyph = opentype.glyphToPath(glyph, -glyph.xMin, glyph.yMax, fontScale);
-                    renderedGlyph.draw(ctx);
+                    glyph.draw(ctx, -xMin, yMax, fontSize);
 
                     var bitmap = ctx.getImageData(0, 0, canvas.width, canvas.height);
                     var alpha = new Uint8Array(canvas.width * canvas.height);
@@ -2487,6 +2486,18 @@ window.requestAnimFrame = (function() {
             return window.setTimeout(callback, 1000 / 60);
         };
 })();
+
+
+JSIL.ImplementExternals("Fusee.Engine.Diagnostics", function ($) {
+    $.Method({ Static: true, Public: true }, "Log",
+        new JSIL.MethodSignature(null, [$.Object]),
+        function Log(o) {
+            if (typeof window.console != 'undefined') {
+                console.log(o);
+            }
+        }
+    );
+});
 
 /**
 * Provides cancelAnimationFrame in a cross browser way.
