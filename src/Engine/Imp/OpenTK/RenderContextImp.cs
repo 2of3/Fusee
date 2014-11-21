@@ -59,6 +59,9 @@ namespace Fusee.Engine
         /// <remarks>Look at the VideoTextureExample for further information.</remarks>
         public void UpdateTextureFromVideoStream(IVideoStreamImp stream, ITexture tex)
         {
+            if (tex == null)
+                throw new ArgumentNullException("tex");
+
             ImageData img = stream.GetCurrentFrame();
             OpenTK.Graphics.OpenGL.PixelFormat format;
             switch (img.PixelFormat)
@@ -74,14 +77,10 @@ namespace Fusee.Engine
             }
             if (img.PixelData != null)
             {
-                if (tex == null)
-                    tex = CreateTexture(img);
-
                 GL.BindTexture(TextureTarget.Texture2D, ((Texture) tex).handle);
                 GL.TexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, img.Width, img.Height,
                                  format, PixelType.UnsignedByte, img.PixelData);
             }
-
         }
         
         /// <summary>
