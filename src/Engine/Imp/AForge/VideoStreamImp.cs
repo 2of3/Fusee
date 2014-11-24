@@ -17,6 +17,8 @@ namespace Fusee.Engine
         private ImageData _nextFrame;
         private VideoFileSource _source;
         private VideoCaptureDevice _videoCaptureDevice;
+        private int _width;
+        private int _height;
         #endregion
 
         #region Constructors
@@ -31,7 +33,7 @@ namespace Fusee.Engine
             _source.Start();
         }
 
-        public VideoStreamImp (VideoCaptureDevice videoCaptureDevice, bool useAudio)
+        public VideoStreamImp(VideoCaptureDevice videoCaptureDevice, bool useAudio)
         {
             _videoCaptureDevice = videoCaptureDevice;
             _videoCaptureDevice.NewFrame += NextFrame;
@@ -51,6 +53,8 @@ namespace Fusee.Engine
         public void NextFrame(object sender, NewFrameEventArgs eventArgs)
         {
             Bitmap nextFrameBmp = (Bitmap)eventArgs.Frame;
+            _width = nextFrameBmp.Width;
+            _height = nextFrameBmp.Height;
             nextFrameBmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
             BitmapData bmpData = nextFrameBmp.LockBits(new System.Drawing.Rectangle(0, 0, nextFrameBmp.Width, nextFrameBmp.Height),
                 ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
@@ -65,7 +69,7 @@ namespace Fusee.Engine
                 PixelFormat = ImagePixelFormat.RGB,
                 Stride = bmpData.Stride
             };
-            
+
             Marshal.Copy(bmpData.Scan0, _nextFrame.PixelData, 0, bytes);
             nextFrameBmp.UnlockBits(bmpData);
         }
@@ -76,8 +80,8 @@ namespace Fusee.Engine
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="reason"></param>
-        public void PlayingFinished (object sender, ReasonToFinishPlaying reason)
-        {  
+        public void PlayingFinished(object sender, ReasonToFinishPlaying reason)
+        {
             _source = new VideoFileSource(_source.Source);
             _source.NewFrame += NextFrame;
             _source.PlayingFinished += PlayingFinished;
@@ -121,6 +125,15 @@ namespace Fusee.Engine
         public void Start()
         {
             _source.Start();
+        }
+
+        public int Width
+        {
+            get { return _width; }
+        }
+        public int Height
+        {
+            get { return _height; }
         }
         #endregion
     }

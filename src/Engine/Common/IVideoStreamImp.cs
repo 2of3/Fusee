@@ -9,6 +9,7 @@
         ImageData GetCurrentFrame();
         void Start();
         void Stop();
-        
+        int Width { get; }
+        int Height { get; }
     }
 }

@@ -38,7 +38,7 @@ namespace Examples.VideoTextureExample
 
             _textureParam = _spTexture.GetShaderParam("texture1");
 
-            _videoStream = VideoManager.Instance.LoadVideoFromFile(@"Assets/pot.webm", true);
+            _videoStream = VideoManager.Instance.LoadVideoFromFile(@"Assets/pot.webm", true); //FromCamera(0, false);//
             //_videoStream = VideoManager.Instance.LoadVideoFromCamera(0, false);
         }
 
@@ -51,8 +51,13 @@ namespace Examples.VideoTextureExample
             // Use this function to update a texture from a video stream if you plan to have
             // a web build and if you don't need to access the pixel data directly.
             // This method is much more performant than the other one.
-            RC.UpdateTextureFromVideoStream(_videoStream, _iTex);
+            if (_videoStream.Width != 0)
+            {
+                if (_iTex == null)
+                    _iTex = RC.CreateTexture(RC.CreateImage(_videoStream.Width, _videoStream.Height, "#000000"));
 
+                RC.UpdateTextureFromVideoStream(_videoStream, _iTex);
+            }
             // If you don't plan to have a web-build or if you want to have direct access to the video's
             // pixel data, use this method. Note that this works in the web-build too, but the performance
             // is really bad and it might cause a memory overflow in the web-build.
@@ -64,15 +69,10 @@ namespace Examples.VideoTextureExample
             //    RC.UpdateTextureRegion(_iTex, imgData, 0, 0);
             //}
 
-            if (Input.Instance.IsKey(KeyCodes.P))
-                _videoStream.Stop();
-            if (Input.Instance.IsKey(KeyCodes.Space))
-                _videoStream.Start();
-
             // move per mouse
             if (Input.Instance.IsButton(MouseButtons.Left))
             {
-                _angleVelHorz = RotationSpeed * Input.Instance.GetAxis(InputAxis.MouseX);
+                _angleVelHorz = -RotationSpeed * Input.Instance.GetAxis(InputAxis.MouseX);
                 _angleVelVert = RotationSpeed * Input.Instance.GetAxis(InputAxis.MouseY);
             }
             else
@@ -104,11 +104,11 @@ namespace Examples.VideoTextureExample
             if (Input.Instance.IsKey(KeyCodes.Down))
                 _angleVert += RotationSpeed * (float)Time.Instance.DeltaTime;
 
-            var mtxRot = float4x4.CreateRotationY(_angleHorz) * float4x4.CreateRotationX(_angleVert);
+            var mtxRot = float4x4.CreateRotationX(_angleVert) * float4x4.CreateRotationY(_angleHorz);
             var mtxCam = float4x4.LookAt(0, 200, 500, 0, 0, 0, 0, 1, 0);
 
             // second mesh
-            RC.ModelView = mtxRot * float4x4.CreateTranslation(0, 0, 0) * mtxCam;
+            RC.ModelView = mtxCam * float4x4.CreateTranslation(0, 0, 0) * mtxRot;
 
             RC.SetShader(_spTexture);
             if (_iTex != null)
