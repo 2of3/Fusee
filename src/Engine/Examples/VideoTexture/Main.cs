@@ -16,6 +16,7 @@ namespace Examples.VideoTextureExample
 
         // model variables
         private Mesh _meshCube;
+        private Mesh _meshVelo;
 
 
         // variables for shader
@@ -33,6 +34,7 @@ namespace Examples.VideoTextureExample
             RC.ClearColor = new float4(0.1f, 0.1f, 0.5f, 1);
 
             _meshCube = MeshReader.LoadMesh(@"Assets/Cube.obj.model");
+            _meshVelo = MeshReader.LoadMesh(@"Assets/vel.obj.model");
 
             _spTexture = MoreShaders.GetTextureShader(RC);
 
