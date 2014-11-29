@@ -130,15 +130,15 @@ namespace Fusee.Engine
         /// </summary>
         /// <param name="mesh">The mesh.</param>
         /// <param name="id">The identifier.</param>
-        public void AddPickableObject(Mesh mesh, string id = "")
+        public void AddPickableObject(object item, Mesh mesh, string id = "")
         {
             if (_pickType == PickType.Ray)
             {
-                RayPicklist.Add(new RayPickSet(id, mesh, _rc));
+                RayPicklist.Add(new RayPickSet(item, id, mesh, _rc));
             }
             else if (_pickType == PickType.Color || _pickType == PickType.Mix)
             {
-                ColorPicklist.Add(new ColorPickSet(id, mesh, _rc, _colorsFloat[_colorIndex]));
+                ColorPicklist.Add(new ColorPickSet(item, id, mesh, _rc, _colorsFloat[_colorIndex]));
                 _colorIndex++;
             }
         }
@@ -150,15 +150,15 @@ namespace Fusee.Engine
         /// <param name="id">The identifier.</param>
         /// <param name="modelMatrix">The model matrix.</param>
         /// <param name="viewMatrix">The view matrix.</param>
-        public void AddPickableObject(Mesh mesh, string id, float4x4 modelMatrix, float4x4 viewMatrix)
+        public void AddPickableObject(object item, Mesh mesh, string id, float4x4 modelMatrix, float4x4 viewMatrix)
         {
             if (_pickType == PickType.Ray)
             {
-                RayPicklist.Add(new RayPickSet(id, mesh, modelMatrix, viewMatrix, _rc.Projection));
+                RayPicklist.Add(new RayPickSet(item, id, mesh, modelMatrix, viewMatrix, _rc.Projection));
             }
             else if (_pickType == PickType.Color || _pickType == PickType.Mix)
             {
-                ColorPicklist.Add(new ColorPickSet(id, mesh, modelMatrix, viewMatrix, _rc.Projection, _colorsFloat[_colorIndex]));
+                ColorPicklist.Add(new ColorPickSet(item, id, mesh, modelMatrix, viewMatrix, _rc.Projection, _colorsFloat[_colorIndex]));
                 _colorIndex++;
             }
         }
@@ -250,10 +250,11 @@ namespace Fusee.Engine
                             {
                                 var result = new PickResultSet
                                 {
-                                    id = colorPickItem.Id,
-                                    mesh = colorPickItem.Mesh,
-                                    triangle = float3x3.Zero,
-                                    point = float3.Zero
+                                    Item = colorPickItem.Item,
+                                    Id = colorPickItem.Id,
+                                    Mesh = colorPickItem.Mesh,
+                                    Triangle = float3x3.Zero,
+                                    Point = float3.Zero
                                 };
 
                                 if (_pickType == PickType.Color)
@@ -262,7 +263,7 @@ namespace Fusee.Engine
                                 }
                                 else if (_pickType == PickType.Mix)
                                 {
-                                    var rps = new RayPickSet(colorPickItem.Id, colorPickItem.Mesh, colorPickItem.Model, colorPickItem.View, colorPickItem.Projection);
+                                    var rps = new RayPickSet(colorPickItem.Item, colorPickItem.Id, colorPickItem.Mesh, colorPickItem.Model, colorPickItem.View, colorPickItem.Projection);
                                     CalculateRayOnGeomentry(rps);
                                 }
                             }
@@ -400,7 +401,14 @@ namespace Fusee.Engine
                                         float3.Dot(planeN, pickRay)) *
                                        (pickRay);
 
-                        var result = new PickResultSet { id = rps.Id, mesh = rps.Mesh, triangle = float3x3.Zero, point = point };
+                        var result = new PickResultSet
+                        {
+                            Item = rps.Item,
+                            Id = rps.Id,
+                            Mesh = rps.Mesh,
+                            Triangle = float3x3.Zero,
+                            Point = point
+                        };
                         PickResults.Add(result);
                     }
                 }
@@ -421,6 +429,8 @@ namespace Fusee.Engine
         #region Nested Classes
         public class RayPickSet
         {
+            public object Item { get; set; }
+
             public string Id { get; set; }
 
             public Mesh Mesh { get; set; }
@@ -446,8 +456,9 @@ namespace Fusee.Engine
             }
 
 
-            public RayPickSet(string id, Mesh mesh, float4x4 model, float4x4 view, float4x4 projection, AABBf aabb)
+            public RayPickSet(object item, string id, Mesh mesh, float4x4 model, float4x4 view, float4x4 projection, AABBf aabb)
             {
+                Item = item;
                 Id = id;
                 Mesh = mesh;
                 Model = model;
@@ -457,8 +468,9 @@ namespace Fusee.Engine
                 AabbIsSet = true;
             }
 
-            public RayPickSet(string id, Mesh mesh, float4x4 model, float4x4 view, float4x4 projection)
+            public RayPickSet(object item, string id, Mesh mesh, float4x4 model, float4x4 view, float4x4 projection)
             {
+                Item = item;
                 Id = id;
                 Mesh = mesh;
                 Model = model;
@@ -466,8 +478,9 @@ namespace Fusee.Engine
                 Projection = projection;
             }
 
-            public RayPickSet(string id, Mesh mesh, RenderContext rc)
+            public RayPickSet(object item, string id, Mesh mesh, RenderContext rc)
             {
+                Item = item;
                 Id = id;
                 Mesh = mesh;
                 Model = rc.Model;
@@ -507,6 +520,8 @@ namespace Fusee.Engine
 
         public class ColorPickSet
         {
+            public object Item { get; set; }
+
             public string Id { get; set; }
 
             public Mesh Mesh { get; set; }
@@ -519,8 +534,9 @@ namespace Fusee.Engine
 
             public float4 Color { get; set; }
 
-            public ColorPickSet(string id, Mesh mesh, float4x4 model, float4x4 view, float4x4 projection, float4 color)
+            public ColorPickSet(object item, string id, Mesh mesh, float4x4 model, float4x4 view, float4x4 projection, float4 color)
             {
+                Item = item;
                 Id = id;
                 Mesh = mesh;
                 Model = model;
@@ -529,8 +545,9 @@ namespace Fusee.Engine
                 Color = color;
             }
 
-            public ColorPickSet(string id, Mesh mesh, RenderContext rc, float4 color)
+            public ColorPickSet(object item, string id, Mesh mesh, RenderContext rc, float4 color)
             {
+                Item = item;
                 Id = id;
                 Mesh = mesh;
                 Model = rc.Model;
@@ -544,10 +561,11 @@ namespace Fusee.Engine
 
     public struct PickResultSet
     {
-        public string id;
-        public Mesh mesh;
-        public float3x3 triangle;
-        public float3 point;
+        public object Item;
+        public string Id;
+        public Mesh Mesh;
+        public float3x3 Triangle;
+        public float3 Point;
     }
 
     public enum PickType
