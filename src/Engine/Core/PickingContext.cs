@@ -251,7 +251,7 @@ namespace Fusee.Engine
                                 var result = new PickResultSet
                                 {
                                     Item = colorPickItem.Item,
-                                    Id = colorPickItem.Id,
+                                    id = colorPickItem.Id,
                                     Mesh = colorPickItem.Mesh,
                                     Triangle = float3x3.Zero,
                                     Point = float3.Zero
@@ -404,7 +404,7 @@ namespace Fusee.Engine
                         var result = new PickResultSet
                         {
                             Item = rps.Item,
-                            Id = rps.Id,
+                            id = rps.Id,
                             Mesh = rps.Mesh,
                             Triangle = float3x3.Zero,
                             Point = point
@@ -562,7 +562,7 @@ namespace Fusee.Engine
     public struct PickResultSet
     {
         public object Item;
-        public string Id;
+        public string id;
         public Mesh Mesh;
         public float3x3 Triangle;
         public float3 Point;

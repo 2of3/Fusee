@@ -1,26 +1,30 @@
 using Fusee.Engine;
+using Fusee.Engine.SimpleScene;
+using Fusee.SceneManagement;
 using Fusee.Math;
+using Fusee.Serialization;
 
-namespace Examples.PickingSimple
+
+namespace Examples.ScenePickerSimple
 {
-    public class PickingSimple : RenderCanvas
+    public class ScenePickerSimple : RenderCanvas
     {
-        private PickingContext _pc;
 
+        private ScenePicker _sp;
+        
         private Mesh _meshTea;
         private Mesh _meshCube;
-
-        private object _teapot;
-        private object _cube;
 
         private ShaderProgram _spColor;
         private IShaderParam _colorParam;
 
+        // is called on startup
         public override void Init()
         {
+
             RC.ClearColor = new float4(1, 1, 1, 1);
 
-            _pc = new PickingContext(RC);
+            _sp = new ScenePicker(RC);
 
             _meshTea = MeshReader.LoadMesh(@"Assets/Teapot.obj.model");
             _meshCube = MeshReader.LoadMesh(@"Assets/Cube.obj.model");
@@ -34,34 +38,20 @@ namespace Examples.PickingSimple
         {
             RC.Clear(ClearFlags.Color | ClearFlags.Depth);
 
-            if (Input.Instance.IsButton(MouseButtons.Left))
-            {
-                _pc.Pick(Input.Instance.GetMousePos());
-            }
+            var mtxCam = float4x4.LookAt(0, 200, 500, 0, 0, 0, 0, 1, 0);
 
             RC.SetShader(_spColor);
 
-            var mtxCam = float4x4.LookAt(0, 200, 500, 0, 0, 0, 0, 1, 0);
+            RC.View = mtxCam;
 
             //Teapot
-            RC.Model = float4x4.CreateTranslation(150, -50, 0);
-            RC.View = mtxCam;
+            RC.Model = float4x4.CreateTranslation(-100, -50, 0);
             RC.SetShaderParam(_colorParam, new float4(0.5f, 0.8f, 0, 1));
             RC.Render(_meshTea);
-            _pc.AddPickableObject(_teapot, _meshTea, "Teapot", RC.Model, mtxCam);
 
-            //Cube
-            RC.Model = float4x4.CreateTranslation(-150, 0, 0) * float4x4.Scale(0.6f);
-            RC.View = mtxCam;
-            RC.SetShaderParam(_colorParam, new float4(0.8f, 0.5f, 0, 1));
+            RC.Model = float4x4.CreateTranslation(100, 0, 0) * float4x4.Scale(0.6f);
+            RC.SetShaderParam(_colorParam, new float4(0, 0.5f,0.8f,1));
             RC.Render(_meshCube);
-            _pc.AddPickableObject(_cube, _meshCube, "Cube", RC.Model, mtxCam);
-
-            if (_pc.PickResults.Count > 0)
-            {
-                System.Console.WriteLine(_pc.PickResults[0].id);
-                _pc.ClearResults();
-            }
 
             Present();
         }
@@ -77,7 +67,7 @@ namespace Examples.PickingSimple
 
         public static void Main()
         {
-            var app = new PickingSimple();
+            var app = new ScenePickerSimple();
             app.Run();
         }
     }
