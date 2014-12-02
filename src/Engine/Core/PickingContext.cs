@@ -363,7 +363,7 @@ namespace Fusee.Engine
 
         private void CalculateRayOnGeomentry(RayPickSet rps)
         {
-            if (rps.Mesh.TrianglesSet)
+            if (rps.Mesh.Triangles != null)
             {
                 var triP = new float3[3];
                 float4x4 mv = rps.View * rps.Model;

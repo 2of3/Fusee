@@ -21,7 +21,7 @@ namespace Fusee.Engine.SimpleScene
         public ScenePicker(RenderContext rc)
         {
             // Create picking context
-            _pc = new PickingContext(rc, PickType.Ray);
+            _pc = new PickingContext(rc, PickType.Ray, false);
             _meshMap = new Dictionary<MeshContainer, Mesh>();
             _rc = rc;
         }
@@ -32,6 +32,7 @@ namespace Fusee.Engine.SimpleScene
             _pc.Pick(pickPos);
             _modelView = _rc.ModelView;
             Traverse(sc);
+            _pc.Tick();
             return _pc.PickResults;
         }
 
@@ -51,12 +52,13 @@ namespace Fusee.Engine.SimpleScene
             {
                 _modelView = _modelView * soc.Transform.Matrix();
 
-                if (soc.Mesh != null)
+                if (soc.Mesh != null && soc.Mesh.Vertices != null)
                 {
                     Mesh mesh;
                     if (!_meshMap.TryGetValue(soc.Mesh, out mesh))
                     {
                         mesh = MakeMesh(soc.Mesh);
+                        _meshMap[soc.Mesh] =  mesh;
                     }
                     _pc.AddPickableObject(null, mesh, soc.Name, float4x4.Identity, _modelView);
                 }
