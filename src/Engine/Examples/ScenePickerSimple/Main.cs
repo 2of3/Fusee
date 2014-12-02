@@ -1,3 +1,4 @@
+using System.IO;
 using Fusee.Engine;
 using Fusee.Engine.SimpleScene;
 using Fusee.SceneManagement;
@@ -17,6 +18,9 @@ namespace Examples.ScenePickerSimple
 
         private ShaderProgram _spColor;
         private IShaderParam _colorParam;
+        private SceneRenderer _sr;
+
+        SceneContainer _scene;
 
         // is called on startup
         public override void Init()
@@ -24,10 +28,18 @@ namespace Examples.ScenePickerSimple
 
             RC.ClearColor = new float4(1, 1, 1, 1);
 
+            var ser = new Serializer();
+
+            using (var file = File.OpenRead(@"Assets/Wuggy.fus"))
+            {
+                _scene = ser.Deserialize(file, null, typeof(SceneContainer)) as SceneContainer;
+                _sr = new SceneRenderer(_scene, "Assets");
+            }
+
             _sp = new ScenePicker(RC);
 
-            _meshTea = MeshReader.LoadMesh(@"Assets/Teapot.obj.model");
-            _meshCube = MeshReader.LoadMesh(@"Assets/Cube.obj.model");
+            //_meshTea = MeshReader.LoadMesh(@"Assets/Teapot.obj.model");
+            //_meshCube = MeshReader.LoadMesh(@"Assets/Cube.obj.model");
 
             _spColor = MoreShaders.GetDiffuseColorShader(RC);
             _colorParam = _spColor.GetShaderParam("color");
@@ -42,18 +54,31 @@ namespace Examples.ScenePickerSimple
 
             RC.SetShader(_spColor);
 
+            RC.Model = float4x4.CreateTranslation(0, -200, -200);
             RC.View = mtxCam;
 
-            //Teapot
+            Point pickPos = new Point();
+            if (Input.Instance.IsButton(MouseButtons.Left))
+            {
+                pickPos = Input.Instance.GetMousePos();
+            }
+
+           /* //Teapot
             RC.Model = float4x4.CreateTranslation(-100, -50, 0);
             RC.SetShaderParam(_colorParam, new float4(0.5f, 0.8f, 0, 1));
             RC.Render(_meshTea);
 
+            //Cube
             RC.Model = float4x4.CreateTranslation(100, 0, 0) * float4x4.Scale(0.6f);
             RC.SetShaderParam(_colorParam, new float4(0, 0.5f,0.8f,1));
-            RC.Render(_meshCube);
+            RC.Render(_meshCube); */
+
+            _sr.Render(RC);
+            _sp.Pick(_scene, pickPos);
 
             Present();
+
+            
         }
 
         // is called when the window was resized
