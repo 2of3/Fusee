@@ -107,13 +107,14 @@ namespace Examples.VideoTextureExample
             var mtxRot = float4x4.CreateRotationX(_angleVert) * float4x4.CreateRotationY(_angleHorz);
             var mtxCam = float4x4.LookAt(0, 200, 500, 0, 0, 0, 0, 1, 0);
 
-            // second mesh
-            RC.ModelView = mtxCam * mtxRot;
-
             RC.SetShader(_spTexture);
             if (_iTex != null)
                 RC.SetShaderParamTexture(_textureParam, _iTex);
-
+            
+            RC.ModelView = mtxCam *  mtxRot * float4x4.CreateTranslation(-150, 0, 0);
+            RC.Render(_meshCube);
+            //second Mesh
+            RC.ModelView = mtxCam * mtxRot * float4x4.CreateTranslation(150, 0, 0);
             RC.Render(_meshCube);
 
             Present();
