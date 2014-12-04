@@ -60,7 +60,7 @@ namespace Fusee.Engine.SimpleScene
                         mesh = MakeMesh(soc.Mesh);
                         _meshMap[soc.Mesh] =  mesh;
                     }
-                    _pc.AddPickableObject(null, mesh, soc.Name, float4x4.Identity, _modelView);
+                    _pc.AddPickableObject(soc, mesh, soc.Name, float4x4.Identity, _modelView); //TODO Name des jew. soc?
                 }
 
                 float4x4 currentModelView = _modelView;

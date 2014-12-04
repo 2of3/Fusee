@@ -17,8 +17,10 @@ namespace Examples.ScenePickerSimple
         /// The default cube is 1 unit big and contains various default vertex colors.
         /// The vertex colors are only visible during rendering when a vertexcolor shader is applied on the Mesh.
         /// </summary>
+        /*
         public CubeContainer()
         {
+            
             #region Fields
 
             // TODO: Remove redundant vertices
@@ -69,7 +71,7 @@ namespace Examples.ScenePickerSimple
                 16, 18, 17, 16, 19, 18,
 
                 // bottom face
-                20, 22, 21, 20, 23, 22
+                // 20, 22, 21, 20, 23, 22
 
             };
 
@@ -129,12 +131,15 @@ namespace Examples.ScenePickerSimple
                 new float2(0, 0)
             };
         #endregion  
+        
         }
+        */
+        
     }
 
     public class ScenePickerSimple : RenderCanvas
     {
-
+        /*
         SceneContainer CreateTestCubeScene()
         {
             return new SceneContainer()
@@ -164,13 +169,35 @@ namespace Examples.ScenePickerSimple
                                     Color = new float3(1, 0, 0)
                                 }
                             },
-                            Mesh = new CubeContainer()    
+                            Mesh = new CubeContainer(),
+    
+                            Children = new List<SceneObjectContainer>(
+                                new []
+                                {
+                                    new SceneObjectContainer()
+                                    {
+                                        Transform = new TransformContainer
+                                        {
+                                            Translation = new float3(1, -1, 0),
+                                            Rotation = new float3(0, 0.5f*MathHelper.Pi, 0),
+                                            Scale = new float3(1, 1, 1)
+                                        },
+                                        Material = new MaterialContainer()
+                                        {
+                                            Diffuse = new MatChannelContainer()
+                                            {
+                                                Color = new float3(1, 0, 0)
+                                            }
+                                        },
+                                        Mesh = new CubeContainer()    
+                                    }
+                                })
                         }
                     })
             };
 
         }
-
+        */
         private ScenePicker _sp;
         
         private Mesh _meshTea;
@@ -188,15 +215,15 @@ namespace Examples.ScenePickerSimple
 
             RC.ClearColor = new float4(0.6f, 1, 1, 1);
             
-            /*
+            
             var ser = new Serializer();
             using (var file = File.OpenRead(@"Assets/Wuggy.fus"))
             {
                 _scene = ser.Deserialize(file, null, typeof(SceneContainer)) as SceneContainer;
                 _sr = new SceneRenderer(_scene, "Assets");
             }
-            */
-            _scene = CreateTestCubeScene();
+            
+            //_scene = CreateTestCubeScene();
             _sr = new SceneRenderer(_scene, "Assets");
             _sp = new ScenePicker(RC);
 
@@ -218,8 +245,8 @@ namespace Examples.ScenePickerSimple
             RC.View = mtxCam;
             */
 
-            RC.Model = float4x4.Identity;
-            var mtxCam = float4x4.LookAt(0, 0, -5, 0, 0, 0, 0, 1, 0);
+            RC.Model = float4x4.CreateRotationY(MathHelper.Pi);
+            var mtxCam = float4x4.LookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
             RC.View = mtxCam;
 
 

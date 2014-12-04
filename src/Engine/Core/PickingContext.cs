@@ -154,6 +154,7 @@ namespace Fusee.Engine
         {
             if (_pickType == PickType.Ray)
             {
+                // TODO: Welche Projektionsmatrix wird nach Resize genommen?
                 RayPicklist.Add(new RayPickSet(item, id, mesh, modelMatrix, viewMatrix, _rc.Projection));
             }
             else if (_pickType == PickType.Color || _pickType == PickType.Mix)
@@ -406,7 +407,7 @@ namespace Fusee.Engine
                             Item = rps.Item,
                             id = rps.Id,
                             Mesh = rps.Mesh,
-                            Triangle = float3x3.Zero,
+                            Triangle = float3x3.Zero, // TODO: Warum (0) Matrix? evtl duch drei Punkte ersetzen
                             Point = point
                         };
                         PickResults.Add(result);
