@@ -44,6 +44,10 @@ namespace Examples.Fusee2FirstSteps
         private SceneObjectContainer _wheelSR;
         private SceneObjectContainer _wuggy;
 
+        private ScenePicker _sp;
+
+        SceneContainer _scene;
+
         // is called on startup
         public override void Init()
         {
@@ -53,15 +57,19 @@ namespace Examples.Fusee2FirstSteps
             var ser = new Serializer();
             using (var file = File.OpenRead(@"Assets/Wuggy.fus"))
             {
-                scene = ser.Deserialize(file, null, typeof(SceneContainer)) as SceneContainer;
-                _sr = new SceneRenderer(scene, "Assets");
+                _scene = ser.Deserialize(file, null, typeof(SceneContainer)) as SceneContainer;
+                _sr = new SceneRenderer(_scene, "Assets");
             }
-            _wheelR = FindByName("WheelBigR", scene);
-            _wheelL = FindByName("WheelBigL", scene);
-            _wheelSR = FindByName("WheelSmallR", scene);
-            _wheelSL = FindByName("WheelSmallL.", scene);
 
-            _wuggy = FindByName("Wuggy", scene);
+            _sr = new SceneRenderer(_scene, "Assets");
+            _sp = new ScenePicker(RC);
+
+            _wheelR = FindByName("WheelBigR", _scene);
+            _wheelL = FindByName("WheelBigL", _scene);
+            _wheelSR = FindByName("WheelSmallR", _scene);
+            _wheelSL = FindByName("WheelSmallL.", _scene);
+
+            _wuggy = FindByName("Wuggy", _scene);
             _angleR = 0.2f;
             _angleL = _angleR;
             _angleSL = 0.4f;
@@ -207,6 +215,13 @@ namespace Examples.Fusee2FirstSteps
             Console.WriteLine("move" + _move);
             Console.WriteLine("Winkel " + _modelAngle);
             Console.WriteLine("Winkel1 " + angleInDeg);
+
+            Point pickPos = new Point();
+            if (Input.Instance.IsButton(MouseButtons.Left))
+            {
+                pickPos = Input.Instance.GetMousePos();
+                _sp.Pick(_scene, pickPos);
+            }
                        
             _sr.Render(RC);
             Present();

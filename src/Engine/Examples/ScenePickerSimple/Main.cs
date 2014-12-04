@@ -239,16 +239,16 @@ namespace Examples.ScenePickerSimple
         {
             RC.Clear(ClearFlags.Color | ClearFlags.Depth);
 
-            /*
+            
             var mtxCam = float4x4.LookAt(0, 200, 500, 0, 0, 0, 0, 1, 0);
-            RC.Model = float4x4.CreateTranslation(0, -200, -200);
+            RC.Model = float4x4.CreateTranslation(0, 0, 0);
             RC.View = mtxCam;
-            */
+            
 
-            RC.Model = float4x4.CreateRotationY(MathHelper.Pi);
+           /* RC.Model = float4x4.CreateRotationY(MathHelper.Pi);
             var mtxCam = float4x4.LookAt(0, 0, 5, 0, 0, 0, 0, 1, 0);
             RC.View = mtxCam;
-
+            */
 
             Point pickPos = new Point();
             if (Input.Instance.IsButton(MouseButtons.Left))
