@@ -603,6 +603,14 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
                 stream._videoElement = document.createElement("video");
                 if (stream._filename != "camera") {
                     stream._videoElement.src = stream._filename;
+
+                    stream._videoElement.play();
+                    if (stream._loopVideo)
+                        stream._videoElement.loop = true;
+                    if (!stream._useAudio)
+                        stream._videoElement.muted = true;
+                    stream._isPlaying = true;
+
                 } else {
                     navigator.getUserMedia = (navigator.getUserMedia ||
                             navigator.webkitGetUserMedia ||
@@ -628,12 +636,6 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
             }
             else {
                 if (stream._videoElement.readyState === 4) {
-                    stream._videoElement.play();
-                    if (stream._loopVideo)
-                        stream._videoElement.loop = true;
-                    if (!stream._useAudio)
-                        stream._videoElement.muted = true;
-                    stream._isPlaying = true;
                 }
                 if (stream._isPlaying) {
                     this.gl.bindTexture(this.gl.TEXTURE_2D, tex.handle);
