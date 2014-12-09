@@ -17,6 +17,8 @@ namespace Fusee.Engine
         private ImageData _nextFrame;
         private VideoFileSource _source;
         private VideoCaptureDevice _videoCaptureDevice;
+        private int _width;
+        private int _height;
         #endregion
 
         #region Constructors
@@ -51,6 +53,8 @@ namespace Fusee.Engine
         public void NextFrame(object sender, NewFrameEventArgs eventArgs)
         {
             Bitmap nextFrameBmp = (Bitmap)eventArgs.Frame;
+            _width = nextFrameBmp.Width;
+            _height = nextFrameBmp.Height;
             nextFrameBmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
             BitmapData bmpData = nextFrameBmp.LockBits(new System.Drawing.Rectangle(0, 0, nextFrameBmp.Width, nextFrameBmp.Height),
                 ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
@@ -122,7 +126,18 @@ namespace Fusee.Engine
         {
             _source.Start();
         }
+
+        public int Width
+        {
+            get { return _width; }
+        }
+        public int Height
+        {
+            get { return _height; }
+        }
+
         #endregion
-    }
+
+    }  
 }
 

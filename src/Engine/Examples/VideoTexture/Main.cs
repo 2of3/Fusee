@@ -16,16 +16,22 @@ namespace Examples.VideoTextureExample
 
         // model variables
         private Mesh _meshCube;
+        private Mesh _meshCube2;
 
 
         // variables for shader
         private ShaderProgram _spTexture;
+        private ShaderProgram _spTexture_2;
 
         private IShaderParam _textureParam;
+        private IShaderParam _textureParam_2;
 
         private ITexture _iTex;
+        private ITexture _iTex_2;
 
         private IVideoStreamImp _videoStream;
+        private IVideoStreamImp _videoStream_2;
+
 
         // is called on startup
         public override void Init()
@@ -33,12 +39,16 @@ namespace Examples.VideoTextureExample
             RC.ClearColor = new float4(0.1f, 0.1f, 0.5f, 1);
 
             _meshCube = MeshReader.LoadMesh(@"Assets/Cube.obj.model");
+            _meshCube2 = MeshReader.LoadMesh(@"Assets/Cube.obj.model");
 
             _spTexture = MoreShaders.GetTextureShader(RC);
+            _spTexture_2 = MoreShaders.GetTextureShader(RC);
 
             _textureParam = _spTexture.GetShaderParam("texture1");
+            _textureParam_2 = _spTexture.GetShaderParam("texture2");
 
             _videoStream = VideoManager.Instance.LoadVideoFromFile(@"Assets/pot.webm", true);
+            _videoStream_2 = VideoManager.Instance.LoadVideoFromFile(@"Assets/Rollin_Wild.mp4", true);
             //_videoStream = VideoManager.Instance.LoadVideoFromCamera(0, false);
         }
 
@@ -51,7 +61,11 @@ namespace Examples.VideoTextureExample
             // Use this function to update a texture from a video stream if you plan to have
             // a web build and if you don't need to access the pixel data directly.
             // This method is much more performant than the other one.
-            RC.UpdateTextureFromVideoStream(_videoStream, _iTex);
+
+
+            //RC.UpdateTextureFromVideoStream(_videoStream, _iTex);
+            // RC.UpdateTextureFromVideoStream(_videoStream_2, _iTex_2);
+
 
             // If you don't plan to have a web-build or if you want to have direct access to the video's
             // pixel data, use this method. Note that this works in the web-build too, but the performance
@@ -107,14 +121,28 @@ namespace Examples.VideoTextureExample
             var mtxRot = float4x4.CreateRotationX(_angleVert) * float4x4.CreateRotationY(_angleHorz);
             var mtxCam = float4x4.LookAt(0, 200, 500, 0, 0, 0, 0, 1, 0);
 
-            // second mesh
-            RC.ModelView = mtxCam * mtxRot;
+            RC.UpdateTextureFromVideoStream(_videoStream, _iTex);
 
             RC.SetShader(_spTexture);
             if (_iTex != null)
                 RC.SetShaderParamTexture(_textureParam, _iTex);
 
+            // second mesh
+
+            RC.ModelView = mtxCam * mtxRot * float4x4.CreateTranslation(-150, 0, 0);
             RC.Render(_meshCube);
+
+            RC.UpdateTextureFromVideoStream(_videoStream_2, _iTex_2);
+
+            RC.SetShader(_spTexture_2);
+            if (_iTex_2 != null)
+                RC.SetShaderParamTexture(_textureParam_2, _iTex_2);
+
+            RC.ModelView = mtxCam * mtxRot * float4x4.CreateTranslation(150, 0, 0);
+            RC.Render(_meshCube2);
+
+
+
 
             Present();
         }

@@ -888,6 +888,7 @@ namespace Fusee.Engine
             _rci.UpdateTextureFromVideoStream(stream, tex);
         }
 
+
         public void UpdateTextureRegion(ITexture tex, ImageData img, int startX, int startY, int width, int height)
         {
             _rci.UpdateTextureRegion(tex,img, startX,startY, width, height);
