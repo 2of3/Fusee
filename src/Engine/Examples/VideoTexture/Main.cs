@@ -24,7 +24,6 @@ namespace Examples.VideoTextureExample
         private ShaderProgram _spTexture_2;
 
         private IShaderParam _textureParam;
-        private IShaderParam _textureParam_2;
 
         private ITexture _iTex;
         private ITexture _iTex_2;
@@ -45,7 +44,6 @@ namespace Examples.VideoTextureExample
             _spTexture_2 = MoreShaders.GetTextureShader(RC);
 
             _textureParam = _spTexture.GetShaderParam("texture1");
-            _textureParam_2 = _spTexture.GetShaderParam("texture2");
 
             _videoStream = VideoManager.Instance.LoadVideoFromFile(@"Assets/pot.webm", true);
             _videoStream_2 = VideoManager.Instance.LoadVideoFromFile(@"Assets/Rollin_Wild.mp4", true);
@@ -77,6 +75,7 @@ namespace Examples.VideoTextureExample
             //        _iTex = RC.CreateTexture(imgData);
             //    RC.UpdateTextureRegion(_iTex, imgData, 0, 0);
             //}
+
 
             if (Input.Instance.IsKey(KeyCodes.P))
                 _videoStream.Stop();
@@ -121,7 +120,13 @@ namespace Examples.VideoTextureExample
             var mtxRot = float4x4.CreateRotationX(_angleVert) * float4x4.CreateRotationY(_angleHorz);
             var mtxCam = float4x4.LookAt(0, 200, 500, 0, 0, 0, 0, 1, 0);
 
-            RC.UpdateTextureFromVideoStream(_videoStream, _iTex);
+            if (_videoStream.Width != 0)
+            {
+                if (_iTex == null)
+                    _iTex = RC.CreateTexture(RC.CreateImage(_videoStream.Width, _videoStream.Height, "#000000"));
+
+                RC.UpdateTextureFromVideoStream(_videoStream, _iTex);
+            }
 
             RC.SetShader(_spTexture);
             if (_iTex != null)
@@ -132,11 +137,17 @@ namespace Examples.VideoTextureExample
             RC.ModelView = mtxCam * mtxRot * float4x4.CreateTranslation(-150, 0, 0);
             RC.Render(_meshCube);
 
-            RC.UpdateTextureFromVideoStream(_videoStream_2, _iTex_2);
+            if (_videoStream_2.Width != 0)
+            {
+                if (_iTex_2 == null)
+                    _iTex_2 = RC.CreateTexture(RC.CreateImage(_videoStream_2.Width, _videoStream_2.Height, "#000000"));
+
+                RC.UpdateTextureFromVideoStream(_videoStream_2, _iTex_2);
+            }
 
             RC.SetShader(_spTexture_2);
             if (_iTex_2 != null)
-                RC.SetShaderParamTexture(_textureParam_2, _iTex_2);
+                RC.SetShaderParamTexture(_textureParam, _iTex_2);
 
             RC.ModelView = mtxCam * mtxRot * float4x4.CreateTranslation(150, 0, 0);
             RC.Render(_meshCube2);
