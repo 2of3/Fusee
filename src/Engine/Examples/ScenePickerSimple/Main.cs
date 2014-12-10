@@ -246,7 +246,7 @@ namespace Examples.ScenePickerSimple
 
 
             bool isIn = MathHelper.BarycentricCoordinates(a, b, c, P);
-            Console.WriteLine(isIn);
+            Console.WriteLine("is inside ABC: " + isIn);
 
         }
 
