@@ -369,6 +369,53 @@ namespace Fusee.Math
 
         #endregion
 
+        #region BarycentricCoordinates
+
+        public static bool BarycentricCoordinates(float3 p0, float3 p1, float3 p2, float3 p)
+        {
+            bool isInTriangle;
+            float A0, A1, A2, A;
+            float u, v, w;
+            float3 zwerg;
+
+            zwerg = float3.Cross((p2 - p0), (p1 - p0));
+            A = Length3(zwerg)/2;
+
+            zwerg = float3.Cross((p2 - p1), (p - p1));
+            A0 = Length3(zwerg)/2;
+
+            zwerg = float3.Cross((p0 - p2), (p - p2));
+            A1 = Length3(zwerg)/2;
+
+            zwerg = float3.Cross((p1 - p0), (p - p0));
+            A2 = Length3(zwerg)/2;
+
+            u = A0/A;
+            v = A1/A;
+            w = A2/A;
+
+            isInTriangle = (u >= 0) && (v >= 0) && (w >= 0) && (u + v + w < 1);
+
+            return isInTriangle;
+
+        }
+
+
+
+
+
+        #endregion
+
+        #region Length3
+
+        public static float Length3(float3 vector)
+        {
+            var putOut = (float) System.Math.Sqrt(vector.x + vector.y + vector.z);
+            return putOut;
+        }
+
+        #endregion
+
         #endregion
     } 
 }

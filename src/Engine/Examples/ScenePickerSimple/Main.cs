@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Fusee.Engine;
@@ -232,6 +233,21 @@ namespace Examples.ScenePickerSimple
 
             _spColor = MoreShaders.GetDiffuseColorShader(RC);
             _colorParam = _spColor.GetShaderParam("color");
+
+            //bool isIn;
+
+            float3 a, b, c, P;
+            a = new float3(0, 0, 0);
+            b = new float3(1, 0, 0);
+            c = new float3(0.5f, 1, 0);
+            P = new float3(0.5f, 0.1f, 0);
+
+
+
+
+            bool isIn = MathHelper.BarycentricCoordinates(a, b, c, P);
+            Console.WriteLine(isIn);
+
         }
 
         // is called once a frame
