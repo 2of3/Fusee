@@ -145,7 +145,7 @@ namespace Examples.LinqForGeometry
 
             #region MeshImports
             _Geo = new Geometry(LFGImporterType.wavefront);
-//            _Geo.LoadAsset(@"Assets/Cube.obj.model");
+            _Geo.LoadAsset(@"Assets/Cube.obj.model");
 //            _Geo.LoadAsset(@"Assets/Cube_quads.obj.model");
 //            _Geo.LoadAsset(@"Assets/Sphere.obj.model");
 //            _Geo.LoadAsset(@"Assets/Sphere_quads.obj.model");
@@ -153,7 +153,7 @@ namespace Examples.LinqForGeometry
 //            _Geo.LoadAsset(@"Assets/Cylinder.obj.model");
 //            _Geo.LoadAsset(@"Assets/Cylinder_quads.obj.model");
 //            _Geo.LoadAsset(@"Assets/SharedCorners_pro.obj.model");
-            _Geo.LoadAsset(@"Assets/Teapot.obj.model");
+//            _Geo.LoadAsset(@"Assets/Teapot.obj.model");
 
             // New protobuf loader
 //            _Geo = new Geometry(LFGImporterType.protobuf);
@@ -176,9 +176,9 @@ namespace Examples.LinqForGeometry
             _msDiffuse = MoreShaders.GetDiffuseTextureShader(RC);
             _vLightShaderParam = _msDiffuse.GetShaderParam("texture1");
 
-//            ImageData imgData = RC.LoadImage("Assets/Cube_Mat_uv.jpg");
+            ImageData imgData = RC.LoadImage("Assets/Cube_Mat_uv.jpg");
 //            ImageData imgData = RC.LoadImage("Assets/world_map.jpg");
-            ImageData imgData = RC.LoadImage("Assets/Teapot_Texture.jpg");
+//            ImageData imgData = RC.LoadImage("Assets/Teapot_Texture.jpg");
 
             // Due to copyright reasons, this file will not be delivered with the project.
             //ImageData imgData = RC.LoadImage("Assets/Hellknight.jpg");
@@ -328,7 +328,8 @@ namespace Examples.LinqForGeometry
             #region Scaling
             if (Input.Instance.IsKey(KeyCodes.Q))
             {
-                if (Transformations.Scale(1.1f, 1.1f, 1.1f, ref _Geo))
+                double dt = Time.Instance.DeltaTime;
+                if (Transformations.Scale((float)(1.1 * dt), (float)(1.1 * dt), (float)(1.1 * dt), ref _Geo))
                 {
                     _Geo._Changes = true;
                 }
