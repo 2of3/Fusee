@@ -1,5 +1,5 @@
-﻿#pragma warning disable 1591
-
+﻿using System.Collections;
+#pragma warning disable 1591
 using System;
 using System.Runtime.InteropServices;
 using ProtoBuf;
@@ -17,7 +17,7 @@ namespace Fusee.Math
     [ProtoContract]
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public struct float3 : IEquatable<float3>
+    public struct float3 : IEquatable<float3>, IEnumerable
     {
         #region Fields
 
@@ -1625,6 +1625,10 @@ namespace Fusee.Math
         #endregion
 
         public static Converter<string, float3> Parse { get; set; }
+        public IEnumerator GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     // ReSharper restore InconsistentNaming

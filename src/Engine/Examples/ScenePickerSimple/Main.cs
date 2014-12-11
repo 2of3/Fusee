@@ -236,17 +236,17 @@ namespace Examples.ScenePickerSimple
 
             //bool isIn;
 
-            float3 a, b, c, P;
-            a = new float3(0, 0, 0);
-            b = new float3(1, 0, 0);
-            c = new float3(0.5f, 1, 0);
-            P = new float3(0.5f, 0.1f, 0);
+            float2 a, b, c, P;
+            a = new float2(0, 0);
+            b = new float2(1, 0);
+            c = new float2(0.5f, 1);
+            P = new float2(0.5f, 0.1f);
 
 
 
 
-            bool isIn = MathHelper.BarycentricCoordinates(a, b, c, P);
-            Console.WriteLine("is inside ABC: " + isIn);
+            var isIn = MathHelper.BarycentricCoordinates(a, b, c, P);
+            Console.WriteLine("is inside ABC: " + isIn.u);
 
         }
 

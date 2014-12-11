@@ -70,6 +70,14 @@ namespace Fusee.Math
         /// </summary>
         public const float Log2E = 1.442695041f;
 
+        public struct barySet
+        {
+            public float u;
+            public float v;
+            public float w;
+            public bool isInTriangle;
+        }
+
         #endregion
 
         #region Public Members
@@ -371,8 +379,17 @@ namespace Fusee.Math
 
         #region BarycentricCoordinates
 
-      
-        public static bool BarycentricCoordinates(float3 vertA, float3 vertB, float3 vertC, float3 p)
+        public static barySet BarycentricCoordinates(float2 vertA, float2 vertB, float2 vertC, float2 p)
+        {
+            var vertA3 = new float3(vertA.x, vertA.y, 0);
+            var vertB3 = new float3(vertB.x, vertB.y, 0);
+            var vertC3 = new float3(vertC.x, vertC.y, 0);
+            var p3 = new float3(p.x, p.y, 0);
+
+            return BarycentricCoordinates(vertA3, vertB3, vertC3, p3);
+        }
+
+        public static barySet BarycentricCoordinates(float3 vertA, float3 vertB, float3 vertC, float3 p)
         {
             float3 temp = float3.Cross((vertC - vertA), (vertB - vertA));
             float A = Norm3d(temp)/2;
@@ -390,7 +407,11 @@ namespace Fusee.Math
             float v = A1/A;
             float w = A2/A;
             
-            return (u >= 0) && (v >= 0) && (w >= 0) && (u + v + w <= 1);
+            bool isInTriangle = (u >= 0) && (v >= 0) && (w >= 0) && (u + v + w <= 1);
+
+            var res = new barySet {u = u, v = v, w = w, isInTriangle = isInTriangle};
+
+            return res;
         }
 
         #endregion
