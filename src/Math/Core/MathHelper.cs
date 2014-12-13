@@ -70,14 +70,6 @@ namespace Fusee.Math
         /// </summary>
         public const float Log2E = 1.442695041f;
 
-        public struct barySet
-        {
-            public float u;
-            public float v;
-            public float w;
-            public bool isInTriangle;
-        }
-
         #endregion
 
         #region Public Members
@@ -377,51 +369,134 @@ namespace Fusee.Math
 
         #endregion
 
-        #region BarycentricCoordinates
+        #region PointIsInTri
 
-        public static barySet BarycentricCoordinates(float2 vertA, float2 vertB, float2 vertC, float2 p)
+        //TODO: if point is not inside triangle, barycentric coordinates shall not be set and method (in question) shall return false. Maybe do calculation inside a different method and simplify.
+        /// <summary>
+        /// Checks if a float3 Point is inside a triangle. Calculation is counter clockwise.
+        /// </summary>
+        /// <param name="p">The Point in question.</param>
+        /// <param name="a">Vertice a.</param>
+        /// <param name="b">Vertice b.</param>
+        /// <param name="c">Vertice c.</param>
+        /// <returns>True if point is inside triangle.</returns>
+        public static bool PointInTriCCW(float3 p, float3 a, float3 b, float3 c)
         {
-            var vertA3 = new float3(vertA.x, vertA.y, 0);
-            var vertB3 = new float3(vertB.x, vertB.y, 0);
-            var vertC3 = new float3(vertC.x, vertC.y, 0);
-            var p3 = new float3(p.x, p.y, 0);
-
-            return BarycentricCoordinates(vertA3, vertB3, vertC3, p3);
+            float wa, wb, wc;
+            return PointInTriCCW(p, a, b, c, out wa, out wb, out wc);
+            
         }
 
-        public static barySet BarycentricCoordinates(float3 vertA, float3 vertB, float3 vertC, float3 p)
+        ///<summary>
+        /// Checks if a float3 Point is inside a triangle. Calculation is clockwise.
+        /// </summary>
+        /// <param name="p">The Point in question.</param>
+        /// <param name="a">Vertice a.</param>
+        /// <param name="b">Vertice b.</param>
+        /// <param name="c">Vertice c.</param>
+        /// <returns>True if point is inside triangle.</returns>
+        public static bool PointInTriCW(float3 p, float3 a, float3 b, float3 c)
         {
-            float3 temp = float3.Cross((vertC - vertA), (vertB - vertA));
-            float A = Norm3d(temp)/2;
-
-            temp = float3.Cross((vertC - vertB), (p - vertB));
-            float A0 = Norm3d(temp)/2;
-
-            temp = float3.Cross((vertA - vertC), (p - vertC));
-            float A1 = Norm3d(temp)/2;
-
-            temp = float3.Cross((vertB - vertA), (p - vertA));
-            float A2 = Norm3d(temp)/2;
-            
-            float u = A0/A;
-            float v = A1/A;
-            float w = A2/A;
-            
-            bool isInTriangle = (u >= 0) && (v >= 0) && (w >= 0) && (u + v + w <= 1);
-
-            var res = new barySet {u = u, v = v, w = w, isInTriangle = isInTriangle};
-
-            return res;
+            float wa, wb, wc;
+            return PointInTriCW(p, a, b, c, out wa, out wb, out wc);
         }
 
-        #endregion
-
-        #region Length3
-
-        public static float Norm3d(float3 vector)
+        /// <summary>
+        /// Checks if a float3 Point is inside a triangle. Calculation is clockwise. Make sure barycentric coordinates are initialised before calling this Method.
+        /// </summary>
+        /// <param name="p">The Point in question.</param>
+        /// <param name="a">Vertice a.</param>
+        /// <param name="b">Vertice b.</param>
+        /// <param name="c">Vertice c.</param>
+        /// <param name="wa">Barycentric coordinate regarding vertice a.</param>
+        /// <param name="wb">Barycentric coordinate regarding vertice b.</param>
+        /// <param name="wc">Barycentric coordinate regarding vertice c.</param>
+        /// <returns>True if point is in triangle.</returns>
+        public static bool PointInTriCW(float3 p, float3 a, float3 b, float3 c, out float wa, out float wb, out float wc)
         {
-            return (float) System.Math.Sqrt(vector.x*vector.x + vector.y*vector.y + vector.z*vector.z);
+            float3 temp = float3.Cross((c - a), (p - a));
+            float A1 = temp.Length / 2;
+
+            temp = float3.Cross((b - c), (p - c));
+            float A0 = temp.Length / 2;
+
+            temp = float3.Cross((a - b), (p - b));
+            float A2 = temp.Length / 2;
+
+            temp = float3.Cross((c - a), (b - a));
+            float A = temp.Length / 2;
+
+            wa = A0 / A;
+            wb = A1 / A;
+            wc = A2 / A;
+
+            bool pointIsInTri = (wa >= 0) && (wc >= 0) && (wb >= 0) && (wa + wb + wc <= 1);
+
+            return pointIsInTri;
             
+        }
+
+        /// <summary>
+        /// Checks if a float3 Point is inside a triangle. Calculation is counter clockwise. Make sure barycentric coordinates are initialised before calling this Method.
+        /// </summary>
+        /// <param name="p">The Point in question.</param>
+        /// <param name="a">Vertice a.</param>
+        /// <param name="b">Vertice b.</param>
+        /// <param name="c">Vertice c.</param>
+        /// <param name="wa">Barycentric coordinate regarding vertice a.</param>
+        /// <param name="wb">Barycentric coordinate regarding vertice b.</param>
+        /// <param name="wc">Barycentric coordinate regarding vertice c.</param>
+        /// <returns>True if point is in triangle.</returns>
+        public static bool PointInTriCCW(float3 p, float3 a, float3 b, float3 c, out float wa, out float wb, out float wc)
+        {
+            float3 temp = float3.Cross((b - a), (c - a));
+            float A = temp.Length / 2;
+
+            temp = float3.Cross((c - b), (p - b));
+            float A0 = temp.Length / 2;
+
+            temp = float3.Cross((a - c), (p - c));
+            float A1 = temp.Length / 2;
+
+            temp = float3.Cross((b - a), (p - a));
+            float A2 = temp.Length / 2;
+
+            wa = A0 / A;
+            wb = A1 / A;
+            wc = A2 / A;
+
+            bool pointIsInTri = (wa >= 0) && (wc >= 0) && (wb >= 0) && (wa + wb + wc <= 1);
+
+            return pointIsInTri;
+        }
+
+        /// <summary>
+        /// Checks if a float3 Point is inside a triangle. Calculation is clockwise. Make sure w is set before calling this Method.
+        /// </summary>
+        /// <param name="p">The Point in question.</param>
+        /// <param name="a">Vertice a.</param>
+        /// <param name="b">Vertice b.</param>
+        /// <param name="c">Vertice c.</param>
+        /// <param name="w">Barycentric coordinates.</param>
+        /// <returns>True if point is in triangle.</returns>
+        public static bool PointInTriCW(float3 p, float3 a, float3 b, float3 c, out float3 w)
+        {
+            return PointInTriCW(p, a, b, c, out w.x, out w.y, out w.z);
+        }
+
+
+        /// <summary>
+        /// Checks if a float3 Point is inside a triangle. Calculation is clockwise. Make sure w is set before calling this Method.
+        /// </summary>
+        /// <param name="p">The Point in question.</param>
+        /// <param name="a">Vertice a.</param>
+        /// <param name="b">Vertice b.</param>
+        /// <param name="c">Vertice c.</param>
+        /// <param name="w">Barycentric coordinates.</param>
+        /// <returns>True if point is in triangle.</returns>
+        public static bool PointInTriCCW(float3 p, float3 a, float3 b, float3 c, out float3 w)
+        {
+            return PointInTriCCW(p, a, b, c, out w.x, out w.y, out w.z);
         }
 
         #endregion
