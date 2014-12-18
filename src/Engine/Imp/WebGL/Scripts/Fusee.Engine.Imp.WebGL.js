@@ -2068,7 +2068,23 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.VideoStreamImp"
             this._videoElement.pause();
         });
 
+    $.Property({ Static: false, Public: true }, "Width");
 
+    $.Method({ Static: false, Public: true }, "get_Width",
+        new JSIL.MethodSignature($.Int32, []),
+        function get_Width() {
+            return this._nextFrame.Width;
+        }
+    );
+
+    $.Property({ Static: false, Public: true }, "Height");
+
+    $.Method({ Static: false, Public: true }, "get_Height",
+        new JSIL.MethodSignature($.Int32, []),
+        function get_Height() {
+            return this._nextFrame.Height;
+        }
+    );
 
     $.ImplementInterfaces(
         $fuseeCommon.TypeRef("Fusee.Engine.IVideoStreamImp")
