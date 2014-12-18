@@ -380,11 +380,10 @@ namespace Fusee.Math
         /// <param name="b">Vertice b.</param>
         /// <param name="c">Vertice c.</param>
         /// <returns>True if point is inside triangle.</returns>
-        public static bool PointInTriCCW(float3 p, float3 a, float3 b, float3 c)
+        public static bool PointInTriCCW(float2 p, float2 a, float2 b, float2 c)
         {
             float wa, wb, wc;
             return PointInTriCCW(p, a, b, c, out wa, out wb, out wc);
-            
         }
 
         ///<summary>
@@ -395,7 +394,7 @@ namespace Fusee.Math
         /// <param name="b">Vertice b.</param>
         /// <param name="c">Vertice c.</param>
         /// <returns>True if point is inside triangle.</returns>
-        public static bool PointInTriCW(float3 p, float3 a, float3 b, float3 c)
+        public static bool PointInTriCW(float2 p, float2 a, float2 b, float2 c)
         {
             float wa, wb, wc;
             return PointInTriCW(p, a, b, c, out wa, out wb, out wc);
@@ -412,9 +411,9 @@ namespace Fusee.Math
         /// <param name="wb">Barycentric coordinate regarding vertice b.</param>
         /// <param name="wc">Barycentric coordinate regarding vertice c.</param>
         /// <returns>True if point is in triangle.</returns>
-        public static bool PointInTriCW(float3 p, float3 a, float3 b, float3 c, out float wa, out float wb, out float wc)
+        public static bool PointInTriCW(float2 p, float2 a, float2 b, float2 c, out float wa, out float wb, out float wc)
         {
-            float3 temp = float3.Cross((c - a), (p - a));
+            /*float3 temp = float3.Cross((c - a), (p - a));
             float A1 = temp.Length / 2;
 
             temp = float3.Cross((b - c), (p - c));
@@ -432,8 +431,10 @@ namespace Fusee.Math
 
             bool pointIsInTri = (wa >= 0) && (wc >= 0) && (wb >= 0) && (wa + wb + wc <= 1);
 
-            return pointIsInTri;
-            
+            return pointIsInTri;*/
+            wa = wb = wc = 0;
+            return false;
+
         }
 
         /// <summary>
@@ -447,27 +448,18 @@ namespace Fusee.Math
         /// <param name="wb">Barycentric coordinate regarding vertice b.</param>
         /// <param name="wc">Barycentric coordinate regarding vertice c.</param>
         /// <returns>True if point is in triangle.</returns>
-        public static bool PointInTriCCW(float3 p, float3 a, float3 b, float3 c, out float wa, out float wb, out float wc)
+        public static bool PointInTriCCW(float2 p, float2 a, float2 b, float2 c, out float wa, out float wb, out float wc)
         {
-            float3 temp = float3.Cross((b - a), (c - a));
-            float A = temp.Length / 2;
+            wa = (a.y * c.x - a.x * c.y + (c.y - a.y) * p.x + (a.x - c.x) * p.y);
+            wb = (a.x * b.y - a.y * b.x + (a.y - b.y) * p.x + (b.x - a.x) * p.y);
+            wc = 1 - (wa + wb);
 
-            temp = float3.Cross((c - b), (p - b));
-            float A0 = temp.Length / 2;
+            if (wa <= 0 || wb <= 0)
+                return false;
 
-            temp = float3.Cross((a - c), (p - c));
-            float A1 = temp.Length / 2;
+            var A = (-b.y * c.x + a.y * (-b.x + c.x) + a.x * (b.y - c.y) + b.x * c.y);
 
-            temp = float3.Cross((b - a), (p - a));
-            float A2 = temp.Length / 2;
-
-            wa = A0 / A;
-            wb = A1 / A;
-            wc = A2 / A;
-
-            bool pointIsInTri = (wa >= 0) && (wc >= 0) && (wb >= 0) && (wa + wb + wc <= 1);
-
-            return pointIsInTri;
+            return (wa + wb) < A;
         }
 
         /// <summary>
@@ -479,7 +471,7 @@ namespace Fusee.Math
         /// <param name="c">Vertice c.</param>
         /// <param name="w">Barycentric coordinates.</param>
         /// <returns>True if point is in triangle.</returns>
-        public static bool PointInTriCW(float3 p, float3 a, float3 b, float3 c, out float3 w)
+        public static bool PointInTriCW(float2 p, float2 a, float2 b, float2 c, out float3 w)
         {
             return PointInTriCW(p, a, b, c, out w.x, out w.y, out w.z);
         }
@@ -494,7 +486,7 @@ namespace Fusee.Math
         /// <param name="c">Vertice c.</param>
         /// <param name="w">Barycentric coordinates.</param>
         /// <returns>True if point is in triangle.</returns>
-        public static bool PointInTriCCW(float3 p, float3 a, float3 b, float3 c, out float3 w)
+        public static bool PointInTriCCW(float2 p, float2 a, float2 b, float2 c, out float3 w)
         {
             return PointInTriCCW(p, a, b, c, out w.x, out w.y, out w.z);
         }
