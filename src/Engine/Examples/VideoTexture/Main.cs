@@ -45,11 +45,17 @@ namespace Examples.VideoTextureExample
 
             _textureParam = _spTexture.GetShaderParam("texture1");
 
-            _videoStream = VideoManager.Instance.LoadVideoFromFile(@"Assets/pot.webm", true);
-            _videoStream_2 = VideoManager.Instance.LoadVideoFromFile(@"Assets/Rollin_Wild.mp4", true);
+            _videoStream = VideoManager.Instance.LoadVideoFromFile(@"Assets/pot.webm", false);
+            _videoStream_2 = VideoManager.Instance.LoadVideoFromFile(@"Assets/Rollin_Wild.mp4", false);
             //_videoStream = VideoManager.Instance.LoadVideoFromCamera(0, false);
         }
 
+        public override void DeInit()
+        {
+            base.DeInit();
+            _videoStream.Stop();
+            _videoStream_2.Stop();
+        }
 
         // is called once a frame
         public override void RenderAFrame()
