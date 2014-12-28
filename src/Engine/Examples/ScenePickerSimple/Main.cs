@@ -244,7 +244,7 @@ namespace Examples.ScenePickerSimple
             float3 w;
 
             var isIn = MathHelper.PointIsInTri(P, a, b, c, out w);
-            Console.WriteLine(@"is inside ABC: {0}, bayercentric coordinates: {1}", isIn, w);
+            Console.WriteLine(@"is inside ABC: {0}, barycentric coordinates: {1}", isIn, w);
         }
 
         // is called once a frame
