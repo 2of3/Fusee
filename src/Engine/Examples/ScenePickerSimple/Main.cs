@@ -234,20 +234,17 @@ namespace Examples.ScenePickerSimple
             _spColor = MoreShaders.GetDiffuseColorShader(RC);
             _colorParam = _spColor.GetShaderParam("color");
 
-            //bool isIn;
-
             float2 a, b, c, P;
             a = new float2(0, 0);
-            c = new float2(1, 0);
-            b = new float2(0.5f, 1);
+            b = new float2(1, 0);
+            c = new float2(0.5f, 1);
             P = new float2(0.5f, 0.1f);
-            
 
             float wa = 0, wb = 0, wc = 0;
             float3 w;
 
-            var isIn = MathHelper.PointInTriCCW(P, a, b, c, out wa, out wb, out wc);
-            Console.WriteLine("is inside ABC: {0}", isIn);
+            var isIn = MathHelper.PointIsInTri(P, a, b, c, out w);
+            Console.WriteLine(@"is inside ABC: {0}, bayercentric coordinates: {1}", isIn, w);
         }
 
         // is called once a frame
