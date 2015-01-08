@@ -1,88 +1,105 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using Fusee.Serialization;
-using System;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Fusee.Math;
-
+using Fusee.Serialization;
+using ProtoBuf;
 
 namespace Fusee.Engine.SimpleScene
 {
-
-    public class ScenePicker
+    public struct PickResult
     {
+        public SceneNodeContainer Node;
+        public MeshComponent Mesh;
+        public int Triangle;
+        public float WA, WB, WC;
 
-        private PickingContext _pc;
-        private RenderContext _rc;
-        private Dictionary<MeshContainer, Mesh> _meshMap;
-        private float4x4 _modelView;
+        // TODO: Implement
+        public float3 WorldPos
+        { get { throw new NotImplementedException(); } }
 
-        public ScenePicker(RenderContext rc)
+        // TODO: Implement
+        public float3 ModelPos
+        { get { throw new NotImplementedException(); } }
+
+        // TODO: Implement
+        public float4 ScreenPos
+        { get { throw new NotImplementedException();} }
+     }
+
+
+    public class ScenePicker : Viserator<PickResult, ScenePicker.PickingState>
+    {
+        public class PickingState : VisitorState
         {
-            // Create picking context
-            _pc = new PickingContext(rc, PickType.Ray, false);
-            _meshMap = new Dictionary<MeshContainer, Mesh>();
-            _rc = rc;
-        }
+            private CollapsingStateStack<float4x4> _model = new CollapsingStateStack<float4x4>();
+            private CollapsingStateStack<float4x4> _view = new CollapsingStateStack<float4x4>();
+            private CollapsingStateStack<float4x4> _projection = new CollapsingStateStack<float4x4>();
 
-        public IEnumerable<PickResultSet> Pick(SceneContainer sc, Point pickPos)
-        {
-            // Initialize picking context
-            _pc.Pick(pickPos);
-            _modelView = _rc.ModelView;
-            Traverse(sc);
-            _pc.Tick();
-            return _pc.PickResults;
-        }
-
-        private void Traverse(SceneContainer sc)
-        {
-            Traverse(sc.Children);
-        }
-
-        private void Traverse(IEnumerable<SceneObjectContainer> children)
-        {
-            if (children == null)
+            public float4x4 Model
             {
-                return;
+                set { _model.Tos = value; }
+                get { return _model.Tos; }
             }
 
-            foreach (SceneObjectContainer soc in children)
+            public float4x4 View
             {
-                _modelView = _modelView * soc.Transform.Matrix();
+                set { _view.Tos = value; }
+                get { return _view.Tos; }
+            }
 
-                if (soc.Mesh != null && soc.Mesh.Vertices != null)
-                {
-                    Mesh mesh;
-                    if (!_meshMap.TryGetValue(soc.Mesh, out mesh))
-                    {
-                        mesh = MakeMesh(soc.Mesh);
-                        _meshMap[soc.Mesh] =  mesh;
-                    }
-                    _pc.AddPickableObject(soc, mesh, soc.Name, float4x4.Identity, _modelView); //TODO Name des jew. soc?
-                }
+            public float4x4 Projection
+            {
+                set { _projection.Tos =  value; }
+                get { return _projection.Tos; }
+            }
 
-                float4x4 currentModelView = _modelView;
-                Traverse(soc.Children);
-                _modelView = currentModelView;
+            public PickingState()
+            {
+                RegisterState(_model);
+                RegisterState(_view);
+                RegisterState(_projection);
             }
         }
 
-        public static Mesh MakeMesh(MeshContainer mc)
+        public ScenePicker(IEnumerator<SceneNodeContainer> rootList)
+            : base(rootList)
+        {
+            State.Model = float4x4.Identity;
+        }
+
+        #region Visitors
+        [VisitMethod]
+        public void PickTransform(TransformComponent transform)
+        {
+            State.Model *= transform.Matrix();
+        }
+
+        [VisitMethod]
+        public void PickMesh(MeshComponent meshComponent)
         {
             Mesh rm;
-            rm = new Mesh()
-            {
-                Colors = null,
-                Normals = mc.Normals,
-                UVs = mc.UVs,
-                Vertices = mc.Vertices,
-                Triangles = mc.Triangles
-            };
-            return rm;
+
+            // TODO: DO THE PICK TEST HERE
+            // foreach triangle
+            // {
+            //   if (triangle is hit by pickpos)
+            //   {
+            //     YieldItem(new PickResult
+            //          {
+            //              Mesh = meshComponent,
+            //              Node = CurrentNode,
+            //              Triangle = TODO,
+            //              WA = TODO,
+            //              WB = TODO,
+            //              WC = TODO
+            //          });
+            //   }
+            // }
         }
-
+        #endregion
+ 
     }
-
 }
