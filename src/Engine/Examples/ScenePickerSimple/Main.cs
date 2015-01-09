@@ -10,7 +10,7 @@ using Fusee.Serialization;
 
 namespace Examples.ScenePickerSimple
 {
-    public class CubeContainer : MeshContainer
+    public class CubeContainer : MeshComponent
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Cube" /> class.

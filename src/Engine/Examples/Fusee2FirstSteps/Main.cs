@@ -10,9 +10,7 @@ namespace Examples.Fusee2FirstSteps
 {
     public class Fusee2FirstSteps : RenderCanvas
     {
-        private SceneRenderer _sr;
-
-        private SceneObjectContainer FindByName(string name, SceneContainer sc)
+        /*private SceneObjectContainer FindByName(string name, SceneContainer sc)
         {
             return FindByName(name, sc.Children);
         }
@@ -42,11 +40,11 @@ namespace Examples.Fusee2FirstSteps
         private SceneObjectContainer _wheelL;
         private SceneObjectContainer _wheelSL;
         private SceneObjectContainer _wheelSR;
-        private SceneObjectContainer _wuggy;
+        private SceneObjectContainer _wuggy;*/
 
         private ScenePicker _sp;
-
         SceneContainer _scene;
+        private SceneRenderer _sr;
 
         // is called on startup
         public override void Init()
@@ -62,14 +60,14 @@ namespace Examples.Fusee2FirstSteps
             }
 
             _sr = new SceneRenderer(_scene, "Assets");
-            _sp = new ScenePicker(RC);
+            //_sp = new ScenePicker(RC);
 
-            _wheelR = FindByName("WheelBigR", _scene);
+            /*_wheelR = FindByName("WheelBigR", _scene);
             _wheelL = FindByName("WheelBigL", _scene);
             _wheelSR = FindByName("WheelSmallR", _scene);
             _wheelSL = FindByName("WheelSmallL.", _scene);
+            _wuggy = FindByName("Wuggy", _scene);*/
 
-            _wuggy = FindByName("Wuggy", _scene);
             _angleR = 0.2f;
             _angleL = _angleR;
             _angleSL = 0.4f;
@@ -86,8 +84,6 @@ namespace Examples.Fusee2FirstSteps
         private float _modelAngle;
         private float3 _move;
 
-        
-
         // is called once a frame
         public override void RenderAFrame()
         {
@@ -97,12 +93,12 @@ namespace Examples.Fusee2FirstSteps
             float xValue = 0;
             float zValue = 0;
 
-            float3 rotR = _wheelR.Transform.Rotation;
+            /*float3 rotR = _wheelR.Transform.Rotation;
             float3 rotL = _wheelL.Transform.Rotation;
             float3 rotSR = _wheelSR.Transform.Rotation;
             float3 rotSL = _wheelSL.Transform.Rotation;
             float3 mov = _wuggy.Transform.Translation;
-            float3 rotWuggy = _wuggy.Transform.Rotation;
+            float3 rotWuggy = _wuggy.Transform.Rotation;*/
 
             //rotate Cam by mouse click
             if (Input.Instance.IsButton(MouseButtons.Left))
@@ -126,7 +122,7 @@ namespace Examples.Fusee2FirstSteps
             RC.View = mtxCam;
                         
             //take x,y,z value of float3 to create float
-            rotR.x = _angleR;
+            /*rotR.x = _angleR;
             rotL.x = _angleL;
             rotSR.x = _angleSR;
             rotSL.x = _angleSL;
@@ -135,11 +131,11 @@ namespace Examples.Fusee2FirstSteps
             _wheelR.Transform.Rotation = rotR;
             _wheelL.Transform.Rotation = rotL;
             _wheelSR.Transform.Rotation = rotSR;
-            _wheelSL.Transform.Rotation = rotSL;
+            _wheelSL.Transform.Rotation = rotSL;*/
 
             if (Input.Instance.IsButton(MouseButtons.Left))
             {
-                _wuggy.Transform.Rotation = rotWuggy;                
+               // _wuggy.Transform.Rotation = rotWuggy;                
             }
 
 
@@ -147,14 +143,14 @@ namespace Examples.Fusee2FirstSteps
             if (Input.Instance.IsKey(KeyCodes.A))
             {
                 xValue = 2f;
-               _wuggy.Transform.Rotation = rotWuggy;               
+               //_wuggy.Transform.Rotation = rotWuggy;               
 
             }
 
             if (Input.Instance.IsKey(KeyCodes.D))
             {
                 xValue = -2f;
-                _wuggy.Transform.Rotation = rotWuggy;
+                //_wuggy.Transform.Rotation = rotWuggy;
 
             }
 
@@ -209,7 +205,7 @@ namespace Examples.Fusee2FirstSteps
                 _move.z = (float)Math.Cos(_modelAngle)* zValue * 30 * (float)Time.Instance.DeltaTime;
                 _move.x = (float)Math.Sin(_modelAngle)* zValue * 30 * (float)Time.Instance.DeltaTime;
 
-                _wuggy.Transform.Translation += _move;
+                //_wuggy.Transform.Translation += _move;
             }
 
             Console.WriteLine("move" + _move);
@@ -220,7 +216,7 @@ namespace Examples.Fusee2FirstSteps
             if (Input.Instance.IsButton(MouseButtons.Left))
             {
                 pickPos = Input.Instance.GetMousePos();
-                _sp.Pick(_scene, pickPos);
+                //_sp.Pick(_scene, pickPos);
             }
                        
             _sr.Render(RC);
