@@ -11,7 +11,7 @@ namespace Fusee.Engine
     /// <summary>
     /// This class provides all fuctions to control the video playback and to obtain single images from the stream.
     /// </summary>
-    public class VideoStreamImp : IVideoStreamImp
+    public class VideoStreamImpOld : IVideoStreamImpOld
     {
         #region Fields
         private ImageData _nextFrame;
@@ -20,7 +20,7 @@ namespace Fusee.Engine
         #endregion
 
         #region Constructors
-        public VideoStreamImp(VideoFileSource source, bool loopVideo, bool useAudio)
+        public VideoStreamImpOld(VideoFileSource source, bool loopVideo, bool useAudio)
         {
             _source = source;
             _source.NewFrame += NextFrame;
@@ -31,7 +31,7 @@ namespace Fusee.Engine
             _source.Start();
         }
 
-        public VideoStreamImp (VideoCaptureDevice videoCaptureDevice, bool useAudio)
+        public VideoStreamImpOld (VideoCaptureDevice videoCaptureDevice, bool useAudio)
         {
             _videoCaptureDevice = videoCaptureDevice;
             _videoCaptureDevice.NewFrame += NextFrame;

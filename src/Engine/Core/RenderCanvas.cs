@@ -24,7 +24,7 @@ namespace Fusee.Engine
         internal IRenderCanvasImp _canvasImp;
         private IInputDriverImp _inputDriverImp;
 
-        private IVideoManagerImp _videoManagerImp;
+        private IVideoManagerImpOld _videoManagerImpOld;
 
         #endregion
 
@@ -95,10 +95,10 @@ namespace Fusee.Engine
             get { return _inputDriverImp; }
         }
 
-        public IVideoManagerImp VideoManagerImplementor
+        public IVideoManagerImpOld VideoManagerImplementor
         {
-            set { _videoManagerImp = value; }
-            get { return _videoManagerImp; }
+            set { _videoManagerImpOld = value; }
+            get { return _videoManagerImpOld; }
         }
 
         /// <summary>
@@ -144,8 +144,8 @@ namespace Fusee.Engine
             if (_networkImp == null)
                 _networkImp = ImpFactory.CreateINetworkImp();
 
-            if (_videoManagerImp == null)
-                _videoManagerImp = ImpFactory.CreateIVideoManagerImp();
+            if (_videoManagerImpOld == null)
+                _videoManagerImpOld = ImpFactory.CreateIVideoManagerImp();
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace Fusee.Engine
             Audio.Instance.AudioImp = _audioImp;
             Input.Instance.InputDriverImp = _inputDriverImp;
             Network.Instance.NetworkImp = _networkImp;
-            VideoManager.Instance.VideoManagerImp = _videoManagerImp;
+            VideoManagerOld.Instance.VideoManagerImpOld = _videoManagerImpOld;
 
             _canvasImp.Init += delegate { Init(); };
             _canvasImp.UnLoad += delegate { DeInit(); };

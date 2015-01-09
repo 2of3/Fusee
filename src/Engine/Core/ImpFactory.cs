@@ -228,9 +228,9 @@ namespace Fusee.Engine
         }
 
         [JSExternal]
-        public static IVideoManagerImp CreateIVideoManagerImp()
+        public static IVideoManagerImpOld CreateIVideoManagerImp()
         {
-            return (IVideoManagerImp) CreateIImp(VideoManagerImplementor, "CreateVideoManagerImp").Invoke(null, null);
+            return (IVideoManagerImpOld) CreateIImp(VideoManagerImplementor, "CreateVideoManagerImp").Invoke(null, null);
         }
 
         #endregion

@@ -10,7 +10,6 @@ var $WebGLImp = JSIL.DeclareAssembly("Fusee.Engine.Imp.WebGL");
 var $WebAudioImp = JSIL.GetAssembly("Fusee.Engine.Imp.WebAudio");
 var $WebNetImp = JSIL.GetAssembly("Fusee.Engine.Imp.WebNet");
 var $WebInputImp = JSIL.GetAssembly("Fusee.Engine.Imp.WebInput");
-var $VideoManagerImp;
 
 var $fuseeCore = JSIL.GetAssembly("Fusee.Engine.Core");
 var $fuseeCommon = JSIL.GetAssembly("Fusee.Engine.Common");
@@ -586,7 +585,7 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.RenderContextIm
     // </IRenderContextImp Properties implementation>
 
     $.Method({ Static: false, Public: true }, "UpdateTextureFromVideoStream",
-        new JSIL.MethodSignature(null, [$fuseeCommon.TypeRef("Fusee.Engine.IVideoStreamImp"), $fuseeCommon.TypeRef("Fusee.Engine.ITexture")]),
+        new JSIL.MethodSignature(null, [$fuseeCommon.TypeRef("Fusee.Engine.IVideoStreamImpOld"), $fuseeCommon.TypeRef("Fusee.Engine.ITexture")]),
         function UpdateTextureRegion(stream, tex) {
             if (tex == null) {
                 tex = new $WebGLImp.Fusee.Engine.Texture();
@@ -1925,35 +1924,35 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.MeshImp", true,
     return function(newThisType) { $thisType = newThisType; };
 });
 
-JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.VideoManagerImp", true, [], function ($interfaceBuilder) {
+JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.VideoManagerImpOld", true, [], function ($interfaceBuilder) {
     $ = $interfaceBuilder;
 
 
     $.Method({ Static: false, Public: true }, "CreateVideoStreamImpFromFile",
-     new JSIL.MethodSignature($fuseeCommon.TypeRef("Fusee.Engine.IVideoStreamImp"), [$.String, $.Boolean, $.Boolean]),
+     new JSIL.MethodSignature($fuseeCommon.TypeRef("Fusee.Engine.IVideoStreamImpOld"), [$.String, $.Boolean, $.Boolean]),
      function VideoManagerImp_CreateVideoStreamImpFromFile(filename, loopVideo, useAudio) {
-         return new $WebGLImp.Fusee.Engine.VideoStreamImp(filename, loopVideo, useAudio);
+         return new $WebGLImp.Fusee.Engine.VideoStreamImpOld(filename, loopVideo, useAudio);
      }
 
  );
 
      $.Method({ Static: false, Public: true }, "CreateVideoStreamImpFromCamera",
-     new JSIL.MethodSignature($fuseeCommon.TypeRef("Fusee.Engine.IVideoStreamImp"), [$.Int32, $.Boolean]),
+     new JSIL.MethodSignature($fuseeCommon.TypeRef("Fusee.Engine.IVideoStreamImpOld"), [$.Int32, $.Boolean]),
      function VideoManagerImp_CreateVideoStreamImpFromCamera() {
-         return new $WebGLImp.Fusee.Engine.VideoStreamImp("camera",false, false);
+         return new $WebGLImp.Fusee.Engine.VideoStreamImpOld("camera",false, false);
      }
 
  );
 
     $.ImplementInterfaces(
-        $fuseeCommon.TypeRef("Fusee.Engine.IVideoManagerImp")
+        $fuseeCommon.TypeRef("Fusee.Engine.IVideoManagerImpOld")
     );
 
     return function (newThisType) { $thisType = newThisType; };
 });
 
 
-JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.VideoStreamImp", true, [], function ($interfaceBuilder) {
+JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.VideoStreamImpOld", true, [], function ($interfaceBuilder) {
     $ = $interfaceBuilder;
 
     $.Field({ Static: false, Public: true }, "_nextFrame", $fuseeCommon.TypeRef("Fusee.Engine.ImageData"), null);
@@ -2070,7 +2069,7 @@ JSIL.MakeClass($jsilcore.TypeRef("System.Object"), "Fusee.Engine.VideoStreamImp"
 
 
     $.ImplementInterfaces(
-        $fuseeCommon.TypeRef("Fusee.Engine.IVideoStreamImp")
+        $fuseeCommon.TypeRef("Fusee.Engine.IVideoStreamImpOld")
     );
 
     return function (newThisType) { $thisType = newThisType; };
@@ -2438,9 +2437,9 @@ JSIL.ImplementExternals("Fusee.Engine.ImpFactory", function($) {
     );
 
         $.Method({ Static: true, Public: true }, "CreateIVideoManagerImp",
-        new JSIL.MethodSignature($fuseeCommon.TypeRef("Fusee.Engine.IVideoManagerImp"), []),
+        new JSIL.MethodSignature($fuseeCommon.TypeRef("Fusee.Engine.IVideoManagerImpOld"), []),
         function ImpFactory_CreateIVideoManagerImp() {
-            return new $WebGLImp.Fusee.Engine.VideoManagerImp();
+            return new $WebGLImp.Fusee.Engine.VideoManagerImpOld();
         }
     );
 

@@ -882,7 +882,7 @@ namespace Fusee.Engine
 
         #region Image Data related Members
 
-        public void UpdateTextureFromVideoStream(IVideoStreamImp stream, ITexture tex)
+        public void UpdateTextureFromVideoStream(IVideoStreamImpOld stream, ITexture tex)
         {
             _rci.UpdateTextureFromVideoStream(stream, tex);
         }

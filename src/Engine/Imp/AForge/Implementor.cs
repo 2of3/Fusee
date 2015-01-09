@@ -9,10 +9,10 @@
         /// <summary>
         /// Creates the VideoManager implementation.
         /// </summary>
-        /// <returns>An instance of VideoManagerImp.</returns>
-        public static IVideoManagerImp CreateVideoManagerImp()
+        /// <returns>An instance of VideoManagerImpOld.</returns>
+        public static IVideoManagerImpOld CreateVideoManagerImp()
         {
-            return new VideoManagerImp();
+            return new VideoManagerImpOld();
         }
     }
 }

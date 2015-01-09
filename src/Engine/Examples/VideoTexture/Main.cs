@@ -25,7 +25,7 @@ namespace Examples.VideoTextureExample
 
         private ITexture _iTex;
 
-        private IVideoStreamImp _videoStream;
+        private IVideoStreamImpOld _videoStream;
 
         // is called on startup
         public override void Init()
@@ -38,8 +38,8 @@ namespace Examples.VideoTextureExample
 
             _textureParam = _spTexture.GetShaderParam("texture1");
 
-            _videoStream = VideoManager.Instance.LoadVideoFromFile(@"Assets/pot.webm", true);
-            //_videoStream = VideoManager.Instance.LoadVideoFromCamera(0, false);
+            _videoStream = VideoManagerOld.Instance.LoadVideoFromFile(@"Assets/pot.webm", true);
+            //_videoStream = VideoManagerOld.Instance.LoadVideoFromCamera(0, false);
         }
 
 
