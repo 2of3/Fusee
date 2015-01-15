@@ -57,7 +57,7 @@ namespace Fusee.Engine
         /// <param name="stream">The Video from which the images are taken.</param>
         /// <param name="tex">The texture to which the ImageData is bound to.</param>
         /// <remarks>Look at the VideoTextureExample for further information.</remarks>
-        public void UpdateTextureFromVideoStream(IVideoStreamImpOld stream, ITexture tex)
+        public void UpdateTextureFromVideoStream(IVideoStreamImp stream, ITexture tex)
         {
             ImageData img = stream.GetCurrentFrame();
             OpenTK.Graphics.OpenGL.PixelFormat format;

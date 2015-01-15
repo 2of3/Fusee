@@ -25,7 +25,7 @@ namespace Examples.VideoTextureExample
 
         private ITexture _iTex;
 
-        private IVideoStreamImpOld _videoStream;
+        private IVideoStreamImp _videoStream;
 
         // is called on startup
         public override void Init()
@@ -38,8 +38,8 @@ namespace Examples.VideoTextureExample
 
             _textureParam = _spTexture.GetShaderParam("texture1");
 
-            _videoStream = VideoManagerOld.Instance.LoadVideoFromFile(@"Assets/pot.webm", true);
-            //_videoStream = VideoManagerOld.Instance.LoadVideoFromCamera(0, false);
+            _videoStream = VideoManager.Instance.LoadVideoFromFile(@"Assets/pot.webm", true);
+            //_videoStream = VideoManager.Instance.LoadVideoFromCamera(0, false);
         }
 
 
@@ -67,7 +67,7 @@ namespace Examples.VideoTextureExample
             if (Input.Instance.IsKey(KeyCodes.P))
                 _videoStream.Stop();
             if (Input.Instance.IsKey(KeyCodes.Space))
-                _videoStream.Start();
+                _videoStream.Play();
 
             // move per mouse
             if (Input.Instance.IsButton(MouseButtons.Left))
@@ -89,7 +89,7 @@ namespace Examples.VideoTextureExample
             if (Input.Instance.IsKey(KeyCodes.P))
                 _videoStream.Stop();
             if (Input.Instance.IsKey(KeyCodes.Space))
-                _videoStream.Start();
+                _videoStream.Play();
 
             // move per keyboard
             if (Input.Instance.IsKey(KeyCodes.Left))

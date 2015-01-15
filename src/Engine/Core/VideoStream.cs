@@ -8,21 +8,21 @@ namespace Fusee.Engine
 {
     public class VideoStream
     {
-        public IVideoStreamImpOld ImpOld;
+        public IVideoStreamImp Imp;
 
         public ImageData GetCurrentFrame ()
         {
-            return ImpOld.GetCurrentFrame();
+            return Imp.GetCurrentFrame();
         }
 
-        public void Start()
+        public void Play()
         {
-            ImpOld.Start();
+            Imp.Play();
         }
 
         public void Stop ()
         {
-            ImpOld.Stop();
+            Imp.Stop();
         }
 
     }

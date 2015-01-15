@@ -118,7 +118,7 @@ namespace Fusee.Engine
             {
                 return _videoManagerImplementor ??
                        (_videoManagerImplementor =
-                           LoadImplementorAssemblyType("Fusee.Engine.Imp.AForge.dll",
+                           LoadImplementorAssemblyType("Fusee.FFMPEG.dll",
                                "Fusee.Engine.VideoManagerImplementor"));
             }
         }
@@ -228,9 +228,9 @@ namespace Fusee.Engine
         }
 
         [JSExternal]
-        public static IVideoManagerImpOld CreateIVideoManagerImp()
+        public static IVideoManagerImp CreateIVideoManagerImp()
         {
-            return (IVideoManagerImpOld) CreateIImp(VideoManagerImplementor, "CreateVideoManagerImp").Invoke(null, null);
+            return (IVideoManagerImp) CreateIImp(VideoManagerImplementor, "CreateVideoManagerImp").Invoke(null, null);
         }
 
         #endregion

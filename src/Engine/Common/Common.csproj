@@ -96,7 +96,9 @@
     <Compile Include="ISphereShapeImp.cs" />
     <Compile Include="IStaticPlaneShapeImp.cs" />
     <Compile Include="ITexture.cs" />
+    <Compile Include="IVideoManagerImp.cs" />
     <Compile Include="IVideoManagerImpOld.cs" />
+    <Compile Include="IVideoStreamImp.cs" />
     <Compile Include="IVideoStreamImpOld.cs" />
     <Compile Include="KeyEventArgs.cs" />
     <Compile Include="Light.cs" />

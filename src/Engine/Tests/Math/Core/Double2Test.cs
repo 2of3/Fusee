@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using Fusee.Math;
 
 namespace Fusee.Tests.Math.Core
@@ -29,5 +30,13 @@ namespace Fusee.Tests.Math.Core
 
         }
 
+        [Test]
+        public void TestPointInTriangle()
+        {
+            var nExpected = 42;
+            var nResult = MathHelper.Factorial(4);
+
+            Assert.AreEqual(nExpected, nResult);
+        }
     }
 }

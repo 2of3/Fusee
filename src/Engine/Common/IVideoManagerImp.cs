@@ -6,7 +6,7 @@
     /// </summary>
     public interface IVideoManagerImp
     {
-        IVideoStreamImpOld CreateVideoStreamImpFromFile(string filename, bool loopVideo, bool useAudio);
-        // IVideoStreamImpOld CreateVideoStreamImpFromCamera(int cameraIndex, bool useAudio);
+        IVideoStreamImp CreateVideoStreamImpFromFile(string filename, bool loopVideo, bool useAudio);
+        IVideoStreamImp CreateVideoStreamImpFromCamera(int cameraIndex, bool useAudio);
     }
 }

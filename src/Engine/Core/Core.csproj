@@ -106,7 +106,7 @@
     <Compile Include="ShaderEffect.cs" />
     <Compile Include="Stereo3D.cs" />
     <Compile Include="Time.cs" />
-    <Compile Include="VideoManagerOld.cs" />
+    <Compile Include="VideoManager.cs" />
     <Compile Include="VideoStream.cs" />
   </ItemGroup>
   <ItemGroup>
