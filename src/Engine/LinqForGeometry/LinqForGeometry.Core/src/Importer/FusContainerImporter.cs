@@ -40,7 +40,7 @@ namespace Fusee.LFG.Core.src.Importer
             using (var file = File.OpenRead(path))
             {
                 _Scene = _serializer.Deserialize(file, null, typeof(SceneContainer)) as SceneContainer;
-                _Mesh = SceneRenderer.MakeMesh(_Scene.Children[0]);
+                _Mesh = SceneRenderer.MakeMesh(_Scene.Children[0].GetMesh());
             }
             _GeoFaces = new List<GeoFace>();
             ConvertMesh();

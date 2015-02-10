@@ -145,9 +145,9 @@ namespace Examples.LinqForGeometry
 
             #region MeshImports
             _Geo = new Geometry(LFGImporterType.wavefront);
-            _Geo.LoadAsset(@"Assets/Cube.obj.model");
+//            _Geo.LoadAsset(@"Assets/Cube.obj.model");
 //            _Geo.LoadAsset(@"Assets/Cube_quads.obj.model");
-//            _Geo.LoadAsset(@"Assets/Sphere.obj.model");
+            _Geo.LoadAsset(@"Assets/Sphere.obj.model");
 //            _Geo.LoadAsset(@"Assets/Sphere_quads.obj.model");
 //            _Geo.LoadAsset(@"Assets/SharedCorners.obj.model");
 //            _Geo.LoadAsset(@"Assets/Cylinder.obj.model");
@@ -176,8 +176,8 @@ namespace Examples.LinqForGeometry
             _msDiffuse = MoreShaders.GetDiffuseTextureShader(RC);
             _vLightShaderParam = _msDiffuse.GetShaderParam("texture1");
 
-            ImageData imgData = RC.LoadImage("Assets/Cube_Mat_uv.jpg");
-//            ImageData imgData = RC.LoadImage("Assets/world_map.jpg");
+//            ImageData imgData = RC.LoadImage("Assets/Cube_Mat_uv.jpg");
+            ImageData imgData = RC.LoadImage("Assets/world_map.jpg");
 //            ImageData imgData = RC.LoadImage("Assets/Teapot_Texture.jpg");
 
             // Due to copyright reasons, this file will not be delivered with the project.
