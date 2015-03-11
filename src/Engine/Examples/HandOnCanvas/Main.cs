@@ -30,6 +30,11 @@ namespace Examples.HandOnCanvas
         private const float SquareScreenPxls = 2048.0f;
         private const float HandScale = 0.5f;
 
+        // GUI stuff
+        private GUIHandler _guiHandler;
+        private GUIImage _guiFuseeLogo;
+        private GUIButton _guiFuseeLink;
+
         private void InitShader()
         {
             var imgData = RC.LoadImage("Assets/art_billard.jpg");
@@ -144,6 +149,40 @@ namespace Examples.HandOnCanvas
                 scene = ser.Deserialize(file, null, typeof(SceneContainer)) as SceneContainer;
                 _meshHand = SceneRenderer.MakeMesh(scene.Children[0].GetMesh());
             }
+
+            // GUI initialization
+            _guiHandler = new GUIHandler();
+            _guiHandler.AttachToContext(RC);
+            _guiFuseeLink = new GUIButton(6, 6, 157, 87);
+            // _guiFuseeLink.ButtonColor = new float4(0, 0, 0, 0);
+            // _guiFuseeLink.BorderColor = new float4(0, 0.6f, 0.2f, 1);
+
+            _guiFuseeLink.ButtonColor = new float4(0, 0.6f, 0.2f, 0.4f);
+            _guiFuseeLink.BorderWidth = 1;
+
+
+            _guiFuseeLink.BorderWidth = 0;
+            _guiFuseeLink.OnGUIButtonDown += delegate(GUIButton sender, MouseEventArgs mea)
+            {
+                OpenLink("http://fusee3d.org");
+            };
+            _guiFuseeLink.OnGUIButtonEnter += delegate(GUIButton sender, MouseEventArgs mea)
+            {
+                //_guiFuseeLink.ButtonColor = new float4(0, 0.6f, 0.2f, 0.4f);
+                //_guiFuseeLink.BorderWidth = 1;
+                SetCursor(CursorType.Hand);
+            };
+            _guiFuseeLink.OnGUIButtonLeave += delegate(GUIButton sender, MouseEventArgs mea)
+            {
+                //_guiFuseeLink.ButtonColor = new float4(0, 0, 0, 0);
+                //_guiFuseeLink.BorderWidth = 0;
+                SetCursor(CursorType.Standard);
+            };
+            _guiHandler.Add(_guiFuseeLink);
+
+            _guiFuseeLogo = new GUIImage("Assets/FuseeLogo150.png", 10, 10, -5, 150, 80);
+            _guiHandler.Add(_guiFuseeLogo);
+
         }
 
         // is called once a frame
@@ -207,6 +246,7 @@ namespace Examples.HandOnCanvas
 
             _shaderEffect.RenderMesh(_meshHand);
 
+            _guiHandler.RenderGUI();
             // swap buffers
             Present();
         }
@@ -224,6 +264,8 @@ namespace Examples.HandOnCanvas
                 10000);
 
             _shaderEffect.SetEffectParam("uLineWidth", new float2(LineWidth/_normWidth, LineWidth/_normHeight));
+
+            _guiHandler.Refresh();        
         }
 
         public static void Main()
