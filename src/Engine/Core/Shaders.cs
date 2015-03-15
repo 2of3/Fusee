@@ -112,7 +112,7 @@
                 vec4 vViewPosTemp = FUSEE_MV * vec4(fuVertex, 1);
                 vViewPos = vec3(vViewPosTemp)/vViewPosTemp.w;      
 
-                vNormal = normalize(mat3(FUSEE_MV[0].xyz, FUSEE_MV[1].xyz, FUSEE_MV[2].xyz) * fuNormal);
+                vNormal = normalize(mat3(FUSEE_MV[0].xyz, FUSEE_MV[1].xyz, FUSEE_MV[2].xyz) * -fuNormal);
 
                 gl_Position = FUSEE_MVP * vec4(fuVertex, 1.0);
             }";

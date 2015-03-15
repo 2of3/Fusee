@@ -1145,12 +1145,8 @@ namespace Fusee.Engine
         /// <param name="active">1 - activate the light. 0 - deactiv</param>
         public void SetLightActive(int lightInx, float active)
         {
-            _lightParams[lightInx].Active = active;
-            IShaderParam sp;
-            string paramName = "FUSEE_L" + lightInx + "_ACTIVE";
-
-            if ((sp = _currentShader.GetShaderParam(paramName)) != null)
-                SetShaderParam(sp, _lightParams[lightInx].Active);
+            //if (_lightShaderParams[lightInx].ACTIVE != null)
+                _lightParams[lightInx].Active = active;
         }
 
         /// <summary>
@@ -1167,10 +1163,6 @@ namespace Fusee.Engine
         public void SetLightAmbient(int lightInx, float4 ambientColor)
         {
             _lightParams[lightInx].AmbientColor = ambientColor;
-            IShaderParam sp;
-            string paramName = "FUSEE_L" + lightInx + "_AMBIENT";
-            if ((sp = _currentShader.GetShaderParam(paramName)) != null)
-                SetShaderParam(sp, _lightParams[lightInx].AmbientColor);
         }
 
         /// <summary>
@@ -1189,10 +1181,6 @@ namespace Fusee.Engine
         public void SetLightDiffuse(int lightInx, float4 diffuseColor)
         {
             _lightParams[lightInx].DiffuseColor = diffuseColor;
-            IShaderParam sp;
-            string paramName = "FUSEE_L" + lightInx + "_DIFFUSE";
-            if ((sp = _currentShader.GetShaderParam(paramName)) != null)
-                SetShaderParam(sp, _lightParams[lightInx].DiffuseColor);
         }
 
         /// <summary>
@@ -1213,10 +1201,6 @@ namespace Fusee.Engine
         public void SetLightSpecular(int lightInx, float4 specularColor)
         {
             _lightParams[lightInx].SpecularColor = specularColor;
-            IShaderParam sp;
-            string paramName = "FUSEE_L" + lightInx + "_SPECULAR";
-            if ((sp = _currentShader.GetShaderParam(paramName)) != null)
-                SetShaderParam(sp, _lightParams[lightInx].SpecularColor);
         }
 
         /// <summary>
@@ -1227,10 +1211,6 @@ namespace Fusee.Engine
         public void SetLightPosition(int lightInx, float3 position)
         {
             _lightParams[lightInx].Position = position;
-            IShaderParam sp;
-            string paramName = "FUSEE_L" + lightInx + "_POSITION";
-            if ((sp = _currentShader.GetShaderParam(paramName)) != null)
-                SetShaderParam(sp, _lightParams[lightInx].Position);
         }
 
         /// <summary>
@@ -1240,11 +1220,7 @@ namespace Fusee.Engine
         /// <param name="direction">The direction vector into which the light emits rays.</param>
         public void SetLightDirection(int lightInx, float3 direction)
         {
-            _lightParams[lightInx].Direction = direction;
-            IShaderParam sp;
-            string paramName = "FUSEE_L" + lightInx + "_DIRECTION";
-            if ((sp = _currentShader.GetShaderParam(paramName)) != null)
-                SetShaderParam(sp, _lightParams[lightInx].Direction);
+             _lightParams[lightInx].Direction = direction;
         }
 
         /// <summary>
@@ -1254,12 +1230,7 @@ namespace Fusee.Engine
         /// <param name="angle">The opening angle of the spotlight in degree.</param>
         public void SetLightSpotAngle(int lightInx, float angle)
         {
-
-            _lightParams[lightInx].Angle = -(float)System.Math.Cos(angle);
-            IShaderParam sp;
-            string paramName = "FUSEE_L" + lightInx + "_SPOTANGLE";
-            if ((sp = _currentShader.GetShaderParam(paramName)) != null)
-                SetShaderParam(sp, _lightParams[lightInx].Angle);
+             _lightParams[lightInx].Angle = angle;
         }
 
         #endregion

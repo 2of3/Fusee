@@ -20,13 +20,12 @@ namespace Examples.Simple
         private Mesh _meshTea;
         
         // variables for shader
-        private ShaderProgram _spColor;
-        private ShaderProgram _spTexture;
+        private ShaderProgram _spDiffuse;
 
-        private IShaderParam _colorParam;
         private IShaderParam _textureParam;
 
         private ITexture _iTex;
+        private ImageData _imgData;
 
         // is called on startup
         public override void Init()
@@ -35,10 +34,20 @@ namespace Examples.Simple
 
             // initialize the variables
             _meshTea = MeshReader.LoadMesh(@"Assets/Teapot.obj.model");
+            _imgData = RC.CreateImage(1024, 1024, "white");
             _meshFace = new Cube();
+            _iTex = RC.CreateTexture(_imgData);
+            _spDiffuse = Shaders.GetDiffuseTextureShader(RC);
+
+
+            RC.SetLightActive(0,1);
+            RC.SetLightAmbient(0,new float4(0,0,1,0));
+            RC.SetLightDiffuse(0, new float4(1, 0, 0, 0));
+            RC.SetLightDirection(0, new float3(0,0,1));
+
+
+            _textureParam = _spDiffuse.GetShaderParam("texture1");
             
-            _spColor = Shaders.GetDiffuseColorShader(RC);
-            _colorParam = _spColor.GetShaderParam("color");
         }
 
         // is called once a frame
@@ -79,19 +88,20 @@ namespace Examples.Simple
             var mtxRot = float4x4.CreateRotationX(_angleVert) * float4x4.CreateRotationY(_angleHorz);
             var mtxCam = float4x4.LookAt(0, 200, -500, 0, 0, 0, 0, 1, 0);
 
-            RC.SetShader(_spColor);
+            RC.SetShader(_spDiffuse);
 
             // render first mesh
             var modelViewMesh1 = mtxCam * mtxRot * float4x4.CreateTranslation(-150, 0, 0) * float4x4.CreateTranslation(0, -50, 0);
             RC.ModelView = modelViewMesh1;
-            RC.SetShaderParam(_colorParam, new float4(0.5f, 0.8f, 0, 1));
+            //RC.SetShaderParam(_, new float4(0.5f, 0.8f, 0, 1));
+            RC.SetShaderParamTexture(_textureParam, _iTex);
             RC.Render(_meshTea);
 
             // render second mesh
-            var modelViewMesh2 = mtxCam*mtxRot*float4x4.CreateTranslation(150, 0, 0) * new float4x4(100, 0, 0, 0, 0, 100, 0, 0, 0, 0, 100, 0, 0, 0, 0, 1);
-            RC.ModelView = modelViewMesh2;
-            RC.SetShaderParam(_colorParam, new float4(1, 0, 0, 1));
-            RC.Render(_meshFace);
+            //var modelViewMesh2 = mtxCam*mtxRot*float4x4.CreateTranslation(150, 0, 0) * new float4x4(100, 0, 0, 0, 0, 100, 0, 0, 0, 0, 100, 0, 0, 0, 0, 1);
+            //RC.ModelView = modelViewMesh2;
+            //RC.SetShaderParam(_colorParam, new float4(1, 0, 0, 1));
+            //RC.Render(_meshFace);
 
             // swap buffers
             Present();
