@@ -22,7 +22,7 @@ namespace Fusee.SceneManagement
         /// <param name="specular">The specular light color.</param>
         /// <param name="position">The position in the scene.</param>
         /// <param name="channel">The memory space of the light.(0 - 7)</param>
-        public DirectionalLight(float3 direction, float4 diffuse, float4 ambient, float4 specular, float3 position, int channel)
+        public DirectionalLight(float3 position, float3 direction, float4 diffuse, float4 ambient, float4 specular, int channel)
         {
             _position = position;
             _direction = direction;

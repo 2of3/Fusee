@@ -77,7 +77,7 @@
             varying vec2 vUV;
 
             void main() {
-                gl_FragColor = max(dot(vec3(0,0,-1),normalize(vNormal)), 0.2) * texture2D(texture1, vUV);
+                gl_FragColor = max(dot(vec3(0, 0, -1), normalize(vNormal)), 0.2) * texture2D(texture1, vUV);
             }";
 
         /// <summary>
@@ -143,7 +143,11 @@
 
             void CalcDirectLight(vec4 difColor, vec4 ambColor, vec3 direction, inout vec4 intensity) {
                 intensity += ambColor;
-                intensity += max(dot(-normalize(direction), normalize(vNormal)), 0.0) * difColor;
+
+                float NdotL = max(dot(normalize(vNormal), normalize(direction)), 0.0);
+
+                if (NdotL > 0.0)
+                    intensity += NdotL * difColor;
             }
 
             void CalcPointLight(vec4 difColor, vec4 ambColor, vec3 position, inout vec4 intensity) {
