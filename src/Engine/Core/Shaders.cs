@@ -132,7 +132,11 @@
                 vec3 position;
                 vec3 direction;
                 float spotAngle;
-            } uniform FUSEE_LIGHTS[LIGHT_COUNT];
+            };
+
+            uniform FUSEE_LIGHT FUSEE_LIGHTS[LIGHT_COUNT];
+
+
 
             uniform mat4 FUSEE_V;
             uniform sampler2D texture1;
@@ -252,7 +256,9 @@
                 vec3 position;
                 vec3 direction;
                 float spotAngle;
-            } uniform FUSEE_LIGHTS[LIGHT_COUNT];
+            }; 
+
+            uniform FUSEE_LIGHT FUSEE_LIGHTS[LIGHT_COUNT];
 
             uniform mat4 FUSEE_V;
             uniform sampler2D texture1;
@@ -385,7 +391,9 @@
                 vec3 position;
                 vec3 direction;
                 float spotAngle;
-            } uniform FUSEE_LIGHTS[LIGHT_COUNT];
+            }; 
+
+            uniform FUSEE_LIGHT FUSEE_LIGHTS[LIGHT_COUNT];
     
             uniform mat4 FUSEE_V;
             uniform mat4 FUSEE_MV;
