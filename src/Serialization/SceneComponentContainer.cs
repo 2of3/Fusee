@@ -25,6 +25,7 @@ namespace Fusee.Serialization
     [ProtoInclude(101, typeof(MeshComponent))]
     [ProtoInclude(102, typeof(MaterialComponent))]
     [ProtoInclude(103, typeof(LightComponent))]
+    [ProtoInclude(120, typeof(RenderStateSetComponent))]
     public class SceneComponentContainer
     {
         [ProtoMember(1)]

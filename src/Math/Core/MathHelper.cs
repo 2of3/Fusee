@@ -379,6 +379,114 @@ namespace Fusee.Math
 
         #endregion
 
+        /*
+        #region PointIsInTri
+        public static bool PointIsInTri(float2 p, float2 a, float2 b, float2 c, out float3 w)
+        {
+            return PointIsInTri(p, a, b, c, out w.x, out w.y, out w.z);
+        }
+
+        public static bool PointIsInTri(float2 p, float2 a, float2 b, float2 c, out float wa, out float wb, out float wc)
+        {
+            return !PointIsInTriCW(p, a, b, c, out wa, out wb, out wc) ? PointIsInTriCW(p, a, c, b, out wa, out wb, out wc) : PointIsInTriCW(p, a, b, c, out wa, out wb, out wc);
+        }
+
+        private static bool PointIsInTriCW(float2 p, float2 a, float2 b, float2 c, out float wa, out float wb, out float wc)
+        {
+            wa = (a.y * c.x - a.x * c.y + (c.y - a.y) * p.x + (a.x - c.x) * p.y);
+            wb = (a.x * b.y - a.y * b.x + (a.y - b.y) * p.x + (b.x - a.x) * p.y);
+
+            if (wa <= 0 || wb <= 0)
+            {
+                wa = wb = wc = 0;
+                return false;
+            }
+
+            var A = (-b.y * c.x + a.y * (-b.x + c.x) + a.x * (b.y - c.y) + b.x * c.y);
+
+            if ((wa + wb) > A)
+            {
+                wa = wb = wc = 0;
+                return false;
+            }
+
+            float AInv = 1.0f/A;
+            wa *= AInv;
+            wb *= AInv;
+            wc = 1 - (wa + wb);
+
+            return true;
+        }
+
+        */
+
+        #region IsPointInTri
+
+        // Compute barycentric coordinates (u, v, w) for
+        // point p with respect to triangle (a, b, c)
+        public static bool IsPointInTriCCW(float2 p, float2 a, float2 b, float2 c, out float u, out float v, out float w)
+        {
+            return IsPointInTriCW(p, b, a, c, out u, out v, out w);
+        }
+
+        public static bool IsPointInTriCW(float2 p, float2 a, float2 b, float2 c, out float u, out float v, out float w)
+        {
+            float2 v0 = b - a, v1 = c - a, v2 = p - a;
+            float vNum = (v2.x*v1.y - v1.x*v2.y);
+            float wNum = (v0.x*v2.y - v2.x*v0.y);
+            if (vNum > 0 || wNum > 0)
+                goto fastExit;
+
+            float den = (v0.x * v1.y - v1.x * v0.y);
+            if (vNum + wNum < den)
+                goto fastExit;
+
+            float denInv = 1.0f / den;
+            v = vNum * denInv;
+            w = wNum * denInv;
+            u = 1.0f - v - w;
+            return true;
+         fastExit:
+            u = v = w = 0;
+            return false;
+        }
+ 
+        public static bool IsPointInTri(float2 p, float2 a, float2 b, float2 c, out float u, out float v, out float w)
+        {
+            float2 v0 = b - a, v1 = c - a, v2 = p - a;
+            float vNum = (v2.x * v1.y - v1.x * v2.y);
+            float wNum = (v0.x * v2.y - v2.x * v0.y);
+            if ((vNum < 0) != (wNum < 0))
+                goto fastExit;
+
+            float den = (v0.x * v1.y - v1.x * v0.y);
+            if ((den < 0) != (vNum < 0) ||
+                 ((den >= 0) && (vNum + wNum > den) || (den < 0) && (vNum + wNum < den)))
+                goto fastExit;
+
+            float denInv = 1.0f / den;
+            v = vNum * denInv;
+            w = wNum * denInv;
+            u = 1.0f - v - w;
+            return true;
+         fastExit:
+            u = v = w = 0;
+            return false;
+        }
+
+
+        public static void Barycentric(float2 p, float2 a, float2 b, float2 c, out float u, out float v, out float w)
+        {
+            float2 v0 = b - a, v1 = c - a, v2 = p - a;
+            float denInv = 1.0f / (v0.x * v1.y - v1.x * v0.y);
+            v = (v2.x * v1.y - v1.x * v2.y) * denInv;
+            w = (v0.x * v2.y - v2.x * v0.y) * denInv;
+            u = 1.0f - v - w;
+        }
         #endregion
+
+
+        #endregion
+
     } 
 }

@@ -6,14 +6,18 @@ namespace Fusee.Tests.Math.Core
     {
         public CoreTest()
         {
-            this.Double2();
+            this.DoMathTests();
             
         }
-        public void Double2()
+        public void DoMathTests()
         {
-            var d2 = new Double2Test();
+            var mt = new MathTests();
 
-            d2.Add();
+            mt.Add();
+            mt.PointInTriSimpleTest();
+            mt.PointInTriMassTest();
         }
+
+
     }
 }

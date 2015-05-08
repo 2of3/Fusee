@@ -34,9 +34,12 @@ namespace Fusee.Engine.SimpleScene
     {
         public class PickingState : VisitorState
         {
+            public delegate bool TriangleInPointTest(
+                float2 p, float2 a, float2 b, float2 c, out float u, out float v, out float w);
             private CollapsingStateStack<float4x4> _model = new CollapsingStateStack<float4x4>();
             private CollapsingStateStack<float4x4> _view = new CollapsingStateStack<float4x4>();
             private CollapsingStateStack<float4x4> _projection = new CollapsingStateStack<float4x4>();
+            private CollapsingStateStack<TriangleInPointTest> _triInPointTest = new CollapsingStateStack<TriangleInPointTest>();
 
             public float4x4 Model
             {
@@ -56,19 +59,29 @@ namespace Fusee.Engine.SimpleScene
                 get { return _projection.Tos; }
             }
 
+            public TriangleInPointTest TriInPointTest
+            {
+                set { _triInPointTest.Tos = value; }
+                get { return _triInPointTest.Tos; }
+            }
+
             public PickingState()
             {
                 RegisterState(_model);
                 RegisterState(_view);
                 RegisterState(_projection);
+                RegisterState(_triInPointTest);
+                _triInPointTest.Tos = MathHelper.
             }
         }
 
-        public ScenePicker(IEnumerator<SceneNodeContainer> rootList)
-            : base(rootList)
+        public Point PickPos
         {
-            State.Model = float4x4.Identity;
+            set { _fPickPos = new float4(value.x, value.y, 0.0f, 1.0f);}
+            get { return new Point{x= (int) _fPickPos.x, y = (int) _fPickPos.y, z = 0};}
         }
+        private float4 _fPickPos;
+
 
         #region Visitors
         [VisitMethod]
@@ -80,24 +93,32 @@ namespace Fusee.Engine.SimpleScene
         [VisitMethod]
         public void PickMesh(MeshComponent meshComponent)
         {
-            Mesh rm;
+            float4x4 mvp = State.Model*State.View*State.Projection;
+            for (int iTri = 0; iTri < meshComponent.Triangles.Length; iTri+=3)
+            {
+                float4 a = mvp*new float4(meshComponent.Vertices[iTri+0], 1);
+                a /= a.w;
+                float4 b = mvp*new float4(meshComponent.Vertices[iTri+1], 1);
+                b /= b.w;
+                float4 c = mvp*new float4(meshComponent.Vertices[iTri+2], 1);
+                c /= c.w;
+                
+                if ()
 
-            // TODO: DO THE PICK TEST HERE
-            // foreach triangle
-            // {
-            //   if (triangle is hit by pickpos)
-            //   {
-            //     YieldItem(new PickResult
-            //          {
-            //              Mesh = meshComponent,
-            //              Node = CurrentNode,
-            //              Triangle = TODO,
-            //              WA = TODO,
-            //              WB = TODO,
-            //              WC = TODO
-            //          });
-            //   }
-            // }
+              if (triangle is hit by pickpos)
+              {
+                YieldItem(new PickResult
+                     {
+                         Mesh = meshComponent,
+                         Node = CurrentNode,
+                         Triangle = TODO,
+                         WA = TODO,
+                         WB = TODO,
+                         WC = TODO
+                     });
+              }
+            }
+             * */
         }
         #endregion
  

@@ -210,6 +210,29 @@ namespace Fusee.Engine.SimpleScene
         }
     }
 
+    public class RenderStateStack : CollapsingStateStack<RenderStateSet>
+    {
+        public void Push()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Pop()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Clear()
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Depth
+        {
+            get { throw new NotImplementedException(); }
+        }
+    }
+
     /// <summary>
     /// Dummy implementation of the <see cref="IStateStack"/> interface. Nothing can be stored within instance of this type.
     /// There's no Top of Stack object. Only the stack Depth is correctly tracked according to the number of Push() and Pop() 

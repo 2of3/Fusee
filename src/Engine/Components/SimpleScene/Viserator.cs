@@ -24,6 +24,19 @@ namespace Fusee.Engine.SimpleScene
             IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
         }
 
+        internal class ViseratorEnumerableExisting<TResult> : IEnumerable<TResult> 
+        {
+            internal ViseratorBase<TResult> _viserator;
+
+            public IEnumerator<TResult> GetEnumerator()
+            {
+                return _viserator;
+            }
+            IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
+        }
+
+
+
         public static IEnumerable<TResult> Viserate<TViserator, TResult>(this SceneNodeContainer root) where TViserator : ViseratorBase<TResult>, new()
         {
             return new ViseratorEnumerable<TViserator, TResult> { _rootList = SceneVisitorHelpers.SingleRootEnum(root) };
@@ -33,6 +46,19 @@ namespace Fusee.Engine.SimpleScene
         {
             return new ViseratorEnumerable<TViserator, TResult> { _rootList = rootList.GetEnumerator() };
         }
+
+        public static IEnumerable<TResult> Viserate<TResult>(this SceneNodeContainer root, ViseratorBase<TResult> viserator)
+        {
+            viserator.Init(SceneVisitorHelpers.SingleRootEnum(root));
+            return new ViseratorEnumerableExisting<TResult> { _viserator = viserator };
+        }
+
+        public static IEnumerable<TResult> Viserate<TResult>(this IEnumerable<SceneNodeContainer> rootList, ViseratorBase<TResult> viserator)
+        {
+            viserator.Init(rootList.GetEnumerator());
+            return new ViseratorEnumerableExisting<TResult> { _viserator = viserator };
+        }
+    
     }
 
     /// <summary>
