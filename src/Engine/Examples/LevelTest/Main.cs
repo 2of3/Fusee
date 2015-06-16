@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -88,14 +89,14 @@ namespace Examples.LevelTest
         // is called on startup
         public override void Init()
         {
+            
+            Player Sarah = new Player("Sarah");
+            Player John = new Player("John");
+            Player Anja = new Player("Anja");
             //creates thread for TcpServer, sets it as backgroundthread, starts the thread
             var tcpServer = new Thread(StartTcpServer);
             tcpServer.IsBackground = true;
             tcpServer.Start(this);
-
-
-            
-            
             
 
             _gui = new GUI(RC);
@@ -754,25 +755,26 @@ namespace Examples.LevelTest
             Present();
         }
 
+        
+       
+
         private List<float> ExtractNumbers(string message)
         {
-            List<float> orientation = new List<float>();
-            //string pitch = string.Empty;
-            //string roll = string.Empty;
+            var orientation = new List<float>();
             if (message.Length == 0) return orientation;
 
-            string[] split = message.Split(new char[] {':', ' ', ',', ';'});
+            var split = message.Split(new char[] {':', ' ', ',', ';'});
 
             float tempNumber = 0;
 
-            foreach(char numChar in message.ToCharArray())
+            foreach(var numChar in message.ToCharArray())
             {
                // if (Char.IsNumber(numChar)) figure += numChar.ToString();
             }
             //if (figure == string.Empty) return "";
-            tempNumber = float.Parse(split[1]);
-            split[2] = "0," + split[2];
-            orientation.Add(float.Parse(split[2]) + tempNumber);
+            tempNumber = float.Parse(split[2]);
+            split[3] = "0," + split[3];
+            orientation.Add(float.Parse(split[3]) + tempNumber);
             tempNumber = float.Parse(split[6]);
             split[7] = "0," + split[7];
             orientation.Add(float.Parse(split[7]) + tempNumber);

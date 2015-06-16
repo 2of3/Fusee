@@ -9,18 +9,30 @@ namespace Examples.LevelTest
 {
     class Player
     {
+        private static string[] _elements = {"fire", "water", "doof" ,"earth", "air"};
+
+        private static int i = 0;
         private readonly IPAddress _ipAddress;
-        public Player(string id, float3 playerPos, int playerNumber, string elementString, IPAddress ipAddress)
+        public Player(string id, float3 playerPos, int playerNumber, IPAddress ipAddress)
         {
             
             Id = id;
             PlayerPos = playerPos;
             PlayerNumber = playerNumber;
-            ElementString = elementString;
+            ElementString = _elements[i++];
             _ipAddress = ipAddress;
             IsActive = true;
         }
+        public Player(string id)
+        {
 
+            Id = id;
+            
+            
+            ElementString = _elements[i++];
+            
+            IsActive = true;
+        }
         public Player(IPAddress ipAddress)
         {
             _ipAddress = ipAddress;
@@ -41,7 +53,7 @@ namespace Examples.LevelTest
         public int PlayerNumber { get; private set; }
 
         // fire, water, earth, air
-        public string ElementString { get; set; }
+        public string ElementString { get; private set; }
 
         public IPAddress IpAddress
         {
