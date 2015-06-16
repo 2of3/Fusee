@@ -67,8 +67,10 @@ namespace Examples.LevelTest
 
         private ITexture _iTex;
 
-        // For now using a Dictionary is the best I came up with. Feel freeto correct me.
+        // For now using a Dictionary is the best I came up with. Feel free to correct me.
         private Dictionary<string, List<float>> _playerOrientations = new Dictionary<string, List<float>>();
+
+        private string[] _activePLayers = new string[4];
 
         private int _aa;
         private int _bb;
@@ -242,6 +244,30 @@ namespace Examples.LevelTest
                     //
                     //
                 }
+
+                int i = 0;
+                foreach (var player in _playerOrientations.Keys)
+                {
+                    var connections = _tpts.GetConnections();
+                    //string address = "";
+                    var addressString = new string[4];
+                    int j = 0;
+                    // ACHTUNG!
+                    foreach (var address in connections.Select(tcpConnection => tcpConnection.Address.ToString()))
+                    {
+                        addressString[j] = address;
+                        j++;
+                    }
+
+                    
+                    if(addressString.Contains(player))
+                    {
+                        _activePLayers[i] = player;    
+                    }
+                    
+                    i++;
+                    
+                }
             }
 
             try
@@ -334,6 +360,7 @@ namespace Examples.LevelTest
                 inputB = 30;
                 _bb -= (int)inputB;
             }*/
+                
                 if (_playerOrientations.Count != 0)
                 {
                     var controllArray = _playerOrientations.First().Value;
@@ -346,7 +373,7 @@ namespace Examples.LevelTest
 
             // move per keyboard (W A S D) in gamemode 0
 
-            if (Input.Instance.IsKey(KeyCodes.A))
+            /*if (Input.Instance.IsKey(KeyCodes.A))
             {
                 inputC = 30;
                 _cc -= (int)inputC;
@@ -375,7 +402,17 @@ namespace Examples.LevelTest
                 inputD = 30;
                 _dd -= (int)inputD;
 
-            }     
+            }*/
+
+                if (_activePLayers[1] != null)
+                {
+                    var controllArray = _playerOrientations[_activePLayers[1]];
+                    inputC = -(int)controllArray[1];
+                    _cc += inputC;
+
+                    inputD = -(int) controllArray[0];
+                    _dd += inputD;
+                }
                
             
 
@@ -479,26 +516,30 @@ namespace Examples.LevelTest
             RC.ModelView = mtxCam * mtxRot * mtxR;
             _srBorder.Render(RC);
 
-            //Fire
+            //Fire - Second Player in _activePLayers
             var mtxM2 = float4x4.CreateTranslation(playerPos[1].x, 0, playerPos[1].z);
             var mtxScalePlayer = float4x4.CreateScale(5);
             RC.ModelView = mtxCam * mtxRot * mtxM2 * mtxScalePlayer;
-            _srFire.Render(RC);
+            if(_activePLayers[1] != null)
+                _srFire.Render(RC);
 
-            //Water
+            //Water - First PLayer in _activePlayers
             var mtxM1 = float4x4.CreateTranslation(playerPos[0].x, 0, playerPos[0].z);
             RC.ModelView = mtxCam * mtxRot * mtxM1 * mtxScalePlayer;
-            _srWater.Render(RC);
+            if(_activePLayers[0] != null)
+                _srWater.Render(RC);
 
             //Earth
             var mtxM3 = float4x4.CreateTranslation(playerPos[2].x, 0, playerPos[2].z);
             RC.ModelView = mtxCam * mtxRot * mtxM3 * mtxScalePlayer;
-            _srEarth.Render(RC);
+            
+            //_srEarth.Render(RC);
+                
 
             //Air
             var mtxM4 = float4x4.CreateTranslation(300, 0, 300);
             RC.ModelView = mtxCam * mtxRot * mtxM4 * mtxScalePlayer;
-            _srAir.Render(RC);
+            //_srAir.Render(RC);
             
             //Skybox
             var mtxScale = float4x4.CreateScale(1.5f);
