@@ -88,6 +88,12 @@ namespace Examples.LevelTest
 
         private float3 averageNewPos;
 
+        // Physics
+        // Gehört eigentlich zur Player Klasse. _velocity muss aus pos und newPos berechnet werden.
+        //private const int _velocity = 30;
+
+        public static Physic LevelPhysic { get; private set; }
+
         // is called on startup
         public override void Init()
         {
@@ -192,7 +198,11 @@ namespace Examples.LevelTest
 
             _textureParam = _spTexture.GetShaderParam("texture1");
 
-
+            //Physics
+            LevelPhysic = new Physic();
+            LevelPhysic.InitScene();
+            // Example
+            // PLayer_1 = _physic.InitSphere(new float3(0,100,0));
 
 
             //Central Position of all Players
@@ -205,6 +215,9 @@ namespace Examples.LevelTest
         {
 
             RC.Clear(ClearFlags.Color | ClearFlags.Depth);
+
+            //Physic
+            LevelPhysic.World.StepSimulation((float) Time.Instance.DeltaTime, (Time.Instance.FramePerSecondSmooth/60), 1/60);
 
             //GUI
             float fps = Time.Instance.FramePerSecond;
@@ -224,16 +237,15 @@ namespace Examples.LevelTest
                     foreach (var connection in _tpts.GetConnections())
                     {
                     var ipAddress = connection.Address;
-                        var id = "Spieler" + i++;
+                        var id = "Spieler" + i;
                     var pos = new float3(0, 0, 0);
                     _playerList.Add(new Player(id, pos, i++, ipAddress));
                         if (i > 4) i = 1;
-                    }   
+                    }
+                    _playerList.First().Move(new float3(13, 6, 0));
                 }
-                _playerList.First().PlayerPos
-               
             }
-
+           
             try
             {
                 StringBuilder sb = new StringBuilder();

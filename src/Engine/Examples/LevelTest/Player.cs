@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using Fusee.Engine;
 using Fusee.Math;
 
 namespace Examples.LevelTest
@@ -13,6 +14,8 @@ namespace Examples.LevelTest
 
         private static int i = 0;
         private readonly IPAddress _ipAddress;
+        private float3 _velocity;
+        private RigidBody _rigidBody;
         public Player(string id, float3 playerPos, int playerNumber, IPAddress ipAddress)
         {
             
@@ -23,7 +26,8 @@ namespace Examples.LevelTest
             _ipAddress = ipAddress;
             IsActive = true;
             if (i > 3) i = 0;
-            
+            _rigidBody = LevelTest.LevelPhysic.InitSphere(playerPos);
+
         }
         public Player(string id)
         {
@@ -45,6 +49,8 @@ namespace Examples.LevelTest
 
         public float3 PlayerPos { get; set; }
 
+        public float3 NewPlayerPos { get; set; }
+
         public bool IsActive { get; set; }
 
         public float2 SensorDataFloat2 { get; set; }
@@ -61,7 +67,15 @@ namespace Examples.LevelTest
 
         public void Move(float3 veFloat3)
         {
-            PlayerPos += veFloat3;
+            PlayerPos = NewPlayerPos;
+
+            _velocity = (veFloat3)/(float)(1/Time.Instance.FramePerSecond);
+            
+            
+            _rigidBody.LinearVelocity = new float3(_velocity);
+            NewPlayerPos = _rigidBody.Position;
         }
+
+        
     }
 }
