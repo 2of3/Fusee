@@ -245,10 +245,8 @@ namespace Examples.LevelTest
                         var id = "Spieler" + i;
                         
                         // MUST be called to get the latest sensor data values
-                        // will be written as float3 in _sensorData
+                        ExtractNumbers(connection.Message); //writes float3 in _sensorData
                         //TODO fix output of ExtractNumbers
-                        ExtractNumbers(connection.Message);
-                        
                         _playerList.Add(new Player(id, _sensorData, i++, ipAddress));
 
                         if (i > 4) i = 1;
