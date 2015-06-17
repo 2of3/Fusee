@@ -73,6 +73,8 @@ namespace Examples.LevelTest
 
         private string[] _activePLayers = new string[4];
 
+        private List<Player> _playerList = new List<Player>(); 
+
         private int _aa;
         private int _bb;
         private int _cc = 300;
@@ -90,9 +92,7 @@ namespace Examples.LevelTest
         public override void Init()
         {
             
-            Player Sarah = new Player("Sarah");
-            Player John = new Player("John");
-            Player Anja = new Player("Anja");
+            
             //creates thread for TcpServer, sets it as backgroundthread, starts the thread
             var tcpServer = new Thread(StartTcpServer);
             tcpServer.IsBackground = true;
@@ -219,56 +219,19 @@ namespace Examples.LevelTest
             {
                 var playerOrientation = ExtractNumbers(_tpts.GetConnections().First().Message);
                 if (playerOrientation != null)
-                    //Console.WriteLine("P: {0}, R: {1}", playerOrientation[0], playerOrientation[1]);
-                foreach (var connection in _tpts.GetConnections())
                 {
-                    try
+                    var i = 1;
+                    foreach (var connection in _tpts.GetConnections())
                     {
-                        var ip = connection.Address.ToString();
-                        List<float> value = new List<float>();
-                        if (!_playerOrientations.TryGetValue(ip, out value))
-                            _playerOrientations.Add(ip, ExtractNumbers(connection.Message));
-                        else
-                        {
-                            _playerOrientations.TryGetValue(ip, out value);
-                            _playerOrientations.Remove(ip);
-                            _playerOrientations.Add(ip, ExtractNumbers(connection.Message));
-                            Console.WriteLine(_playerOrientations[ip]);
-                        }
-                    }
-                    catch (NullReferenceException)
-                    {
-                        return;
-                    }
-                    
-                    
-                    //
-                    //
+                    var ipAddress = connection.Address;
+                        var id = "Spieler" + i++;
+                    var pos = new float3(0, 0, 0);
+                    _playerList.Add(new Player(id, pos, i++, ipAddress));
+                        if (i > 4) i = 1;
+                    }   
                 }
-
-                int i = 0;
-                foreach (var player in _playerOrientations.Keys)
-                {
-                    var connections = _tpts.GetConnections();
-                    //string address = "";
-                    var addressString = new string[4];
-                    int j = 0;
-                    // ACHTUNG!
-                    foreach (var address in connections.Select(tcpConnection => tcpConnection.Address.ToString()))
-                    {
-                        addressString[j] = address;
-                        j++;
-                    }
-
-                    
-                    if(addressString.Contains(player))
-                    {
-                        _activePLayers[i] = player;    
-                    }
-                    
-                    i++;
-                    
-                }
+                _playerList.First().PlayerPos
+               
             }
 
             try
