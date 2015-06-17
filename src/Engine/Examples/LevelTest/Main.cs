@@ -82,6 +82,11 @@ namespace Examples.LevelTest
         private int _ee = 600;
         private int _ff;
 
+
+        //Sensor Data
+        private float3 _sensorData;
+
+
         // some logic
         private bool isEmpty;
 
@@ -236,13 +241,19 @@ namespace Examples.LevelTest
                     var i = 1;
                     foreach (var connection in _tpts.GetConnections())
                     {
-                    var ipAddress = connection.Address;
+                        var ipAddress = connection.Address;
                         var id = "Spieler" + i;
-                    var pos = new float3(0, 0, 0);
-                    _playerList.Add(new Player(id, pos, i++, ipAddress));
+                        
+                        // MUST be called to get the latest sensor data values
+                        // will be written as float3 in _sensorData
+                        //TODO fix output of ExtractNumbers
+                        ExtractNumbers(connection.Message);
+                        
+                        _playerList.Add(new Player(id, _sensorData, i++, ipAddress));
+
                         if (i > 4) i = 1;
                     }
-                    _playerList.First().Move(new float3(13, 6, 0));
+                    
                 }
             }
            
@@ -749,10 +760,15 @@ namespace Examples.LevelTest
             //if (figure == string.Empty) return "";
             tempNumber = float.Parse(split[2]);
             split[3] = "0," + split[3];
-            orientation.Add(float.Parse(split[3]) + tempNumber);
+            _sensorData.x = float.Parse(split[3]) + tempNumber;
+            orientation.Add(_sensorData.x);
             tempNumber = float.Parse(split[6]);
             split[7] = "0," + split[7];
-            orientation.Add(float.Parse(split[7]) + tempNumber);
+            _sensorData.y = float.Parse(split[7]) + tempNumber;
+            _sensorData.z = 0;
+            orientation.Add(_sensorData.y);
+
+            
 
             return orientation;
         }
