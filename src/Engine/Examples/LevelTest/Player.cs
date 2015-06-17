@@ -42,10 +42,7 @@ namespace Examples.LevelTest
             Id = ipAddress.ToString();
             IsActive = true;
         }
-
         public string Id { get; private set; } 
-
-        
 
         public float3 PlayerPos { get; set; }
 

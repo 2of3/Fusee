@@ -84,7 +84,7 @@ namespace Examples.LevelTest
 
 
         //Sensor Data
-        private float3 _sensorData;
+        //private float3 _sensorData;
 
 
         // some logic
@@ -135,7 +135,7 @@ namespace Examples.LevelTest
 
             //Scene Level1
             var serLevel1 = new Serializer();
-            using (var file = File.OpenRead(@"Assets/Island_split.fus"))
+            using (var file = File.OpenRead(@"Assets/Island_split_edit_way.fus"))
             {
                 _sceneLevel1 = serLevel1.Deserialize(file, null, typeof(SceneContainer)) as SceneContainer;
             }
@@ -235,21 +235,44 @@ namespace Examples.LevelTest
             }
             else
             {
-                var playerOrientation = ExtractNumbers(_tpts.GetConnections().First().Message);
-                if (playerOrientation != null)
+                //var playerOrientation = ExtractNumbers(_tpts.GetConnections().First().Message);
+                if (_playerList.Count == 0)
                 {
-                    var i = 1;
+                    int i = 1;
                     foreach (var connection in _tpts.GetConnections())
                     {
                         var ipAddress = connection.Address;
                         var id = "Spieler" + i;
-                        
-                        // MUST be called to get the latest sensor data values
-                        ExtractNumbers(connection.Message); //writes float3 in _sensorData
-                        //TODO fix output of ExtractNumbers
-                        _playerList.Add(new Player(id, _sensorData, i++, ipAddress));
+
+                        // Set initial position for each player
+                        var initPos = new float3(0, 60, 0);
 
                         if (i > 4) i = 1;
+                        _playerList.Add(new Player(id, initPos, i++, ipAddress));
+                    }
+                }
+                else {
+                    var i = 1;
+                    foreach (var connection in _tpts.GetConnections())
+                    {
+                        var item = _playerList.Find(x => x.IpAddress.Equals(connection.Address));
+                        if (item != null)
+                        {
+                            Console.WriteLine("Ip ist vorhanden");
+                        }
+                        //var item = _playerList.FirstOrDefault(o => o.IpAddress.Equals(connection.Address));
+                        
+                        else
+                        {
+                            var ipAddress = connection.Address;
+                            var id = "Spieler" + i;
+                            
+                            // Set initial position for each player
+                            var initPos = new float3(0,60,0); 
+                            
+                            if (i > 4) i = 1;
+                            _playerList.Add(new Player(id, initPos, i++, ipAddress));
+                        }
                     }
                     
                 }
@@ -286,7 +309,7 @@ namespace Examples.LevelTest
             var camMin = new float3(0, 0, 0);
             var camMax = new float3(0, 0, 0);
 
-            playerPos[0].x = _aa;
+            /*playerPos[0].x = _aa;
             playerPos[0].y = 0;
             playerPos[0].z = _bb;
 
@@ -296,7 +319,7 @@ namespace Examples.LevelTest
 
             playerPos[2].x = _ee;
             playerPos[2].y = 0;
-            playerPos[2].z = _ff;
+            playerPos[2].z = _ff;*/
 
             var inputA = 0;
             var inputB = 0;
@@ -346,7 +369,7 @@ namespace Examples.LevelTest
                 _bb -= (int)inputB;
             }*/
                 
-                if (_playerOrientations.Count != 0)
+                /*if (_playerOrientations.Count != 0)
                 {
                     var controllArray = _playerOrientations.First().Value;
                     inputA = -(int)controllArray[1];
@@ -354,8 +377,11 @@ namespace Examples.LevelTest
 
                     inputB = -(int)controllArray[0];
                     _bb += inputB;
+                }*/
+                if (_playerList.Count != 0)
+                {
+                    
                 }
-
             // move per keyboard (W A S D) in gamemode 0
 
             /*if (Input.Instance.IsKey(KeyCodes.A))
@@ -434,7 +460,7 @@ namespace Examples.LevelTest
             move[1].z = inputD;
             move[2].x = inputE;
             move[2].z = inputF;
-            Console.WriteLine( "Bin im Gamemode 0");
+            //Console.WriteLine( "Bin im Gamemode 0");
             averageNewPos = new float3(0, 0, 0); 
             
             for (int i = 0; i < playerPos.Length; i++)
@@ -502,29 +528,45 @@ namespace Examples.LevelTest
             _srBorder.Render(RC);
 
             //Fire - Second Player in _activePLayers
-            var mtxM2 = float4x4.CreateTranslation(playerPos[1].x, 0, playerPos[1].z);
-            var mtxScalePlayer = float4x4.CreateScale(5);
-            RC.ModelView = mtxCam * mtxRot * mtxM2 * mtxScalePlayer;
-            if(_activePLayers[1] != null)
-                _srFire.Render(RC);
+            //var mtxM2 = float4x4.CreateTranslation(playerPos[1].x, 0, playerPos[1].z);
+            //var mtxScalePlayer = float4x4.CreateScale(5);
+            //RC.ModelView = mtxCam * mtxRot * mtxM2 * mtxScalePlayer;
+            
 
             //Water - First PLayer in _activePlayers
-            var mtxM1 = float4x4.CreateTranslation(playerPos[0].x, 0, playerPos[0].z);
-            RC.ModelView = mtxCam * mtxRot * mtxM1 * mtxScalePlayer;
-            if(_activePLayers[0] != null)
-                _srWater.Render(RC);
+            //var mtxM1 = float4x4.CreateTranslation(playerPos[0].x, 0, playerPos[0].z);
+            //RC.ModelView = mtxCam * mtxRot * mtxM1 * mtxScalePlayer;
+            
 
             //Earth
-            var mtxM3 = float4x4.CreateTranslation(playerPos[2].x, 0, playerPos[2].z);
-            RC.ModelView = mtxCam * mtxRot * mtxM3 * mtxScalePlayer;
+            //var mtxM3 = float4x4.CreateTranslation(playerPos[2].x, 0, playerPos[2].z);
+            //RC.ModelView = mtxCam * mtxRot * mtxM3 * mtxScalePlayer;
             
             //_srEarth.Render(RC);
-                
+                foreach (var player in _playerList)
+                {
+                    var mtxM1 = float4x4.CreateTranslation(player.PlayerPos.x, 0, player.PlayerPos.z);
+                    //var mtxScalePlayer = float4x4.CreateScale(5);
+                    RC.ModelView = mtxCam *  mtxM1;
+                    
+                    switch (player.ElementString)
+                    {
+                        case "fire":
+                            _srFire.Render(RC);
+                            break;
+                        case "water":
+                            _srWater.Render(RC);
+                            break;
+                        case "air":
+                            _srAir.Render(RC);
+                            break;
+                        case "earth":
+                            _srEarth.Render(RC);
+                            break;
+                    }
+                }
 
-            //Air
-            var mtxM4 = float4x4.CreateTranslation(300, 0, 300);
-            RC.ModelView = mtxCam * mtxRot * mtxM4 * mtxScalePlayer;
-            //_srAir.Render(RC);
+           
             
             //Skybox
             var mtxScale = float4x4.CreateScale(1.5f);
@@ -532,9 +574,9 @@ namespace Examples.LevelTest
             _srSky.Render(RC);
 
             //Level1
-            var mtxTranslLevel = float4x4.CreateTranslation(0, -101, 0);
+            //var mtxTranslLevel = float4x4.CreateTranslation(0, -101, 0);
             var mtxScaleLevel = float4x4.CreateScale(0.7f);
-            RC.ModelView = mtxCam * mtxRot * mtxTranslLevel * mtxScaleLevel;
+            RC.ModelView = mtxCam;
             _srLevel1.Render(RC);
 
             _srDeko.Render(RC);
@@ -742,10 +784,10 @@ namespace Examples.LevelTest
         
        
 
-        private List<float> ExtractNumbers(string message)
+        private float3 DecryptMessage(string message)
         {
             var orientation = new List<float>();
-            if (message.Length == 0) return orientation;
+            if (message.Length == 0) return new float3(0,0,0);
 
             var split = message.Split(new char[] {':', ' ', ',', ';'});
 
@@ -756,19 +798,20 @@ namespace Examples.LevelTest
                // if (Char.IsNumber(numChar)) figure += numChar.ToString();
             }
             //if (figure == string.Empty) return "";
+            var sensorData = new float3();
             tempNumber = float.Parse(split[2]);
             split[3] = "0," + split[3];
-            _sensorData.x = float.Parse(split[3]) + tempNumber;
-            orientation.Add(_sensorData.x);
+            sensorData.x = float.Parse(split[3]) + tempNumber;
+            //orientation.Add(sensorData.x);
             tempNumber = float.Parse(split[6]);
             split[7] = "0," + split[7];
-            _sensorData.y = float.Parse(split[7]) + tempNumber;
-            _sensorData.z = 0;
-            orientation.Add(_sensorData.y);
+            sensorData.y = float.Parse(split[7]) + tempNumber;
+            sensorData.z = 0;
+            //orientation.Add(sensorData.y);
 
             
 
-            return orientation;
+            return sensorData;
         }
 
         // is called when the window was resized
