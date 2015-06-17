@@ -564,6 +564,7 @@ namespace Examples.LevelTest
                             _srEarth.Render(RC);
                             break;
                     }
+                    // Hier player.move()
                 }
 
            
