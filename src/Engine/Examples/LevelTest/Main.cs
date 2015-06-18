@@ -135,7 +135,7 @@ namespace Examples.LevelTest
 
             //Scene Level1
             var serLevel1 = new Serializer();
-            using (var file = File.OpenRead(@"Assets/Island_split_edit_way.fus"))
+            using (var file = File.OpenRead(@"Assets/prepared_for_physics.fus"))
             {
                 _sceneLevel1 = serLevel1.Deserialize(file, null, typeof(SceneContainer)) as SceneContainer;
             }
@@ -672,7 +672,7 @@ namespace Examples.LevelTest
                 move[2].x = inputE;
                 move[2].z = inputF;
 
-                Console.WriteLine("bin im Gamemode 1");
+                //Console.WriteLine("bin im Gamemode 1");
                 averageNewPos = new float3(0, 0, 0); 
                 for (int i = 0; i < playerPos.Length; i++)
                 {
