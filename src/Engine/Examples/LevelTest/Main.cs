@@ -135,7 +135,7 @@ namespace Examples.LevelTest
 
             //Scene Level1
             var serLevel1 = new Serializer();
-            using (var file = File.OpenRead(@"Assets/prepared_for_physics1.fus"))
+            using (var file = File.OpenRead(@"Assets/prepared_for_physics3.fus"))
             {
                 _sceneLevel1 = serLevel1.Deserialize(file, null, typeof(SceneContainer)) as SceneContainer;
             }
@@ -144,7 +144,7 @@ namespace Examples.LevelTest
 
 
             var serDeko = new Serializer();
-            using (var file = File.OpenRead(@"Assets/assets_split.fus"))
+            using (var file = File.OpenRead(@"Assets/assets_scale1.fus"))
             {
                 _sceneDeko = serDeko.Deserialize(file, null, typeof(SceneContainer)) as SceneContainer;
             }
@@ -523,7 +523,7 @@ namespace Examples.LevelTest
             
             RC.SetShader(_spColor);
            // border 
-            var mtxR = float4x4.CreateTranslation(averageNewPos.x, -20, averageNewPos.z + 200);
+            var mtxR = float4x4.CreateTranslation(averageNewPos.x, -20, averageNewPos.z);
             RC.ModelView = mtxCam * mtxR;
             _srBorder.Render(RC);
 

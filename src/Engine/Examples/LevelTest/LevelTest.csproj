@@ -187,7 +187,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\assets_split.fus">
+    <None Include="Assets\assets_scale1.fus">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Assets\border.fus">
@@ -208,10 +208,7 @@
     <None Include="Assets\Player_water.fus">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Assets\prepared_for_physics.fus">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Assets\prepared_for_physics1.fus">
+    <None Include="Assets\prepared_for_physics3.fus">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Assets\Skybox1.fus">
