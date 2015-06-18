@@ -59,7 +59,7 @@ namespace Examples.LevelTest
         private SceneRenderer _srBorder;
         private SceneContainer _sceneBorder;
 
-       // variables for shader
+        // variables for shader
         private ShaderProgram _spTexture;
         private ShaderProgram _spColor;
 
@@ -73,7 +73,7 @@ namespace Examples.LevelTest
 
         private string[] _activePLayers = new string[4];
 
-        private List<Player> _playerList = new List<Player>(); 
+        private List<Player> _playerList = new List<Player>();
 
         private int _aa;
         private int _bb;
@@ -102,18 +102,18 @@ namespace Examples.LevelTest
         // is called on startup
         public override void Init()
         {
-            
-            
+            SetWindowSize(4200, 1050, 0, 0);
+
             //creates thread for TcpServer, sets it as backgroundthread, starts the thread
             var tcpServer = new Thread(StartTcpServer);
             tcpServer.IsBackground = true;
             tcpServer.Start(this);
-            
+
 
             _gui = new GUI(RC);
 
             RC.ClearColor = new float4(0.1f, 0.1f, 0.1f, 1);
-            
+
             //Border
             var serBorder = new Serializer();
             using (var file = File.OpenRead(@"Assets/border.fus"))
@@ -156,7 +156,7 @@ namespace Examples.LevelTest
             var serFire = new Serializer();
             using (var file = File.OpenRead(@"Assets/player_fire.fus"))
             {
-                _sceneFire = serFire.Deserialize(file, null, typeof (SceneContainer)) as SceneContainer;
+                _sceneFire = serFire.Deserialize(file, null, typeof(SceneContainer)) as SceneContainer;
             }
             _srFire = new SceneRenderer(_sceneFire, "Assets");
 
@@ -166,8 +166,8 @@ namespace Examples.LevelTest
             {
                 TransformComponent transform = node.GetTransform();
                 //rotation component
-                rot = transform.Rotation;                
-            }               
+                rot = transform.Rotation;
+            }
 
 
             //Water
@@ -196,9 +196,9 @@ namespace Examples.LevelTest
 
 
             _spColor = MoreShaders.GetDiffuseColorShader(RC);
-            
+
             _colorParam = _spColor.GetShaderParam("color");
-            
+
             _spTexture = MoreShaders.GetTextureShader(RC);
 
             _textureParam = _spTexture.GetShaderParam("texture1");
@@ -222,7 +222,7 @@ namespace Examples.LevelTest
             RC.Clear(ClearFlags.Color | ClearFlags.Depth);
 
             //Physic
-            LevelPhysic.World.StepSimulation((float) Time.Instance.DeltaTime, (Time.Instance.FramePerSecondSmooth/60), 1/60);
+            LevelPhysic.World.StepSimulation((float)Time.Instance.DeltaTime, (Time.Instance.FramePerSecondSmooth / 60), 1 / 60);
 
             //GUI
             float fps = Time.Instance.FramePerSecond;
@@ -231,12 +231,11 @@ namespace Examples.LevelTest
             isEmpty = !_tpts.GetConnections().Any();
             if (isEmpty)
             {
-                Console.WriteLine("Awaiting Connections");
+                //Console.WriteLine("Awaiting Connections");
             }
             else
             {
-                //var playerOrientation = ExtractNumbers(_tpts.GetConnections().First().Message);
-                if (_playerList.Count == 0)
+               if (_playerList.Count == 0)
                 {
                     int i = 1;
                     foreach (var connection in _tpts.GetConnections())
@@ -251,33 +250,29 @@ namespace Examples.LevelTest
                         _playerList.Add(new Player(id, initPos, i++, ipAddress));
                     }
                 }
-                else {
+                else
+                {
                     var i = 1;
                     foreach (var connection in _tpts.GetConnections())
                     {
-                        var item = _playerList.Find(x => x.IpAddress.Equals(connection.Address));
-                        if (item != null)
-                        {
-                            Console.WriteLine("Ip ist vorhanden");
-                        }
-                        //var item = _playerList.FirstOrDefault(o => o.IpAddress.Equals(connection.Address));
-                        
-                        else
+                        var item = _playerList.Find(x => x.IpAddress == (connection.Address));
+                        if (item == null)
                         {
                             var ipAddress = connection.Address;
                             var id = "Spieler" + i;
-                            
+
                             // Set initial position for each player
-                            var initPos = new float3(0,60,0); 
-                            
+                            var initPos = new float3(0, 60, 0);
+
                             if (i > 4) i = 1;
                             _playerList.Add(new Player(id, initPos, i++, ipAddress));
                         }
+
                     }
-                    
+
                 }
             }
-           
+
             try
             {
                 StringBuilder sb = new StringBuilder();
@@ -303,23 +298,11 @@ namespace Examples.LevelTest
 
             //Array for input
             float3[] move = new float3[3];
-            
+
 
             //Camera Minimum and Maximum
             var camMin = new float3(0, 0, 0);
             var camMax = new float3(0, 0, 0);
-
-            /*playerPos[0].x = _aa;
-            playerPos[0].y = 0;
-            playerPos[0].z = _bb;
-
-            playerPos[1].x = _cc;
-            playerPos[1].y = 0;
-            playerPos[1].z = _dd;
-
-            playerPos[2].x = _ee;
-            playerPos[2].y = 0;
-            playerPos[2].z = _ff;*/
 
             var inputA = 0;
             var inputB = 0;
@@ -328,92 +311,14 @@ namespace Examples.LevelTest
             var inputE = 0;
             var inputF = 0;
 
-            // move per mouse
-            /*if (Input.Instance.IsButton(MouseButtons.Left))
-            {
-                _angleVelHorz = -RotationSpeed * Input.Instance.GetAxis(InputAxis.MouseX);
-                _angleVelVert = -RotationSpeed * Input.Instance.GetAxis(InputAxis.MouseY);
-            }
-            else
-            {
-                var curDamp = (float)Math.Exp(-Damping * Time.Instance.DeltaTime);
-
-                _angleVelHorz *= curDamp;
-                _angleVelVert *= curDamp;
-            }*/
 
             _angleHorz += _angleVelHorz;
-            _angleVert += _angleVelVert;           
+            _angleVert += _angleVelVert;
 
 
-            if (averageNewPos.x > -2000) { //GAMEMODE 0
-            // move per keyboard (arrow keys) in gamemode 0
-            /*if (Input.Instance.IsKey(KeyCodes.Left))
-            {
-                inputA = 30;
-                _aa -= (int)inputA;
-            }
-            if (Input.Instance.IsKey(KeyCodes.Right))
-            {
-                inputA = 30;
-                _aa += (int)inputA;
-            }
-            if (Input.Instance.IsKey(KeyCodes.Up))
-            {
-                inputB = 30;
-                _bb += (int)inputB;
-            }
-            if (Input.Instance.IsKey(KeyCodes.Down))
-            {
-                inputB = 30;
-                _bb -= (int)inputB;
-            }*/
-                
-                /*if (_playerOrientations.Count != 0)
-                {
-                    var controllArray = _playerOrientations.First().Value;
-                    inputA = -(int)controllArray[1];
-                    _aa += inputA;
+            if (averageNewPos.x > -2000)
+            { //GAMEMODE 0
 
-                    inputB = -(int)controllArray[0];
-                    _bb += inputB;
-                }*/
-                if (_playerList.Count != 0)
-                {
-                    
-                }
-            // move per keyboard (W A S D) in gamemode 0
-
-            /*if (Input.Instance.IsKey(KeyCodes.A))
-            {
-                inputC = 30;
-                _cc -= (int)inputC;
-            }
-
-
-            if (Input.Instance.IsKey(KeyCodes.D))
-            {
-                inputC = 30;
-                _cc += (int)inputC;
-            }
-
-
-            if (Input.Instance.IsKey(KeyCodes.W))
-            {
-                inputD = 30;
-                _dd += (int)inputD;
-
-                rot.z += 20;
-                Console.WriteLine(rot);                
-            }
-
-
-            if (Input.Instance.IsKey(KeyCodes.S))
-            {
-                inputD = 30;
-                _dd -= (int)inputD;
-
-            }*/
 
                 if (_activePLayers[1] != null)
                 {
@@ -421,134 +326,86 @@ namespace Examples.LevelTest
                     inputC = -(int)controllArray[1];
                     _cc += inputC;
 
-                    inputD = -(int) controllArray[0];
+                    inputD = -(int)controllArray[0];
                     _dd += inputD;
                 }
-               
-            
 
 
-            //move per keybord U H J K in gamemode 0
+                
+                averageNewPos = new float3(0, 0, 0);
 
-            if (Input.Instance.IsKey(KeyCodes.H))
-            {
-
-                inputE = 30;
-                _ee -= (int)inputE;
-            }
-            if (Input.Instance.IsKey(KeyCodes.K))
-            {
-                inputE = 30;
-                _ee += (int)inputE;
-            }
-
-
-            if (Input.Instance.IsKey(KeyCodes.U))
-            {
-                inputF = 30;
-                _ff += (int)inputF;
-            }
-            if (Input.Instance.IsKey(KeyCodes.J))
-            {
-                inputF = 30;
-                _ff -= (int)inputF;
-
-            }
-            move[0].x = inputA;
-            move[0].z = inputB;
-            move[1].x = inputC;
-            move[1].z = inputD;
-            move[2].x = inputE;
-            move[2].z = inputF;
-            //Console.WriteLine( "Bin im Gamemode 0");
-            averageNewPos = new float3(0, 0, 0); 
-            
-            for (int i = 0; i < playerPos.Length; i++)
-            {
-                newPlayerPos[i].x = playerPos[i].x + move[i].x;
-                newPlayerPos[i].z = playerPos[i].z + move[i].z;
-                averageNewPos += newPlayerPos[i];
-
-                //  Console.WriteLine(move[i]);
-            }
-
-            averageNewPos *= (float)(1.0 / playerPos.Length);
-           //  Console.WriteLine(averageNewPos);
-
-            camMin = new float3(averageNewPos.x - 750, 0, averageNewPos.z - 550);
-            camMax = new float3(averageNewPos.x + 750, 0, averageNewPos.z + 950);
-
-            var mtxRot = float4x4.CreateRotationX(_angleVert) * float4x4.CreateRotationY(_angleHorz);
-            var mtxCam = float4x4.LookAt(averageNewPos.x, 400, averageNewPos.z - 2500, averageNewPos.x, 0, averageNewPos.z, 0, 1, 0);
-
-            for (int i = 0; i < playerPos.Length; i++)
-            {
-                if (newPlayerPos[i].x <= camMin.x)
+                for (int i = 0; i < playerPos.Length; i++)
                 {
-                    playerPos[i].x = camMin.x;
+                    newPlayerPos[i].x = playerPos[i].x + move[i].x;
+                    newPlayerPos[i].z = playerPos[i].z + move[i].z;
+                    averageNewPos += newPlayerPos[i];
 
+                    //  Console.WriteLine(move[i]);
                 }
-                else
+
+                averageNewPos *= (float)(1.0 / playerPos.Length);
+                //  Console.WriteLine(averageNewPos);
+
+                camMin = new float3(averageNewPos.x - 750, 0, averageNewPos.z - 550);
+                camMax = new float3(averageNewPos.x + 750, 0, averageNewPos.z + 950);
+
+                var mtxRot = float4x4.CreateRotationX(_angleVert) * float4x4.CreateRotationY(_angleHorz);
+                var mtxCam = float4x4.LookAt(averageNewPos.x, 400, averageNewPos.z - 2500, averageNewPos.x, 0, averageNewPos.z, 0, 1, 0);
+
+                for (int i = 0; i < playerPos.Length; i++)
                 {
-                    if (newPlayerPos[i].x >= camMax.x)
+                    if (newPlayerPos[i].x <= camMin.x)
                     {
-                        playerPos[i].x = camMax.x;
+                        playerPos[i].x = camMin.x;
 
                     }
                     else
                     {
-                        playerPos[i].x = newPlayerPos[i].x;
+                        if (newPlayerPos[i].x >= camMax.x)
+                        {
+                            playerPos[i].x = camMax.x;
+
+                        }
+                        else
+                        {
+                            playerPos[i].x = newPlayerPos[i].x;
+                        }
                     }
-                }
 
-                if (newPlayerPos[i].z <= camMin.z)
-                {
-                    playerPos[i].z = camMin.z;
-
-                }
-                else
-                {
-                    if (newPlayerPos[i].z >= camMax.z)
+                    if (newPlayerPos[i].z <= camMin.z)
                     {
-                        playerPos[i].z = camMax.z;
+                        playerPos[i].z = camMin.z;
 
                     }
                     else
                     {
-                        playerPos[i].z = newPlayerPos[i].z;
+                        if (newPlayerPos[i].z >= camMax.z)
+                        {
+                            playerPos[i].z = camMax.z;
+
+                        }
+                        else
+                        {
+                            playerPos[i].z = newPlayerPos[i].z;
+                        }
                     }
                 }
-            }
 
-            
-            RC.SetShader(_spColor);
-           // border 
-            var mtxR = float4x4.CreateTranslation(averageNewPos.x, -20, averageNewPos.z);
-            RC.ModelView = mtxCam * mtxR;
-            _srBorder.Render(RC);
 
-            //Fire - Second Player in _activePLayers
-            //var mtxM2 = float4x4.CreateTranslation(playerPos[1].x, 0, playerPos[1].z);
-            //var mtxScalePlayer = float4x4.CreateScale(5);
-            //RC.ModelView = mtxCam * mtxRot * mtxM2 * mtxScalePlayer;
-            
+                RC.SetShader(_spColor);
+                // border 
+                var mtxR = float4x4.CreateTranslation(averageNewPos.x, -20, averageNewPos.z);
+                RC.ModelView = mtxCam * mtxR;
+                _srBorder.Render(RC);
 
-            //Water - First PLayer in _activePlayers
-            //var mtxM1 = float4x4.CreateTranslation(playerPos[0].x, 0, playerPos[0].z);
-            //RC.ModelView = mtxCam * mtxRot * mtxM1 * mtxScalePlayer;
-            
 
-            //Earth
-            //var mtxM3 = float4x4.CreateTranslation(playerPos[2].x, 0, playerPos[2].z);
-            //RC.ModelView = mtxCam * mtxRot * mtxM3 * mtxScalePlayer;
-            
-            //_srEarth.Render(RC);
+                //_srEarth.Render(RC);
                 foreach (var player in _playerList)
                 {
                     var mtxM1 = float4x4.CreateTranslation(player.PlayerPos.x, 0, player.PlayerPos.z);
                     //var mtxScalePlayer = float4x4.CreateScale(5);
-                    RC.ModelView = mtxCam *  mtxM1;
-                    
+                    RC.ModelView = mtxCam * mtxM1;
+
                     switch (player.ElementString)
                     {
                         case "fire":
@@ -564,23 +421,33 @@ namespace Examples.LevelTest
                             _srEarth.Render(RC);
                             break;
                     }
+
+                    foreach (var tcpConnection in _tpts.GetConnections())
+                    {
+                        var tcpAddress = tcpConnection.Address;
+                        var playerObject = _playerList.Find(x => x.IpAddress == (tcpAddress));
+                        var moveCoord = DecryptMessage(tcpConnection.Message);
+                        playerObject.Move(moveCoord);
+                    }
+                   
+                        
                     // Hier player.move()
                 }
 
-           
-            
-            //Skybox
-            var mtxScale = float4x4.CreateScale(1.5f);
-            RC.ModelView = mtxCam * mtxRot * mtxR * mtxScale;
-            _srSky.Render(RC);
 
-            //Level1
-            //var mtxTranslLevel = float4x4.CreateTranslation(0, -101, 0);
-            var mtxScaleLevel = float4x4.CreateScale(0.7f);
-            RC.ModelView = mtxCam;
-            _srLevel1.Render(RC);
 
-            _srDeko.Render(RC);
+                //Skybox
+                var mtxScale = float4x4.CreateScale(1.5f);
+                RC.ModelView = mtxCam * mtxRot * mtxR * mtxScale;
+                _srSky.Render(RC);
+
+                //Level1
+                //var mtxTranslLevel = float4x4.CreateTranslation(0, -101, 0);
+                var mtxScaleLevel = float4x4.CreateScale(0.7f);
+                RC.ModelView = mtxCam;
+                _srLevel1.Render(RC);
+
+                _srDeko.Render(RC);
 
             }
             else  //JETZT IM GAMEMODE 1
@@ -673,7 +540,7 @@ namespace Examples.LevelTest
                 move[2].z = inputF;
 
                 //Console.WriteLine("bin im Gamemode 1");
-                averageNewPos = new float3(0, 0, 0); 
+                averageNewPos = new float3(0, 0, 0);
                 for (int i = 0; i < playerPos.Length; i++)
                 {
                     newPlayerPos[i].x = playerPos[i].x + move[i].x;
@@ -684,7 +551,7 @@ namespace Examples.LevelTest
                 }
 
                 averageNewPos *= (float)(1.0 / playerPos.Length);
-              //  Console.WriteLine(averageNewPos);
+                //  Console.WriteLine(averageNewPos);
 
                 camMin = new float3(averageNewPos.x - 750, 0, averageNewPos.z - 550);
                 camMax = new float3(averageNewPos.x + 750, 0, averageNewPos.z + 950);
@@ -697,7 +564,7 @@ namespace Examples.LevelTest
 
                 // var mtxRot = float4x4.CreateRotationX(_angleVert) * float4x4.CreateRotationY(_angleHorz);
                 // var mtxCam = float4x4.LookAt(averageNewPos.x, 400, averageNewPos.z - 2500, averageNewPos.x, 0, averageNewPos.z, 0, 1, 0);
-               // Console.WriteLine(newPlayerPos[0]);
+                // Console.WriteLine(newPlayerPos[0]);
                 for (int i = 0; i < playerPos.Length; i++)
                 {
                     if (newPlayerPos[i].x <= camMin.x)
@@ -737,10 +604,10 @@ namespace Examples.LevelTest
                     }
                 }
 
-               // Console.WriteLine(averageNewPos + " " +playerPos[0]);
+                // Console.WriteLine(averageNewPos + " " +playerPos[0]);
                 RC.SetShader(_spColor);
                 // border
-                var mtxR = float4x4.CreateTranslation(averageNewPos.x, -101, averageNewPos.z+200);
+                var mtxR = float4x4.CreateTranslation(averageNewPos.x, -101, averageNewPos.z + 200);
                 RC.ModelView = mtxCam * mtxRot * mtxR;
                 _srBorder.Render(RC);
 
@@ -777,26 +644,33 @@ namespace Examples.LevelTest
                 _srLevel1.Render(RC);
 
                 _srDeko.Render(RC);
+
+
+                if (Input.Instance.IsKey(KeyCodes.Escape))
+                {
+                    CloseGameWindow(); //TODO: Fix Function (see WindowSizesDemo)
+                }
+
             }
-            
+
             Present();
         }
 
-        
-       
+
+
 
         private float3 DecryptMessage(string message)
         {
             var orientation = new List<float>();
-            if (message.Length == 0) return new float3(0,0,0);
+            if (message.Length == 0) return new float3(0, 0, 0);
 
-            var split = message.Split(new char[] {':', ' ', ',', ';'});
+            var split = message.Split(new char[] { ':', ' ', ',', ';' });
 
             float tempNumber = 0;
 
-            foreach(var numChar in message.ToCharArray())
+            foreach (var numChar in message.ToCharArray())
             {
-               // if (Char.IsNumber(numChar)) figure += numChar.ToString();
+                // if (Char.IsNumber(numChar)) figure += numChar.ToString();
             }
             //if (figure == string.Empty) return "";
             var sensorData = new float3();
@@ -810,7 +684,7 @@ namespace Examples.LevelTest
             sensorData.z = 0;
             //orientation.Add(sensorData.y);
 
-            
+
 
             return sensorData;
         }
