@@ -329,7 +329,7 @@ namespace Examples.LevelTest
             var inputF = 0;
 
             // move per mouse
-            if (Input.Instance.IsButton(MouseButtons.Left))
+            /*if (Input.Instance.IsButton(MouseButtons.Left))
             {
                 _angleVelHorz = -RotationSpeed * Input.Instance.GetAxis(InputAxis.MouseX);
                 _angleVelVert = -RotationSpeed * Input.Instance.GetAxis(InputAxis.MouseY);
@@ -340,7 +340,7 @@ namespace Examples.LevelTest
 
                 _angleVelHorz *= curDamp;
                 _angleVelVert *= curDamp;
-            }
+            }*/
 
             _angleHorz += _angleVelHorz;
             _angleVert += _angleVelVert;           
@@ -523,8 +523,8 @@ namespace Examples.LevelTest
             
             RC.SetShader(_spColor);
            // border 
-            var mtxR = float4x4.CreateTranslation(averageNewPos.x, -101, averageNewPos.z + 200);
-            RC.ModelView = mtxCam * mtxRot * mtxR;
+            var mtxR = float4x4.CreateTranslation(averageNewPos.x, -20, averageNewPos.z + 200);
+            RC.ModelView = mtxCam * mtxR;
             _srBorder.Render(RC);
 
             //Fire - Second Player in _activePLayers
