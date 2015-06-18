@@ -135,7 +135,7 @@ namespace Examples.LevelTest
 
             //Scene Level1
             var serLevel1 = new Serializer();
-            using (var file = File.OpenRead(@"Assets/prepared_for_physics.fus"))
+            using (var file = File.OpenRead(@"Assets/prepared_for_physics1.fus"))
             {
                 _sceneLevel1 = serLevel1.Deserialize(file, null, typeof(SceneContainer)) as SceneContainer;
             }
