@@ -237,35 +237,33 @@ namespace Examples.LevelTest
             {
                if (_playerList.Count == 0)
                 {
-                    int i = 1;
                     foreach (var connection in _tpts.GetConnections())
                     {
                         var ipAddress = connection.Address;
-                        var id = "Spieler" + i;
+                        var id = "Spieler" + (_playerList.Count + 1);
 
                         // Set initial position for each player
                         var initPos = new float3(0, 60, 0);
 
-                        if (i > 4) i = 1;
-                        _playerList.Add(new Player(id, initPos, i++, ipAddress));
+                        //if (i > 4) i = 1;
+                        _playerList.Add(new Player(id, initPos, ipAddress));
                     }
                 }
                 else
                 {
-                    var i = 1;
                     foreach (var connection in _tpts.GetConnections())
                     {
                         var item = _playerList.Find(x => x.IpAddress == (connection.Address));
                         if (item == null)
                         {
                             var ipAddress = connection.Address;
-                            var id = "Spieler" + i;
+                            var id = "Spieler" + (_playerList.Count + 1);
 
                             // Set initial position for each player
                             var initPos = new float3(0, 60, 0);
 
-                            if (i > 4) i = 1;
-                            _playerList.Add(new Player(id, initPos, i++, ipAddress));
+                            //if (i > 4) i = 1;
+                            _playerList.Add(new Player(id, initPos, ipAddress));
                         }
 
                     }

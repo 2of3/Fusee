@@ -16,12 +16,11 @@ namespace Examples.LevelTest
         private readonly IPAddress _ipAddress;
         private float3 _velocity;
         private RigidBody _rigidBody;
-        public Player(string id, float3 playerPos, int playerNumber, IPAddress ipAddress)
+        public Player(string id, float3 playerPos, IPAddress ipAddress)
         {
             
             Id = id;
             PlayerPos = playerPos;
-            PlayerNumber = playerNumber;
             ElementString = _elements[i++];
             _ipAddress = ipAddress;
             IsActive = true;
@@ -51,8 +50,6 @@ namespace Examples.LevelTest
         public bool IsActive { get; set; }
 
         public float2 SensorDataFloat2 { get; set; }
-
-        public int PlayerNumber { get; private set; }
 
         // fire, water, earth, air
         public string ElementString { get; private set; }
