@@ -402,7 +402,7 @@ namespace Examples.LevelTest
                 //_srEarth.Render(RC);
                 foreach (var player in _playerList)
                 {
-                    var mtxM1 = float4x4.CreateTranslation(player.PlayerPos.x, 0, player.PlayerPos.z);
+                    var mtxM1 = float4x4.CreateTranslation(player.PlayerPos.x, player.PlayerPos.y, player.PlayerPos.z);
                     //var mtxScalePlayer = float4x4.CreateScale(5);
                     RC.ModelView = mtxCam * mtxM1;
 
@@ -645,12 +645,11 @@ namespace Examples.LevelTest
 
                 _srDeko.Render(RC);
 
+            }
 
-                if (Input.Instance.IsKey(KeyCodes.Escape))
-                {
-                    CloseGameWindow(); //TODO: Fix Function (see WindowSizesDemo)
-                }
-
+            if (Input.Instance.IsKey(KeyCodes.Escape))
+            {
+                CloseGameWindow(); //TODO: Fix Function (see WindowSizesDemo)
             }
 
             Present();
@@ -702,6 +701,12 @@ namespace Examples.LevelTest
         {
             ((LevelTest)self)._tpts = new ThreadPoolTcpSrvr();
             ((LevelTest)self)._tpts.StartListening();
+        }
+
+        public override void DeInit()
+        {
+            base.DeInit();
+            LevelPhysic.World.Dispose();
         }
 
         public static void Main()
