@@ -253,8 +253,9 @@ namespace Examples.LevelTest
                 {
                     foreach (var connection in _tpts.GetConnections())
                     {
-                        var item = _playerList.Find(x => x.IpAddress == (connection.Address));
-                        if (item == null)
+                        //var item = _playerList.Find(x => x.IpAddress == (connection.Address));
+                        var ipExists = _playerList.Exists(x => Equals(x.IpAddress, connection.Address));
+                        if (!ipExists)
                         {
                             var ipAddress = connection.Address;
                             var id = "Spieler" + (_playerList.Count + 1);
