@@ -68,34 +68,13 @@ namespace Examples.LevelTest
 
         private ITexture _iTex;
 
-        // For now using a Dictionary is the best I came up with. Feel free to correct me.
-        private Dictionary<string, List<float>> _playerOrientations = new Dictionary<string, List<float>>();
-
-        private string[] _activePLayers = new string[4];
-
         private List<Player> _playerList = new List<Player>();
 
-        private int _aa;
-        private int _bb;
-        private int _cc = 300;
-        private int _dd;
-        private int _ee = 600;
-        private int _ff;
-
-
-        //Sensor Data
-        //private float3 _sensorData;
-
-
         // some logic
-        private bool isEmpty;
+        private bool _isEmpty;
 
 
-        private float3 averageNewPos;
-
-        // Physics
-        // Gehört eigentlich zur Player Klasse. _velocity muss aus pos und newPos berechnet werden.
-        //private const int _velocity = 30;
+        private float3 _averageNewPos;
 
         public static Physic LevelPhysic { get; private set; }
 
@@ -206,13 +185,7 @@ namespace Examples.LevelTest
             //Physics
             LevelPhysic = new Physic();
             LevelPhysic.InitScene();
-            // Example
-            // PLayer_1 = _physic.InitSphere(new float3(0,100,0));
-
-
-            //Central Position of all Players
-            var averageNewPos = new float3(0, 0, 0);
-
+            
         }
 
         // is called once a frame
@@ -228,16 +201,19 @@ namespace Examples.LevelTest
             float fps = Time.Instance.FramePerSecond;
             _gui.RenderFps(fps);
 
-            isEmpty = !_tpts.GetConnections().Any();
-            if (isEmpty)
+            _isEmpty = !_tpts.GetConnections().Any();
+            if (_isEmpty)
             {
                 //Console.WriteLine("Awaiting Connections");
             }
             else
             {
-               if (_playerList.Count == 0)
+               
+                foreach (var connection in _tpts.GetConnections())
                 {
-                    foreach (var connection in _tpts.GetConnections())
+                    //var item = _playerList.Find(x => x.IpAddress == (connection.Address));
+                    var ipExists = _playerList.Exists(x => Equals(x.IpAddress, connection.Address));
+                    if (!ipExists || _playerList.Count == 0)
                     {
                         var ipAddress = connection.Address;
                         var id = "Spieler" + (_playerList.Count + 1);
@@ -248,27 +224,6 @@ namespace Examples.LevelTest
                         //if (i > 4) i = 1;
                         _playerList.Add(new Player(id, initPos, ipAddress));
                     }
-                }
-                else
-                {
-                    foreach (var connection in _tpts.GetConnections())
-                    {
-                        //var item = _playerList.Find(x => x.IpAddress == (connection.Address));
-                        var ipExists = _playerList.Exists(x => Equals(x.IpAddress, connection.Address));
-                        if (!ipExists)
-                        {
-                            var ipAddress = connection.Address;
-                            var id = "Spieler" + (_playerList.Count + 1);
-
-                            // Set initial position for each player
-                            var initPos = new float3(0, 60, 0);
-
-                            //if (i > 4) i = 1;
-                            _playerList.Add(new Player(id, initPos, ipAddress));
-                        }
-
-                    }
-
                 }
             }
 
@@ -314,29 +269,29 @@ namespace Examples.LevelTest
             _angleHorz += _angleVelHorz;
             _angleVert += _angleVelVert;
 
-                averageNewPos = new float3(0, 0, 0);
+                _averageNewPos = new float3(0, 0, 0);
                 for (int i = 0; i < _playerList.Count; i++)
                 {
 
-                    averageNewPos += _playerList[i].NewPlayerPos;
+                    _averageNewPos += _playerList[i].NewPlayerPos;
 
                     //  Console.WriteLine(move[i]);
                 }
                 if (_playerList.Count >= 2)
                 {
-                averageNewPos *= (float)(1.0 / _playerList.Count);
-                Console.WriteLine(averageNewPos);
+                _averageNewPos *= (float)(1.0 / _playerList.Count);
+                Console.WriteLine(_averageNewPos);
                 }
                
 
-                camMin = new float3(averageNewPos.x - 750, 0, averageNewPos.z - 550);
-                camMax = new float3(averageNewPos.x + 750, 0, averageNewPos.z + 950);
+                camMin = new float3(_averageNewPos.x - 750, 0, _averageNewPos.z - 550);
+                camMax = new float3(_averageNewPos.x + 750, 0, _averageNewPos.z + 950);
 
                 _angleHorz = 1.56f;
                 _angleVert = -0.445f;
                 var mtxRot = float4x4.Identity;
        
-                var mtxCam = float4x4.CreateTranslation(averageNewPos.x, 0, averageNewPos.z) * float4x4.CreateRotationY(-_angleHorz) * float4x4.CreateRotationX(-_angleVert) * float4x4.CreateTranslation(0, 0, -2500);
+                var mtxCam = float4x4.CreateTranslation(_averageNewPos.x, 0, _averageNewPos.z) * float4x4.CreateRotationY(-_angleHorz) * float4x4.CreateRotationX(-_angleVert) * float4x4.CreateTranslation(0, 0, -2500);
                 mtxCam.Invert();
 
                 foreach (var player in _playerList)
@@ -380,7 +335,7 @@ namespace Examples.LevelTest
                 }
                 RC.SetShader(_spColor);
                 // border 
-                var mtxR = float4x4.CreateTranslation(averageNewPos.x, -20, averageNewPos.z);
+                var mtxR = float4x4.CreateTranslation(_averageNewPos.x, -20, _averageNewPos.z);
                 RC.ModelView = mtxCam * mtxR;
                 _srBorder.Render(RC);
 
@@ -413,8 +368,16 @@ namespace Examples.LevelTest
                     {
                         var tcpAddress = tcpConnection.Address;
                         var playerObject = _playerList.Find(x => x.IpAddress == (tcpAddress));
-                        var moveCoord = DecryptMessage(tcpConnection.Message);
-                        playerObject.Move(moveCoord);
+                        try
+                        {
+                            var moveCoord = DecryptMessage(tcpConnection.Message);
+                            playerObject.Move(moveCoord);
+                        }
+                        catch(NullReferenceException)
+                        {
+                            break;
+                        }
+                        
                     }
                  
                 }
