@@ -102,7 +102,7 @@ namespace Examples.LevelTest
         // is called on startup
         public override void Init()
         {
-            SetWindowSize(4200, 1050, 0, 0);
+            //SetWindowSize(4200, 1050, 0, 0);
 
             //creates thread for TcpServer, sets it as backgroundthread, starts the thread
             var tcpServer = new Thread(StartTcpServer);
@@ -420,6 +420,7 @@ namespace Examples.LevelTest
                             break;
                     }
 
+                    // move the player(s)
                     foreach (var tcpConnection in _tpts.GetConnections())
                     {
                         var tcpAddress = tcpConnection.Address;
@@ -429,7 +430,7 @@ namespace Examples.LevelTest
                     }
                    
                         
-                    // Hier player.move()
+                    
                 }
 
 
@@ -658,31 +659,12 @@ namespace Examples.LevelTest
 
         private float3 DecryptMessage(string message)
         {
-            var orientation = new List<float>();
             if (message.Length == 0) return new float3(0, 0, 0);
-
             var split = message.Split(new char[] { ':', ' ', ',', ';' });
-
-            float tempNumber = 0;
-
-            foreach (var numChar in message.ToCharArray())
-            {
-                // if (Char.IsNumber(numChar)) figure += numChar.ToString();
-            }
-            //if (figure == string.Empty) return "";
             var sensorData = new float3();
-            tempNumber = float.Parse(split[2]);
-            split[3] = "0," + split[3];
-            sensorData.x = float.Parse(split[3]) + tempNumber;
-            //orientation.Add(sensorData.x);
-            tempNumber = float.Parse(split[6]);
-            split[7] = "0," + split[7];
-            sensorData.y = float.Parse(split[7]) + tempNumber;
-            sensorData.z = 0;
-            //orientation.Add(sensorData.y);
-
-
-
+            sensorData.x = float.Parse(split[2]) / 10;
+            sensorData.y = -9.81f;
+            sensorData.z = -float.Parse(split[6])/10;
             return sensorData;
         }
 

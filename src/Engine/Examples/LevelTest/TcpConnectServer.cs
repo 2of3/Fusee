@@ -55,13 +55,13 @@ namespace Examples.LevelTest
             {
                 TcpClient client = _listener.AcceptTcpClient();
                 
-                var newconnection = new TcpConnection(this);
+                var newconnection = new TcpConnection(this, client);
                 newconnection.ThreadListener = _listener;
                 lock (_connections)
                 {
                     _connections.Add(newconnection);
                 }
-                ThreadPool.QueueUserWorkItem(newconnection.HandleConnection, client);
+                ThreadPool.QueueUserWorkItem(newconnection.HandleConnection);
             }            
         }
     
@@ -74,10 +74,13 @@ namespace Examples.LevelTest
         private ThreadPoolTcpSrvr _tpts;
 
         private IPAddress _address;
+        private TcpClient _client;
 
         //constructor _tpts
-        public TcpConnection(ThreadPoolTcpSrvr tcpSrvr)
+        public TcpConnection(ThreadPoolTcpSrvr tcpSrvr, TcpClient client)
         {
+            _client = client;
+            _address = ((IPEndPoint)_client.Client.RemoteEndPoint).Address; //IP Address 1 //TODO: _address is checked as long as ns.CanRead...
             _tpts = tcpSrvr;
         }
 
@@ -86,14 +89,13 @@ namespace Examples.LevelTest
             get { return _address; }
         }
 
-        public void HandleConnection(object clientOb)
+        public void HandleConnection(object dummy)
         {
             StringBuilder RecvMessage;
-            var client = (TcpClient) clientOb;
             int recv;
             byte[] data = new byte[1024];
 
-            NetworkStream ns = client.GetStream();
+            NetworkStream ns = _client.GetStream();
             Console.WriteLine("New client accepted"); //": {0} active connections");
 
             const string welcome = "Welcome to my test server";
@@ -102,7 +104,7 @@ namespace Examples.LevelTest
             RecvMessage = new StringBuilder();
             int iMsgEnd = 0;
 
-            while (ns.CanRead && client.Connected)
+            while (ns.CanRead && _client.Connected)
             {
                 try //TODO: other way to prevent from IOExcaption?
                 {
@@ -110,8 +112,6 @@ namespace Examples.LevelTest
                     //TODO: if client disconnects --> IOExeption, fix it (maybe client.Close() in the Android App!
                     iMsgEnd = RecvMessage.Length;
                     RecvMessage.AppendFormat("{0}", Encoding.ASCII.GetString(data, 0, recv));
-
-                    _address = ((IPEndPoint)client.Client.RemoteEndPoint).Address; //IP Address 1 //TODO: _address is checked as long as ns.CanRead...
 
                     for (; iMsgEnd < RecvMessage.Length; iMsgEnd++)
                     {
@@ -134,7 +134,7 @@ namespace Examples.LevelTest
                 _tpts.GetConnections().Remove(this);
             }
             ns.Close();
-            client.Close();
+            _client.Close();
             Console.WriteLine("Client disconnected");
         }
     }
