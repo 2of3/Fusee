@@ -368,15 +368,10 @@ namespace Examples.LevelTest
                     {
                         var tcpAddress = tcpConnection.Address;
                         var playerObject = _playerList.Find(x => x.IpAddress == (tcpAddress));
-                        try
-                        {
+                        
                             var moveCoord = DecryptMessage(tcpConnection.Message);
                             playerObject.Move(moveCoord);
-                        }
-                        catch(NullReferenceException)
-                        {
-                            break;
-                        }
+                        
                         
                     }
                  
