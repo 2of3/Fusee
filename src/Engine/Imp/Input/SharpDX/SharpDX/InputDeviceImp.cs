@@ -12,8 +12,10 @@ namespace Fusee.Engine
         private readonly Controller _controller;
         
         // Settings
-        private float _deadZone = 0.1f;
-        private float _vibration = 0f;
+        private float _deadZoneL = 0f;
+        private float _deadZoneR = 0f;
+        private float _vibrationR = 0f;
+        private float _vibrationL = 0f;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InputDeviceImp"/> class.
@@ -22,7 +24,6 @@ namespace Fusee.Engine
         public InputDeviceImp(Controller device)
         {
             _controller = device;
-            _deadZone = 0.1f;
         }
 
         /// <summary>
@@ -43,7 +44,7 @@ namespace Fusee.Engine
         }
 
         /// <summary>
-        /// Loop though all buttons on the gamepad an see which one is pressed
+        /// Loop overt all buttons on the gamepad an see which one is pressed
         /// </summary>
         /// <returns>The pressed button</returns>
         public int GetPressedButton()
@@ -87,7 +88,12 @@ namespace Fusee.Engine
         /// <returns>The current value of the z-axis.</returns>
         public float GetZAxis()
         {
-            return 0;
+            var leftTrigger = (float)_controller.GetState().Gamepad.LeftTrigger;
+            var rightTrigger = (float)_controller.GetState().Gamepad.RightTrigger;
+
+            // TODO: Remember the deadzone.
+
+            return leftTrigger + rightTrigger;
         }
 
         /// <summary>
@@ -97,6 +103,8 @@ namespace Fusee.Engine
         /// <returns>The current value of the y-axis.</returns>
         public float GetYAxis()
         {
+            // TODO: Remember the deadzone.
+
             return 0;
         }
 
@@ -107,6 +115,7 @@ namespace Fusee.Engine
         /// <returns>The current value of the x-axis.</returns>
         public float GetXAxis()
         {
+            // TODO: Remember the deadzone.
 
             return 0;
         }
@@ -130,21 +139,26 @@ namespace Fusee.Engine
         }
 
         /// <summary>
-        /// Sets the Deadzone
+        /// Sets the Deadzone to the gamepad.
         /// </summary>
-        /// <param name="zone">The Deadzone.</param>
-        public void SetDeadZone(float zone)
+        /// <param name="dL">The Deadzone for the left stick.</param>
+        /// /// <param name="dL">The Deadzone for the right stick</param>
+        public void SetDeadZone(float dL, float dR)
         {
-            _deadZone = zone;
+            _deadZoneL = dL;
+            _deadZoneR = dR;
         }
 
         /// <summary>
         /// Sets the rumble motors vibration.
         /// </summary>
-        /// <param name="zone">The rumble vibration.</param>
-        public void SetVibration(float vib)
+        /// <param name="vibL">The rumble vibration for the left motor.</param>
+        /// /// <param name="vibR">The rumble vibration for the right motor.</param>
+        public void SetVibration(ushort vibL, ushort vibR)
         {
-            _vibration = vib;
+            _vibrationR = vibR;
+            _vibrationL = vibL;
+            _controller.SetVibration(new Vibration() {LeftMotorSpeed = vibL, RightMotorSpeed = vibR});
         }
 
 

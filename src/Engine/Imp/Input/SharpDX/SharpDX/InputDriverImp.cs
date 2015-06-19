@@ -16,6 +16,7 @@ namespace Fusee.Engine
         /// <returns>A list containing all XInput compatible input devices.</returns>
         public List<IInputDeviceImp> DeviceImps()
         {
+            // TODO: This is a bit complex. Could be done easier but then it is also less generic.
             var val = UserIndex.GetValues(typeof(UserIndex));
 
             // Loop over the enum and check for every user id.
