@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -73,6 +74,13 @@ namespace Examples.LevelTest
         // some logic
         private bool _isEmpty;
 
+        /*****  TEST PURPOSE  ******/
+        float3 _moveX = new float3(10, -9.81f, 0);
+        float3 _moveMinusX = new float3(-10, -9.81f, 0);
+        float3 _moveZ = new float3(0, -9.81f, 10);
+        float3 _moveMinusZ = new float3(0, -9.81f, -10);
+        float3 _testGravity = new float3(0, -9.81f, 0);
+        /***************************/
 
         private float3 _averageNewPos;
 
@@ -201,6 +209,45 @@ namespace Examples.LevelTest
             float fps = Time.Instance.FramePerSecond;
             _gui.RenderFps(fps);
 
+            /****************  TEST PURPOSE - hit spacebar to render test player   **********************/
+            
+            if (Input.Instance.IsKey(KeyCodes.Space))
+            {
+                IPAddress itsmeIpAddress = IPAddress.Parse("127.0.0.1");
+                var initPos = new float3(_playerList.Count * 10, 60, 0);
+                _playerList.Add(new Player("Testplayer", initPos, itsmeIpAddress ));
+            }
+
+            if (_playerList.Exists(x => Equals(x.Id, "Testplayer")))
+            {
+                var testplayer = _playerList.FirstOrDefault(x => x.Id == "Testplayer");
+                if (testplayer != null)
+                    testplayer.Move(_testGravity);
+                if (Input.Instance.IsKey(KeyCodes.Up))
+                {
+                    if(testplayer != null)
+                        testplayer.Move(_moveMinusX);
+                }
+                if (Input.Instance.IsKey(KeyCodes.Down))
+                {
+                    if (testplayer != null)
+                        testplayer.Move(_moveX);
+                }
+                if (Input.Instance.IsKey(KeyCodes.Left))
+                {
+                    if(testplayer != null)
+                        
+                        testplayer.Move(_moveMinusZ);
+                }
+                if (Input.Instance.IsKey(KeyCodes.Right))
+                {
+                    if (testplayer != null)
+                        testplayer.Move(_moveZ);
+                }
+            }
+
+            /*************************************************/
+
             _isEmpty = !_tpts.GetConnections().Any();
             if (_isEmpty)
             {
@@ -219,7 +266,7 @@ namespace Examples.LevelTest
                         var id = "Spieler" + (_playerList.Count + 1);
 
                         // Set initial position for each player
-                        var initPos = new float3(0, 60, 0);
+                        var initPos = new float3(_playerList.Count * 10, 60, 0);
 
                         //if (i > 4) i = 1;
                         _playerList.Add(new Player(id, initPos, ipAddress));
@@ -368,13 +415,15 @@ namespace Examples.LevelTest
                     {
                         var tcpAddress = tcpConnection.Address;
                         var playerObject = _playerList.Find(x => x.IpAddress == (tcpAddress));
-                        
+                        if (playerObject != null)
+                        {
                             var moveCoord = DecryptMessage(tcpConnection.Message);
                             playerObject.Move(moveCoord);
-                        
-                        
+                        }
                     }
-                 
+
+
+
                 }
 
                 //Skybox
