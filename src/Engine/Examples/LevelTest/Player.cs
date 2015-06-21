@@ -61,15 +61,21 @@ namespace Examples.LevelTest
 
         public void Move(float3 veFloat3)
         {
-            PlayerPos = NewPlayerPos;
-
+            //PlayerPos = NewPlayerPos;
             _velocity = (veFloat3)/(float)(1/Time.Instance.FramePerSecond);
-            
-            
             _rigidBody.LinearVelocity = new float3(_velocity);
-            NewPlayerPos = _rigidBody.Position;
+            //NewPlayerPos = _rigidBody.Position;
         }
 
+        public float3 GetPostion()
+        {
+            return _rigidBody.Position;
+        }
+
+        public void SetPosition(float3 position)
+        {
+            _rigidBody.Position = new float3(position);
+        }
         
     }
 }

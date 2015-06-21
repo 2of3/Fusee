@@ -127,9 +127,9 @@ namespace Examples.LevelTest
 
         public RigidBody InitSphere(float3 position)
         {
-            var shape = World.AddSphereShape( 27.85f); //5* 4 *0.2f)
+            var shape = World.AddSphereShape( 27.85f); 
 
-            RigidBody sphereBody = _world.AddRigidBody(1, position, float3.Zero, shape);
+            RigidBody sphereBody = _world.AddRigidBody(10, position, float3.Zero, shape);
             sphereBody.Restitution = 0.5f;
             sphereBody.Friction = 0.2f;
 

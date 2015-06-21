@@ -75,10 +75,10 @@ namespace Examples.LevelTest
         private bool _isEmpty;
 
         /*****  TEST PURPOSE  ******/
-        float3 _moveX = new float3(10, -9.81f, 0);
-        float3 _moveMinusX = new float3(-10, -9.81f, 0);
-        float3 _moveZ = new float3(0, -9.81f, 10);
-        float3 _moveMinusZ = new float3(0, -9.81f, -10);
+        float3 _moveX = new float3(10, 0, 0);
+        float3 _moveMinusX = new float3(-10, 0, 0);
+        float3 _moveZ = new float3(0, 0, 10);
+        float3 _moveMinusZ = new float3(0, 0, -10);
         float3 _testGravity = new float3(0, -9.81f, 0);
         /***************************/
 
@@ -193,7 +193,6 @@ namespace Examples.LevelTest
             //Physics
             LevelPhysic = new Physic();
             LevelPhysic.InitScene();
-            
         }
 
         // is called once a frame
@@ -214,18 +213,18 @@ namespace Examples.LevelTest
             if (Input.Instance.IsKey(KeyCodes.Space))
             {
                 IPAddress itsmeIpAddress = IPAddress.Parse("127.0.0.1");
-                var initPos = new float3(_playerList.Count * 10, 60, 0);
+                var initPos = new float3(_playerList.Count * 10, 200, 0);
                 _playerList.Add(new Player("Testplayer", initPos, itsmeIpAddress ));
             }
 
             if (_playerList.Exists(x => Equals(x.Id, "Testplayer")))
             {
                 var testplayer = _playerList.FirstOrDefault(x => x.Id == "Testplayer");
-                if (testplayer != null)
-                    testplayer.Move(_testGravity);
+                //if (testplayer != null)
+                // testplayer.Move(_testGravity);
                 if (Input.Instance.IsKey(KeyCodes.Up))
                 {
-                    if(testplayer != null)
+                    if (testplayer != null)
                         testplayer.Move(_moveMinusX);
                 }
                 if (Input.Instance.IsKey(KeyCodes.Down))
@@ -235,8 +234,7 @@ namespace Examples.LevelTest
                 }
                 if (Input.Instance.IsKey(KeyCodes.Left))
                 {
-                    if(testplayer != null)
-                        
+                    if (testplayer != null)
                         testplayer.Move(_moveMinusZ);
                 }
                 if (Input.Instance.IsKey(KeyCodes.Right))
@@ -244,8 +242,8 @@ namespace Examples.LevelTest
                     if (testplayer != null)
                         testplayer.Move(_moveZ);
                 }
-            }
 
+            }
             /*************************************************/
 
             _isEmpty = !_tpts.GetConnections().Any();
@@ -320,7 +318,7 @@ namespace Examples.LevelTest
                 for (int i = 0; i < _playerList.Count; i++)
                 {
 
-                    _averageNewPos += _playerList[i].NewPlayerPos;
+                    _averageNewPos += _playerList[i].GetPostion();
 
                     //  Console.WriteLine(move[i]);
                 }
@@ -340,57 +338,61 @@ namespace Examples.LevelTest
        
                 var mtxCam = float4x4.CreateTranslation(_averageNewPos.x, 0, _averageNewPos.z) * float4x4.CreateRotationY(-_angleHorz) * float4x4.CreateRotationX(-_angleVert) * float4x4.CreateTranslation(0, 0, -2500);
                 mtxCam.Invert();
-
+            
                 foreach (var player in _playerList)
                 {
-                    var Pos = player.PlayerPos;
+                    var Pos = player.GetPostion();
 
-                     if (player.NewPlayerPos.x <= camMin.x)
+                    if (player.GetPostion().x <= camMin.x)
                     {
-                      Pos.x = camMin.x;
+                        var position = new float3(camMin.x, Pos.y, Pos.z );
+                        player.SetPosition(position);
 
                     }
                     else
                     {
-                        if (player.NewPlayerPos.x >= camMax.x)
+                        if (player.GetPostion().x >= camMax.x)
                         {
-                            Pos.x = camMax.x;
+                            var position = new float3(camMax.x, Pos.y, Pos.z);
+                            player.SetPosition(position);
 
                         }
                         else
                         {
-                           Pos.x = player.NewPlayerPos.x;
+                            Pos.x = player.GetPostion().x;
                         }
                     }
 
-                    if (player.NewPlayerPos.z <= camMin.z)
+                     if (player.GetPostion().z <= camMin.z)
                     {
-                        Pos.z = camMin.z;
+                        var position = new float3(Pos.x, Pos.y, camMin.z);
+                        player.SetPosition(position);
 
                     }
                     else
                     {
-                        if (player.NewPlayerPos.z >= camMax.z)
+                        if (player.GetPostion().z >= camMax.z)
                         {
-                            Pos.z = camMax.z;
+                            var position = new float3(Pos.x, Pos.y, camMax.z);
+                            player.SetPosition(position);
                         }
                         else
                         {
-                            Pos.z = player.NewPlayerPos.z;
+                            Pos.z = player.GetPostion().z;
                         }
                     }
                 }
+             
                 RC.SetShader(_spColor);
                 // border 
                 var mtxR = float4x4.CreateTranslation(_averageNewPos.x, -20, _averageNewPos.z);
                 RC.ModelView = mtxCam * mtxR;
                 _srBorder.Render(RC);
 
-
                 //_srEarth.Render(RC);
                 foreach (var player in _playerList)
                 {
-                    var mtxM1 = float4x4.CreateTranslation(player.PlayerPos.x, player.PlayerPos.y, player.PlayerPos.z);
+                    var mtxM1 = float4x4.CreateTranslation(player.GetPostion());
                     //var mtxScalePlayer = float4x4.CreateScale(5);
                     RC.ModelView = mtxCam * mtxM1;
 
