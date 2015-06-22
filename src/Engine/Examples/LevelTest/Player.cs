@@ -67,6 +67,11 @@ namespace Examples.LevelTest
             //NewPlayerPos = _rigidBody.Position;
         }
 
+        public RigidBody GetRigidBody()
+        {
+            return _rigidBody;
+        }
+
         public float3 GetPostion()
         {
             return _rigidBody.Position;

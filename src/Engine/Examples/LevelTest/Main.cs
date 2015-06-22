@@ -89,7 +89,7 @@ namespace Examples.LevelTest
         // is called on startup
         public override void Init()
         {
-            //SetWindowSize(4200, 1050, 0, 0);
+            SetWindowSize(4200, 1050, 0, 0);
 
             //creates thread for TcpServer, sets it as backgroundthread, starts the thread
             var tcpServer = new Thread(StartTcpServer);
@@ -392,7 +392,8 @@ namespace Examples.LevelTest
                 //_srEarth.Render(RC);
                 foreach (var player in _playerList)
                 {
-                    var mtxM1 = float4x4.CreateTranslation(player.GetPostion());
+                    //var mtxM1 = float4x4.CreateTranslation(player.GetPostion());
+                    var mtxM1 = float4x4.Transpose(player.GetRigidBody().WorldTransform);
                     //var mtxScalePlayer = float4x4.CreateScale(5);
                     RC.ModelView = mtxCam * mtxM1;
 
@@ -458,7 +459,7 @@ namespace Examples.LevelTest
             var split = message.Split(new char[] { ':', ' ', ',', ';' });
             var sensorData = new float3();
             sensorData.x = float.Parse(split[2]) / 10;
-            sensorData.y = -9.81f;
+            sensorData.y = -3;
             sensorData.z = -float.Parse(split[6])/10;
             return sensorData;
         }
