@@ -472,8 +472,32 @@ namespace Fusee.Engine
             var retval = new GearConstraintImp();
             retval._gci = btGearConstraint;
             btGearConstraint.UserObject = retval;
+
             return retval;
         }
+
+        public void RemoveCollisionObject(ICollisionShapeImp collOb)
+        {
+            BoxShapeImp box = collOb as BoxShapeImp;
+            if (box != null)
+            {
+                this.BtCollisionShapes.Remove(box.BtBoxShape);
+                return;
+            }
+            SphereShapeImp sphere = collOb as SphereShapeImp;
+            if (sphere != null)
+            {
+                this.BtCollisionShapes.Remove(sphere.BtSphereShape);
+                return;
+            }
+            // TODO remove all other types as well OR EVEN BETTER: get rid of checking each type individually.
+        }
+
+        public void RemoveRigidBody(IRigidBodyImp rigidBody)
+        {
+            this.BtWorld.RemoveRigidBody(((RigidBodyImp)rigidBody)._rbi);
+        }
+
 
         //ConeTwistConstraint
         public IConeTwistConstraintImp AddConeTwistConstraint(IRigidBodyImp rigidBodyA, float4x4 rbAFrame)

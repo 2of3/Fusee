@@ -413,6 +413,17 @@ namespace Fusee.Engine
 
         #endregion CollisionShapes
 
+        //public void RemoveCollisionObject(CollisionShape collShape)
+        //{
+        //    this._dwi.RemoveCollisionObject(collShape);
+        //}
+
+        public void RemoveRigidBody(RigidBody rigidBody)
+        {
+            this._dwi.RemoveRigidBody(rigidBody._iRigidBodyImp);
+        }
+
+
         public int NumberConstraints()
         {
             var number = _dwi.NumberConstraints();

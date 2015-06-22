@@ -400,6 +400,7 @@ namespace Examples.LevelTest
                     switch (player.ElementString)
                     {
                         case "fire":
+                           // if(player.GetPostion().y >= -100)
                             _srFire.Render(RC);
                             break;
                         case "water":
@@ -421,7 +422,16 @@ namespace Examples.LevelTest
                         if (playerObject != null)
                         {
                             var moveCoord = DecryptMessage(tcpConnection.Message);
+
+                        
                             playerObject.Move(moveCoord);
+                            var isAbgestuerzt = playerObject.GetPostion().y <= -20;
+                            if (isAbgestuerzt)
+                            {
+                                playerObject.Respawn();
+
+                                
+                            }
                         }
                     }
 

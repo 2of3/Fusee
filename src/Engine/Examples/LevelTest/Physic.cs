@@ -142,5 +142,23 @@ namespace Examples.LevelTest
             InitColliders();
    
         }
+
+        internal CollisionShape RemoveRigidBody(RigidBody rigidBody)
+        {
+            var shape = rigidBody.CollisionShape;
+
+            _world.RemoveRigidBody(rigidBody);
+            // _world.RemoveCollisionObject(shape);
+            return shape;
+        }
+
+        public RigidBody ReInitSphere(float3 position, CollisionShape shape)
+        {   
+            RigidBody sphereBody = _world.AddRigidBody(10, position, float3.Zero, shape);
+            sphereBody.Restitution = 0.5f;
+            sphereBody.Friction = 0.2f;
+            return sphereBody;
+        }
+
     }
 }

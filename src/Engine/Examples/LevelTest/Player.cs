@@ -16,11 +16,13 @@ namespace Examples.LevelTest
         private readonly IPAddress _ipAddress;
         private float3 _velocity;
         private RigidBody _rigidBody;
+        private float3 _initPosition;
         public Player(string id, float3 playerPos, IPAddress ipAddress)
         {
             
             Id = id;
-            PlayerPos = playerPos;
+            _initPosition = playerPos;
+            PlayerPos = _initPosition;
             ElementString = _elements[i++];
             _ipAddress = ipAddress;
             IsActive = true;
@@ -41,8 +43,8 @@ namespace Examples.LevelTest
             Id = ipAddress.ToString();
             IsActive = true;
         }
-        public string Id { get; private set; } 
-
+        public string Id { get; private set; }
+        public float3 InitPosition { get; set; }
         public float3 PlayerPos { get; set; }
 
         public float3 NewPlayerPos { get; set; }
@@ -81,6 +83,16 @@ namespace Examples.LevelTest
         {
             _rigidBody.Position = new float3(position);
         }
-        
+
+
+        internal void Respawn()
+        {
+            // _rigidBody = LevelTest.LevelPhysic.InitSphere(playerPos);
+            // playerObject.GetRigidBody().Position = playerObject.InitPosition;
+            var shape = LevelTest.LevelPhysic.RemoveRigidBody(_rigidBody);
+            PlayerPos = _initPosition;
+            IsActive = true;
+            _rigidBody = LevelTest.LevelPhysic.ReInitSphere(PlayerPos, shape);
+        }
     }
 }

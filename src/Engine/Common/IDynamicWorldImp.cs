@@ -63,6 +63,12 @@ namespace Fusee.Engine
 
         IGImpactMeshShapeImp AddGImpactMeshShape(int[] meshTriangles, float3[]meshVertecies);
 
+        // void RemoveCollisionObject(ICollisionShapeImp collOb);
+        void RemoveRigidBody(IRigidBodyImp rigidBody);
+
+
+
+
         int NumberConstraints();
 
         void Dispose();
