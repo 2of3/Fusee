@@ -86,10 +86,14 @@ namespace Examples.LevelTest
 
         public static Physic LevelPhysic { get; private set; }
 
+        public static int WindowHeight = 1080;
+        public static int WindowWidth = 1920;
+
         // is called on startup
         public override void Init()
         {
-            SetWindowSize(4200, 1050, 0, 0);
+
+            SetWindowSize(WindowWidth, WindowHeight, 0, 0);
 
             //creates thread for TcpServer, sets it as backgroundthread, starts the thread
             var tcpServer = new Thread(StartTcpServer);
@@ -209,12 +213,12 @@ namespace Examples.LevelTest
             _gui.RenderFps(fps);
 
             /****************  TEST PURPOSE - hit spacebar to render test player   **********************/
-            
+
             if (Input.Instance.IsKey(KeyCodes.Space))
             {
                 IPAddress itsmeIpAddress = IPAddress.Parse("127.0.0.1");
                 var initPos = new float3(_playerList.Count * 10, 200, 0);
-                _playerList.Add(new Player("Testplayer", initPos, itsmeIpAddress ));
+                _playerList.Add(new Player("Testplayer", initPos, itsmeIpAddress));
             }
 
             if (_playerList.Exists(x => Equals(x.Id, "Testplayer")))
@@ -253,7 +257,7 @@ namespace Examples.LevelTest
             }
             else
             {
-               
+
                 foreach (var connection in _tpts.GetConnections())
                 {
                     //var item = _playerList.Find(x => x.IpAddress == (connection.Address));
@@ -281,12 +285,12 @@ namespace Examples.LevelTest
                     sb.Append("// ");
                     //Console.WriteLine(ExtractNumbers(connection.Message).Length);
                 }
-                _gui.RenderMsg(sb.ToString());
+                // _gui.RenderMsg(sb.ToString());
 
             }
             catch (NullReferenceException)
             {
-                _gui.RenderMsg("Nichts empfangen!");
+                //_gui.RenderMsg("Nichts empfangen!");
             }
 
             //Array for Players Position 
@@ -314,154 +318,157 @@ namespace Examples.LevelTest
             _angleHorz += _angleVelHorz;
             _angleVert += _angleVelVert;
 
-                _averageNewPos = new float3(0, 0, 0);
-                for (int i = 0; i < _playerList.Count; i++)
-                {
+            _averageNewPos = new float3(0, 0, 0);
+            for (int i = 0; i < _playerList.Count; i++)
+            {
 
-                    _averageNewPos += _playerList[i].GetPostion();
+                _averageNewPos += _playerList[i].GetPostion();
 
-                    //  Console.WriteLine(move[i]);
-                }
-                if (_playerList.Count >= 2)
-                {
+                //  Console.WriteLine(move[i]);
+            }
+            if (_playerList.Count >= 2)
+            {
                 _averageNewPos *= (float)(1.0 / _playerList.Count);
                 Console.WriteLine(_averageNewPos);
-                }
-               
+            }
 
-                camMin = new float3(_averageNewPos.x - 750, 0, _averageNewPos.z - 550);
-                camMax = new float3(_averageNewPos.x + 750, 0, _averageNewPos.z + 950);
 
-                _angleHorz = 1.56f;
-                _angleVert = -0.445f;
-                var mtxRot = float4x4.Identity;
-       
-                var mtxCam = float4x4.CreateTranslation(_averageNewPos.x, 0, _averageNewPos.z) * float4x4.CreateRotationY(-_angleHorz) * float4x4.CreateRotationX(-_angleVert) * float4x4.CreateTranslation(0, 0, -2500);
-                mtxCam.Invert();
-            
-                foreach (var player in _playerList)
+            camMin = new float3(_averageNewPos.x - 750, 0, _averageNewPos.z - 550);
+            camMax = new float3(_averageNewPos.x + 750, 0, _averageNewPos.z + 950);
+
+            _angleHorz = 1.56f;
+            _angleVert = -0.445f;
+            var mtxRot = float4x4.Identity;
+
+            var mtxCam = float4x4.CreateTranslation(_averageNewPos.x, 0, _averageNewPos.z) * float4x4.CreateRotationY(-_angleHorz) * float4x4.CreateRotationX(-_angleVert) * float4x4.CreateTranslation(0, 0, -2500);
+            mtxCam.Invert();
+
+            foreach (var player in _playerList)
+            {
+                var Pos = player.GetPostion();
+
+                if (player.GetPostion().x <= camMin.x)
                 {
-                    var Pos = player.GetPostion();
+                    var position = new float3(camMin.x, Pos.y, Pos.z);
+                    player.SetPosition(position);
 
-                    if (player.GetPostion().x <= camMin.x)
+                }
+                else
+                {
+                    if (player.GetPostion().x >= camMax.x)
                     {
-                        var position = new float3(camMin.x, Pos.y, Pos.z );
+                        var position = new float3(camMax.x, Pos.y, Pos.z);
                         player.SetPosition(position);
 
                     }
                     else
                     {
-                        if (player.GetPostion().x >= camMax.x)
-                        {
-                            var position = new float3(camMax.x, Pos.y, Pos.z);
-                            player.SetPosition(position);
-
-                        }
-                        else
-                        {
-                            Pos.x = player.GetPostion().x;
-                        }
+                        Pos.x = player.GetPostion().x;
                     }
+                }
 
-                     if (player.GetPostion().z <= camMin.z)
+                if (player.GetPostion().z <= camMin.z)
+                {
+                    var position = new float3(Pos.x, Pos.y, camMin.z);
+                    player.SetPosition(position);
+
+                }
+                else
+                {
+                    if (player.GetPostion().z >= camMax.z)
                     {
-                        var position = new float3(Pos.x, Pos.y, camMin.z);
+                        var position = new float3(Pos.x, Pos.y, camMax.z);
                         player.SetPosition(position);
-
                     }
                     else
                     {
-                        if (player.GetPostion().z >= camMax.z)
-                        {
-                            var position = new float3(Pos.x, Pos.y, camMax.z);
-                            player.SetPosition(position);
-                        }
-                        else
-                        {
-                            Pos.z = player.GetPostion().z;
-                        }
+                        Pos.z = player.GetPostion().z;
                     }
                 }
-             
-                RC.SetShader(_spColor);
-                // border 
-                var mtxR = float4x4.CreateTranslation(_averageNewPos.x, -20, _averageNewPos.z);
-                RC.ModelView = mtxCam * mtxR;
-                _srBorder.Render(RC);
+            }
 
-                //_srEarth.Render(RC);
-                foreach (var player in _playerList)
+            RC.SetShader(_spColor);
+            // border 
+            var mtxR = float4x4.CreateTranslation(_averageNewPos.x, -20, _averageNewPos.z);
+            RC.ModelView = mtxCam * mtxR;
+            _srBorder.Render(RC);
+
+            //_srEarth.Render(RC);
+            foreach (var player in _playerList)
+            {
+                //var mtxM1 = float4x4.CreateTranslation(player.GetPostion());
+                var mtxM1 = float4x4.Transpose(player.GetRigidBody().WorldTransform);
+                //var mtxScalePlayer = float4x4.CreateScale(5);
+                RC.ModelView = mtxCam * mtxM1;
+
+                switch (player.ElementString)
                 {
-                    //var mtxM1 = float4x4.CreateTranslation(player.GetPostion());
-                    var mtxM1 = float4x4.Transpose(player.GetRigidBody().WorldTransform);
-                    //var mtxScalePlayer = float4x4.CreateScale(5);
-                    RC.ModelView = mtxCam * mtxM1;
-
-                    switch (player.ElementString)
-                    {
-                        case "fire":
-                           // if(player.GetPostion().y >= -100)
-                            _srFire.Render(RC);
-                            break;
-                        case "water":
-                            _srWater.Render(RC);
-                            break;
-                        case "air":
-                            _srAir.Render(RC);
-                            break;
-                        case "earth":
-                            _srEarth.Render(RC);
-                            break;
-                    }
-
-                    // move the player(s)
-                    foreach (var tcpConnection in _tpts.GetConnections())
-                    {
-                        var tcpAddress = tcpConnection.Address;
-                        var playerObject = _playerList.Find(x => x.IpAddress == (tcpAddress));
-                        if (playerObject != null)
-                        {
-                            var moveCoord = DecryptMessage(tcpConnection.Message);
-
-                        
-                            playerObject.Move(moveCoord);
-                            var isAbgestuerzt = playerObject.GetPostion().y <= -20;
-                            if (isAbgestuerzt)
-                            {
-                                playerObject.Respawn();
-
-                                
-                            }
-                        }
-                    }
-
-
-
+                    case "fire":
+                        // if(player.GetPostion().y >= -100)
+                        _srFire.Render(RC);
+                        break;
+                    case "water":
+                        _srWater.Render(RC);
+                        break;
+                    case "air":
+                        _srAir.Render(RC);
+                        break;
+                    case "earth":
+                        _srEarth.Render(RC);
+                        break;
                 }
 
-                //Skybox
-                var mtxScale = float4x4.CreateScale(1.5f);
-                RC.ModelView = mtxCam * mtxRot * mtxR * mtxScale;
-                _srSky.Render(RC);
+                // move the player(s)
+                foreach (var tcpConnection in _tpts.GetConnections())
+                {
+                    var tcpAddress = tcpConnection.Address;
+                    var playerObject = _playerList.Find(x => x.IpAddress == (tcpAddress));
+                    if (playerObject != null)
+                    {
+                        var moveCoord = DecryptMessage(tcpConnection.Message);
 
-                //Level1
-                //var mtxTranslLevel = float4x4.CreateTranslation(0, -101, 0);
-                var mtxScaleLevel = float4x4.CreateScale(0.7f);
-                RC.ModelView = mtxCam;
-                _srLevel1.Render(RC);
 
-                _srDeko.Render(RC);
+                        playerObject.Move(moveCoord);
+                        var isAbgestuerzt = playerObject.GetPostion().y <= -20;
+                        if (isAbgestuerzt)
+                        {
+                            playerObject.Respawn();
+
+
+                        }
+                    }
+                }
+            }
+
+            //Skybox
+            var mtxScale = float4x4.CreateScale(1.5f);
+            RC.ModelView = mtxCam * mtxRot * mtxR * mtxScale;
+            _srSky.Render(RC);
+
+            //Level1
+            //var mtxTranslLevel = float4x4.CreateTranslation(0, -101, 0);
+            var mtxScaleLevel = float4x4.CreateScale(0.7f);
+            RC.ModelView = mtxCam;
+            _srLevel1.Render(RC);
+
+            _srDeko.Render(RC);
 
             if (Input.Instance.IsKey(KeyCodes.Escape))
             {
-                CloseGameWindow(); //TODO: Fix Function (see WindowSizesDemo)
+                CloseGameWindow();
             }
 
+            //************* Insert in Case 1 "Wait"********************//
+            _gui.RenderWait("Waiting for Connections...");
+            _gui.RenderFps(fps);
+            //*********************************************************//
+
             Present();
+
+            GUI._windowHeight = Width;
+            GUI._windowWidth = Height;
+
         }
-
-
-
 
         private float3 DecryptMessage(string message)
         {
@@ -470,7 +477,7 @@ namespace Examples.LevelTest
             var sensorData = new float3();
             sensorData.x = float.Parse(split[2]) / 10;
             sensorData.y = -3;
-            sensorData.z = -float.Parse(split[6])/10;
+            sensorData.z = -float.Parse(split[6]) / 10;
             return sensorData;
         }
 
