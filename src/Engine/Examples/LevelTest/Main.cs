@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using Fusee.Engine;
@@ -25,6 +27,9 @@ namespace Examples.LevelTest
         private GUIText _serverText;
         private IFont _guiLatoBlack;
         private GUIHandler _guiHandler;
+
+        public static int GuiPosX;
+        public static int GuiPosY;
 
         private GUI _gui;
 
@@ -92,7 +97,6 @@ namespace Examples.LevelTest
         // is called on startup
         public override void Init()
         {
-
             SetWindowSize(WindowWidth, WindowHeight, 0, 0);
 
             //creates thread for TcpServer, sets it as backgroundthread, starts the thread
@@ -208,9 +212,7 @@ namespace Examples.LevelTest
             //Physic
             LevelPhysic.World.StepSimulation((float)Time.Instance.DeltaTime, (Time.Instance.FramePerSecondSmooth / 60), 1 / 60);
 
-            //GUI
-            float fps = Time.Instance.FramePerSecond;
-            _gui.RenderFps(fps);
+            
 
             /****************  TEST PURPOSE - hit spacebar to render test player   **********************/
 
@@ -226,6 +228,7 @@ namespace Examples.LevelTest
                 var testplayer = _playerList.FirstOrDefault(x => x.Id == "Testplayer");
                 //if (testplayer != null)
                 // testplayer.Move(_testGravity);
+               
                 if (Input.Instance.IsKey(KeyCodes.Up))
                 {
                     if (testplayer != null)
@@ -458,16 +461,34 @@ namespace Examples.LevelTest
                 CloseGameWindow();
             }
 
+
             //************* Insert in Case 1 "Wait"********************//
-            _gui.RenderWait("Waiting for Connections...");
+            //GUI
+
+            GuiPosY = Width / 2;
+            GuiPosX = -(Height / 2);
+
+            float fps = Time.Instance.FramePerSecond;
+            _gui.RenderCount(_playerList.Count);
+            
             _gui.RenderFps(fps);
+            _gui.RenderWait("Waiting for Connections...");
+      
             //*********************************************************//
 
+
+            //******************* VIDEO TEST *************************//
+            if (Input.Instance.IsKey(KeyCodes.W))
+            {
+                Process[] proc = Process.GetProcessesByName("MediaPlayerCSTest");
+                if (proc.Length == 0)
+                {
+                    Process.Start(@"C:\Users\Sarah\Documents\GitHub\MediaPlayer\MediaPlayerCSTest\bin\Debug\MediaPlayerCSTest.exe");
+                }
+            }
+            
+
             Present();
-
-            GUI._windowHeight = Width;
-            GUI._windowWidth = Height;
-
         }
 
         private float3 DecryptMessage(string message)
