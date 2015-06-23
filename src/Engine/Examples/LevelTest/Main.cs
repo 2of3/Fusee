@@ -211,7 +211,6 @@ namespace Examples.LevelTest
 
             //Physic
             LevelPhysic.World.StepSimulation((float)Time.Instance.DeltaTime, (Time.Instance.FramePerSecondSmooth / 60), 1 / 60);
-
             
 
             /****************  TEST PURPOSE - hit spacebar to render test player   **********************/
@@ -334,7 +333,6 @@ namespace Examples.LevelTest
                 _averageNewPos *= (float)(1.0 / _playerList.Count);
                 Console.WriteLine(_averageNewPos);
             }
-
 
             camMin = new float3(_averageNewPos.x - 750, 0, _averageNewPos.z - 550);
             camMax = new float3(_averageNewPos.x + 750, 0, _averageNewPos.z + 950);
@@ -480,11 +478,19 @@ namespace Examples.LevelTest
             //******************* VIDEO TEST *************************//
             if (Input.Instance.IsKey(KeyCodes.W))
             {
+
+                string path = Directory.GetParent(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).FullName;
+                if (Environment.OSVersion.Version.Major >= 6)
+                {
+                    path = Directory.GetParent(path).ToString();
+                }
+
                 Process[] proc = Process.GetProcessesByName("MediaPlayerCSTest");
                 if (proc.Length == 0)
                 {
-                    Process.Start(@"C:\Users\Sarah\Documents\GitHub\MediaPlayer\MediaPlayerCSTest\bin\Debug\MediaPlayerCSTest.exe");
+                    Process.Start(path + @"\Documents\GitHub\MediaPlayer\MediaPlayerCSTest\bin\Debug\MediaPlayerCSTest.exe");
                 }
+            //******************* VIDEO TEST *************************//
             }
             
 
