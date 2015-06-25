@@ -98,9 +98,22 @@ namespace Examples.LevelTest
             NetworkStream ns = _client.GetStream();
             Console.WriteLine("New client accepted"); //": {0} active connections");
 
-            const string welcome = "Welcome to my test server";
-            data = Encoding.ASCII.GetBytes(welcome);
+            List<Player> tmpPlayers = LevelTest.GetPlayerList();
+            String tmpElement = "ERROR";
+            foreach (var tmpPlayer in tmpPlayers)
+            {
+                if (tmpPlayer.IpAddress.Equals(Address))
+                {
+                    tmpElement = tmpPlayer.ElementString;
+                }
+               
+            }
+
+            /*const */ string element = tmpElement;
+            Console.WriteLine("~~~~ THIS IS ELEMENT:" + element);
+            data = Encoding.ASCII.GetBytes(element);
             ns.Write(data, 0, data.Length);
+            ns.Flush();
             RecvMessage = new StringBuilder();
             int iMsgEnd = 0;
 

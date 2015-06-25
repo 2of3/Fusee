@@ -8,7 +8,7 @@ using Fusee.Math;
 
 namespace Examples.LevelTest
 {
-    class Player
+    public class Player
     {
         private static string[] _elements = {"fire", "water" ,"earth", "air"};
 

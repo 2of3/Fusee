@@ -74,12 +74,15 @@ namespace Examples.LevelTest
 
         private ITexture _iTex;
 
-        private List<Player> _playerList = new List<Player>();
+        private static List<Player> _playerList = new List<Player>();
+
+        
+
 
         // some logic
         private bool _isEmpty;
 
-        /*****  TEST PURPOSE  ******/
+        /*****  TEST PURPOSE  ****** /
         float3 _moveX = new float3(10, 0, 0);
         float3 _moveMinusX = new float3(-10, 0, 0);
         float3 _moveZ = new float3(0, 0, 10);
@@ -203,6 +206,11 @@ namespace Examples.LevelTest
             LevelPhysic.InitScene();
         }
 
+        public static List<Player> GetPlayerList()
+        {
+            return _playerList;
+        } 
+
         // is called once a frame
         public override void RenderAFrame()
         {
@@ -213,7 +221,7 @@ namespace Examples.LevelTest
             LevelPhysic.World.StepSimulation((float)Time.Instance.DeltaTime, (Time.Instance.FramePerSecondSmooth / 60), 1 / 60);
             
 
-            /****************  TEST PURPOSE - hit spacebar to render test player   **********************/
+            /****************  TEST PURPOSE - hit spacebar to render test player   ********************** /
 
             if (Input.Instance.IsKey(KeyCodes.Space))
             {
@@ -466,9 +474,29 @@ namespace Examples.LevelTest
             GuiPosY = Width / 2;
             GuiPosX = -(Height / 2);
 
+            var playerPosition = new float3[] {};
+
             float fps = Time.Instance.FramePerSecond;
             _gui.RenderCount(_playerList.Count);
-            
+            int index = 0;
+            foreach (var player in _playerList)
+            {
+                playerPosition[index] = player.GetPostion();
+                index++;
+            }
+               
+            switch (_playerList.Count)
+            {
+                case 2:
+                    _gui.RenderPlayerPos(playerPosition[0], playerPosition[1]);
+                    break;
+                case 3:
+                    _gui.RenderPlayerPos(playerPosition[0], playerPosition[1], playerPosition[2]);
+                    break;
+                case 4:
+                    _gui.RenderPlayerPos(playerPosition[0], playerPosition[1], playerPosition[2], playerPosition[3]);
+                    break;
+            }
             _gui.RenderFps(fps);
             _gui.RenderWait("Waiting for Connections...");
       

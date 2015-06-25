@@ -72,11 +72,24 @@ namespace Examples.LevelTest
             _playerCount.Text = "Anzahl der Spieler: " + count;
         }
 
-        public void RenderPlayerPos(float3 posFire, float3 posWater, float3 posAir, float3 posEarth)
+        public void RenderPlayerPos(float3 posFire, float3 posWater, float3 posEarth, float3 posAir)
         {
             _firePos.Text = "Position Feuer: " + posFire;
             _waterPos.Text = "Position Wasser: " + posWater;
+            _earthPos.Text = "Position Erde: " + posEarth;
             _airPos.Text = "Position Luft: " + posAir;
+        }
+
+        public void RenderPlayerPos(float3 posFire, float3 posWater)
+        {
+            _firePos.Text = "Position Feuer: " + posFire;
+            _waterPos.Text = "Position Wasser: " + posWater;
+        }
+
+        public void RenderPlayerPos(float3 posFire, float3 posWater, float3 posEarth)
+        {
+            _firePos.Text = "Position Feuer: " + posFire;
+            _waterPos.Text = "Position Wasser: " + posWater;
             _earthPos.Text = "Position Erde: " + posEarth;
         }
 
