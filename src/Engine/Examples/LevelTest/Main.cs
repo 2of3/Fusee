@@ -582,7 +582,7 @@ namespace Examples.LevelTest
                     }
             }
 
-            if (_FireIsOn == true && _WaterIsOn == true && _EarthIsOn == true)
+            if (_FireIsOn == true && _WaterIsOn == true && _EarthIsOn == true)//TODO: && _AirIsOn == true einfügen
             {
 
                 string path = Directory.GetParent(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).FullName;
@@ -595,6 +595,15 @@ namespace Examples.LevelTest
                 if (proc.Length == 0)
                 {
                     Process.Start(path + @"\Documents\GitHub\MediaPlayer\MediaPlayerCSTest\bin\Debug\MediaPlayerCSTest.exe");
+                }
+
+                foreach (var player in _playerList)
+                {
+                    var i = 0;
+                    var initPos = new float3( i * 10, 60, 0);
+                    player.SetPosition(initPos);
+                    i++;
+
                 }
             }
 
