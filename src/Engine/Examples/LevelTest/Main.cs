@@ -339,11 +339,11 @@ namespace Examples.LevelTest
             if (_playerList.Count >= 2)
             {
                 _averageNewPos *= (float)(1.0 / _playerList.Count);
-                Console.WriteLine(_averageNewPos);
+                //Console.WriteLine(_averageNewPos);
             }
 
-            camMin = new float3(_averageNewPos.x - 750, 0, _averageNewPos.z - 550);
-            camMax = new float3(_averageNewPos.x + 750, 0, _averageNewPos.z + 950);
+            camMin = new float3(_averageNewPos.x - 300, 0, _averageNewPos.z - 220);
+            camMax = new float3(_averageNewPos.x + 300, 0, _averageNewPos.z + 380);
 
             _angleHorz = 1.56f;
             _angleVert = -0.445f;
@@ -398,9 +398,11 @@ namespace Examples.LevelTest
 
             RC.SetShader(_spColor);
             // border 
+            var BorderScale = float4x4.CreateScale(0.5f);
             var mtxR = float4x4.CreateTranslation(_averageNewPos.x, -20, _averageNewPos.z);
-            RC.ModelView = mtxCam * mtxR;
+            RC.ModelView = mtxCam * mtxR * BorderScale;
             _srBorder.Render(RC);
+
 
             //_srEarth.Render(RC);
             foreach (var player in _playerList)
@@ -432,20 +434,44 @@ namespace Examples.LevelTest
                 {
                     var tcpAddress = tcpConnection.Address;
                     var playerObject = _playerList.Find(x => x.IpAddress == (tcpAddress));
+
+                    foreach (var playerfall in _playerList)
+                    {
+                        var fell = playerObject.GetPostion().y <= -200;
+                        if (fell)
+                        {
+
+                            foreach (var allPlayer in _playerList)
+                            {
+                                allPlayer.Respawn();
+                            }
+                           
+                        }
+                    }
                     if (playerObject != null)
                     {
                         var moveCoord = DecryptMessage(tcpConnection.Message);
 
 
                         playerObject.Move(moveCoord);
-                        var isAbgestuerzt = playerObject.GetPostion().y <= -20;
-                        if (isAbgestuerzt)
+                     
+                    }
+                }
+                if (_tpts.GetConnections().Count < _playerList.Count)
+                {
+                    /** Remove PLaer from List here!! ** /
+                    
+                    foreach (var player1 in _playerList)
+                    {
+                        var playerNotDead = _tpts.GetConnections().Exists(x => x.Address.Equals(player1.IpAddress));
+                        if (!playerNotDead)
                         {
-                            playerObject.Respawn();
-
-
+                            _playerList.Remove(player1);
+                            LevelPhysic.RemoveRigidBody(player1.GetRigidBody());
                         }
                     }
+                    Console.WriteLine("Disconnection just happened!");
+                    /************************************/
                 }
             }
 
@@ -479,7 +505,7 @@ namespace Examples.LevelTest
             float fps = Time.Instance.FramePerSecond;
             _gui.RenderCount(_playerList.Count);
             int index = 0;
-            foreach (var player in _playerList)
+          /*  foreach (var player in _playerList)
             {
                 playerPosition[index] = player.GetPostion();
                 index++;
@@ -496,7 +522,7 @@ namespace Examples.LevelTest
                 case 4:
                     _gui.RenderPlayerPos(playerPosition[0], playerPosition[1], playerPosition[2], playerPosition[3]);
                     break;
-            }
+            }*/
             _gui.RenderFps(fps);
             _gui.RenderWait("Waiting for Connections...");
       
