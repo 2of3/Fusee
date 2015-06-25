@@ -81,6 +81,10 @@ namespace Examples.LevelTest
 
         // some logic
         private bool _isEmpty;
+        private bool _FireIsOn;
+        private bool _WaterIsOn;
+        private bool _EarthIsOn;
+        private bool _AirIsOn;
 
         /*****  TEST PURPOSE  ****** /
         float3 _moveX = new float3(10, 0, 0);
@@ -204,6 +208,12 @@ namespace Examples.LevelTest
             //Physics
             LevelPhysic = new Physic();
             LevelPhysic.InitScene();
+
+            //Logic
+            _FireIsOn = false;
+            _WaterIsOn = false;
+            _EarthIsOn = false;
+            _AirIsOn = false;
         }
 
         public static List<Player> GetPlayerList()
@@ -472,6 +482,119 @@ namespace Examples.LevelTest
                     }
                     Console.WriteLine("Disconnection just happened!");
                     /************************************/
+                }
+            }
+
+            foreach (var spieler in _playerList)
+            {
+
+                if (spieler.ElementString == "fire")
+                {
+
+                    if (spieler.GetPostion().x <= -2830)
+                    {
+                        if (spieler.GetPostion().x >= -2950)
+                        {
+                            if (spieler.GetPostion().z >= 180)
+                            {
+                                if (spieler.GetPostion().z <= 300)
+                                {
+                                    _FireIsOn = true;
+                                    Console.WriteLine("Feuer ist da");
+                                }
+                                else
+                                {
+                                    _FireIsOn = false;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (spieler.ElementString == "water")
+                {
+
+                    if (spieler.GetPostion().x <= -2830)
+                    {
+                        if (spieler.GetPostion().x >= -2950)
+                        {
+                            if (spieler.GetPostion().z >= 480)
+                            {
+                                if (spieler.GetPostion().z <= 600)
+                                {
+                                    _WaterIsOn = true;
+                                    Console.WriteLine("Wasser ist da");
+                                }
+                                else
+                                {
+                                    _WaterIsOn = false;
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                if (spieler.ElementString == "earth")
+                    {
+
+                        if (spieler.GetPostion().x <= -3150)
+                        {
+                            if (spieler.GetPostion().x >= -3270)
+                            {
+                                if (spieler.GetPostion().z >= 180)
+                                {
+                                    if (spieler.GetPostion().z <= 300)
+                                    {
+                                        _EarthIsOn = true;
+                                        Console.WriteLine("Erde ist da");
+                                    }
+                                    else
+                                    {
+                                        _EarthIsOn = false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                if (spieler.ElementString == "air")
+                    {
+
+                        if (spieler.GetPostion().x <= -3150)
+                        {
+                           
+                            if (spieler.GetPostion().x >= -3270)
+                            {
+                              
+                                if (spieler.GetPostion().z >= 480)
+                                {
+                                  
+                                    if (spieler.GetPostion().z <= 600)
+                                    {
+                                        _AirIsOn = true;
+                                        Console.WriteLine("Luft ist da");
+                                    }
+                                    else
+                                    {
+                                        _AirIsOn = false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+            }
+
+            if (_FireIsOn == true && _WaterIsOn == true && _EarthIsOn == true)
+            {
+
+                string path = Directory.GetParent(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).FullName;
+                if (Environment.OSVersion.Version.Major >= 6)
+                {
+                    path = Directory.GetParent(path).ToString();
+                }
+
+                Process[] proc = Process.GetProcessesByName("MediaPlayerCSTest");
+                if (proc.Length == 0)
+                {
+                    Process.Start(path + @"\Documents\GitHub\MediaPlayer\MediaPlayerCSTest\bin\Debug\MediaPlayerCSTest.exe");
                 }
             }
 
