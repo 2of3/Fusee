@@ -587,7 +587,7 @@ namespace Examples.LevelTest
                     }
             }
 
-            if (_FireIsOn == true && _WaterIsOn == true && _EarthIsOn == true)//TODO: && _AirIsOn == true einfügen
+            if (_FireIsOn == true && _WaterIsOn == true )//TODO: && _AirIsOn == true einfügen && _EarthIsOn == true
             {
 
                 string path = Directory.GetParent(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)).FullName;
