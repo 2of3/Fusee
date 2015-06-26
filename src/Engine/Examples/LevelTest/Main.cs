@@ -426,9 +426,9 @@ namespace Examples.LevelTest
                         LevelPhysic.RemoveRigidBody(player1.GetRigidBody());
                     }
                 }
-                foreach (var player1 in deadPlayerList)
+                foreach (var deadPlayer in deadPlayerList)
                 {
-                    _playerList.Remove(player1);
+                    _playerList.Remove(deadPlayer);
                 }
                 deadPlayerList.Clear();
 

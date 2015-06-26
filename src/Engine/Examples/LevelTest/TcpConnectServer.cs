@@ -113,7 +113,7 @@ namespace Examples.LevelTest
             Console.WriteLine("~~~~ THIS IS ELEMENT:" + element);
             data = Encoding.ASCII.GetBytes(element);
             ns.Write(data, 0, data.Length);
-            ns.Flush();
+            //ns.Flush();
             RecvMessage = new StringBuilder();
             int iMsgEnd = 0;
 
