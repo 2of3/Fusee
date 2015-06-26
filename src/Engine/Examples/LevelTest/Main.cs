@@ -413,7 +413,28 @@ namespace Examples.LevelTest
             RC.ModelView = mtxCam * mtxR * BorderScale;
             _srBorder.Render(RC);
 
+            if (_tpts.GetConnections().Count < _playerList.Count)
+            {
+                /** Remove Player from List here!! **/
+                var deadPlayerList = new List<Player>();
+                foreach (var player1 in _playerList)
+                {
+                    var playerNotDead = _tpts.GetConnections().Exists(x => x.Address.Equals(player1.IpAddress));
+                    if (!playerNotDead)
+                    {
+                        deadPlayerList.Add(player1);
+                        LevelPhysic.RemoveRigidBody(player1.GetRigidBody());
+                    }
+                }
+                foreach (var player1 in deadPlayerList)
+                {
+                    _playerList.Remove(player1);
+                }
+                deadPlayerList.Clear();
 
+                Console.WriteLine("Some Player(s) disconnected");
+                /************************************/
+            }
             //_srEarth.Render(RC);
             foreach (var player in _playerList)
             {
@@ -443,7 +464,7 @@ namespace Examples.LevelTest
                 foreach (var tcpConnection in _tpts.GetConnections())
                 {
                     var tcpAddress = tcpConnection.Address;
-                    var playerObject = _playerList.Find(x => x.IpAddress == (tcpAddress));
+                    var playerObject = _playerList.Find(x => Equals(x.IpAddress, tcpAddress));
 
                     foreach (var playerfall in _playerList)
                     {
@@ -466,22 +487,6 @@ namespace Examples.LevelTest
                         playerObject.Move(moveCoord);
                      
                     }
-                }
-                if (_tpts.GetConnections().Count < _playerList.Count)
-                {
-                    /** Remove PLaer from List here!! ** /
-                    
-                    foreach (var player1 in _playerList)
-                    {
-                        var playerNotDead = _tpts.GetConnections().Exists(x => x.Address.Equals(player1.IpAddress));
-                        if (!playerNotDead)
-                        {
-                            _playerList.Remove(player1);
-                            LevelPhysic.RemoveRigidBody(player1.GetRigidBody());
-                        }
-                    }
-                    Console.WriteLine("Disconnection just happened!");
-                    /************************************/
                 }
             }
 

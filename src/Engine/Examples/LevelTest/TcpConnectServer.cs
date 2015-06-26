@@ -125,13 +125,14 @@ namespace Examples.LevelTest
                     //TODO: if client disconnects --> IOExeption, fix it (maybe client.Close() in the Android App!
                     iMsgEnd = RecvMessage.Length;
                     RecvMessage.AppendFormat("{0}", Encoding.ASCII.GetString(data, 0, recv));
-
+                    
                     for (; iMsgEnd < RecvMessage.Length; iMsgEnd++)
                     {
                         if (RecvMessage[iMsgEnd] == ';') //Protocol; in case server receives incomplete data
                         {
                             Message = RecvMessage.ToString(0, iMsgEnd); //Message is now in List "Connections"
                             RecvMessage.Remove(0, iMsgEnd + 1);
+                            Console.WriteLine(Message);
                         }
                     }
                 }
