@@ -11,6 +11,7 @@ namespace Fusee.Engine
         GameController,
         Touch,
         Kinect,
+        XInput,
     }
 
     public enum ControllerButton

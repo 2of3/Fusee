@@ -7,9 +7,9 @@
         /// Creates the controller implementation.
         /// </summary>
         /// <returns>An instance of InputDriverImp is returned.</returns>
-        public static IInputDriverImp CreateInputDriverImp()
+        public static IXInputDriverImp CreateInputDriverImp()
         {
-            return new InputDriverImp();
+            return new XInputDriverImp();
         }
     }
 }

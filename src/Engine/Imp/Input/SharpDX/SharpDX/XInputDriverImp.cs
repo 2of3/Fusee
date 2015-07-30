@@ -4,9 +4,9 @@ using SharpDX.XInput;
 namespace Fusee.Engine
 {
     /// <summary>
-    /// Sharp DX (Microsoft XInput) specific implementation for the <see cref="IInputDriverImp"/>.
+    /// Sharp DX (Microsoft XInput) specific implementation for the <see cref="IXInputDriverImp"/>.
     /// </summary>
-    class InputDriverImp : IInputDriverImp
+    class XInputDriverImp : IXInputDriverImp
     {
         public List<Controller> Devices = new List<Controller>();
 
@@ -14,7 +14,7 @@ namespace Fusee.Engine
         /// All SharpDX (Microsoft XInput) compatible input devices are initialised and added to a List of the type <see cref="IInputDeviceImp"./>
         /// </summary>
         /// <returns>A list containing all XInput compatible input devices.</returns>
-        public List<IInputDeviceImp> DeviceImps()
+        public List<IXInputDeviceImp> DeviceImps()
         {
             // TODO: This is a bit complex. Could be done easier but then it is also less generic.
             var val = UserIndex.GetValues(typeof(UserIndex));
@@ -28,10 +28,10 @@ namespace Fusee.Engine
                 Devices.Add(new Controller(userid));
             }
             
-            var retList = new List<IInputDeviceImp>();
+            var retList = new List<IXInputDeviceImp>();
             foreach (Controller device in Devices)
             {
-                retList.Add(new InputDeviceImp(device));
+                retList.Add(new XInputDeviceImp(device));
             }
             return retList;
         }
