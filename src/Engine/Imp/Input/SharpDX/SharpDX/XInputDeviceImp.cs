@@ -72,17 +72,21 @@ namespace Fusee.Engine
                 _newUpdate = false;
                 return;
             }
-            _newUpdate = true;
             _lastpackageNumber = pnr;
+            _newUpdate = true;            
         }
 
-        private void UpdateState()
+        /// <summary>
+        /// This controlls the update polling for the gamepad.
+        /// This should be called at least every frame (more often for less input lag). Probably in the OnRenderFrame() function.
+        /// Caution: More calls are putting more stress on the gamepad connection and the cpu.
+        /// </summary>
+        public void UpdateState()
         {
-            State st = _Controller.GetState();
             UpdatePacketNumber();
             if(_newUpdate)
             {
-                _lastState = st;
+                _lastState = _Controller.GetState();
             }            
         }
 
@@ -136,7 +140,6 @@ namespace Fusee.Engine
         /// <returns></returns>
         public int GetThumbLXAxis()
         {
-            UpdateState();
             return _lastState.Gamepad.LeftThumbX;
         }
 
@@ -146,7 +149,6 @@ namespace Fusee.Engine
         /// <returns></returns>
         public int GetThumbLYAxis()
         {
-            UpdateState();
             return _lastState.Gamepad.LeftThumbY;
         }
 
@@ -156,7 +158,6 @@ namespace Fusee.Engine
         /// <returns></returns>
         public int GetThumbRXAxis()
         {
-            UpdateState();
             return _lastState.Gamepad.RightThumbX;
         }
 
@@ -166,7 +167,6 @@ namespace Fusee.Engine
         /// <returns></returns>
         public int GetThumbRYAxis()
         {
-            UpdateState();
             return _lastState.Gamepad.RightThumbY;
         }
 
@@ -176,7 +176,6 @@ namespace Fusee.Engine
         /// <returns></returns>
         public int GetZAxisLeft()
         {
-            UpdateState();
             return _lastState.Gamepad.LeftTrigger;
         }
 
@@ -186,7 +185,6 @@ namespace Fusee.Engine
         /// <returns></returns>
         public int GetZAxisRight()
         {
-            UpdateState();
             return _lastState.Gamepad.RightTrigger;
         }
 
