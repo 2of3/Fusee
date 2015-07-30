@@ -7,31 +7,37 @@ namespace Fusee.Engine
         /// Implement this to get the left thumbstick's X-Axis.
         /// </summary>
         /// <returns>The left thumbstick's X-Axis value.</returns>
-        float GetThumbLXAxis();
+        int GetThumbLXAxis();
 
         /// <summary>
         /// Implement this to get the left thumbstick's Y-Axis.
         /// </summary>
         /// <returns>The left thumbstick's Y-Axis value.</returns>
-        float GetThumbLYAxis();
+        int GetThumbLYAxis();
 
         /// <summary>
         /// Implement this to get the right thumbstick's X-Axis.
         /// </summary>
         /// <returns>The right thumbstick's X-Axis value.</returns>
-        float GetThumbRXAxis();
+        int GetThumbRXAxis();
 
         /// <summary>
         /// Implement this to get the right thumbstick's Y-Axis.
         /// </summary>
         /// <returns>The right thumbstick's Y-Axis value.</returns>
-        float GetThumbRYAxis();
-        
+        int GetThumbRYAxis();
+
         /// <summary>
-        /// Implement this to get the Z-Axis. Z-Axis are the shoulder triggers between -1 and 1 for left and right.
+        /// Implement this to get the Left Z-Axis.
         /// </summary>
         /// <returns>The Z-Axis value.</returns>
-        float GetZAxis();
+        int GetZAxisLeft();
+
+        /// <summary>
+        /// Implement this to get the Right Z-Axis.
+        /// </summary>
+        /// <returns>The Z-Axis value.</returns>
+        int GetZAxisRight();
 
         /// <summary>
         /// Implement this to get the Device Name.

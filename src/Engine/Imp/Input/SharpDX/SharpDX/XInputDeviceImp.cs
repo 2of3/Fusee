@@ -18,6 +18,9 @@ namespace Fusee.Engine
         // Settings
         private float _deadZoneL = 0f;
         private float _deadZoneR = 0f;
+        private int _lastpackageNumber;
+        private bool _newUpdate = false;
+        private State _lastState;
 
         #endregion Fields
 
@@ -56,6 +59,31 @@ namespace Fusee.Engine
             }
 
             _Controller = _Devices[0];
+        }
+
+        /// <summary>
+        /// This updates the packagenumber whenever a new information poll is received.
+        /// </summary>
+        private void UpdatePacketNumber()
+        {
+            int pnr = _Controller.GetState().PacketNumber;
+            if(pnr == _lastpackageNumber)
+            {
+                _newUpdate = false;
+                return;
+            }
+            _newUpdate = true;
+            _lastpackageNumber = pnr;
+        }
+
+        private void UpdateState()
+        {
+            State st = _Controller.GetState();
+            UpdatePacketNumber();
+            if(_newUpdate)
+            {
+                _lastState = st;
+            }            
         }
 
         #region Buttons
@@ -102,35 +130,70 @@ namespace Fusee.Engine
 
         #region Axis
 
-        public float GetThumbLXAxis()
+        /// <summary>
+        /// Returns the value of the left thumb sticks X-axis.
+        /// </summary>
+        /// <returns></returns>
+        public int GetThumbLXAxis()
         {
-            throw new NotImplementedException();
+            UpdateState();
+            return _lastState.Gamepad.LeftThumbX;
         }
 
-        public float GetThumbLYAxis()
+        /// <summary>
+        /// Returns the value of the left thumb sticks Y-axis.
+        /// </summary>
+        /// <returns></returns>
+        public int GetThumbLYAxis()
         {
-            throw new NotImplementedException();
+            UpdateState();
+            return _lastState.Gamepad.LeftThumbY;
         }
 
-        public float GetThumbRXAxis()
+        /// <summary>
+        /// Returns the value of the right thumb sticks X-axis.
+        /// </summary>
+        /// <returns></returns>
+        public int GetThumbRXAxis()
         {
-            throw new NotImplementedException();
+            UpdateState();
+            return _lastState.Gamepad.RightThumbX;
         }
 
-        public float GetThumbRYAxis()
+        /// <summary>
+        /// Returns the value of the right thumb sticks Y-axis.
+        /// </summary>
+        /// <returns></returns>
+        public int GetThumbRYAxis()
         {
-            throw new NotImplementedException();
+            UpdateState();
+            return _lastState.Gamepad.RightThumbY;
         }
 
-        public float GetZAxis()
+        /// <summary>
+        /// Returns the value of the left trigger Z-axis.
+        /// </summary>
+        /// <returns></returns>
+        public int GetZAxisLeft()
         {
-            throw new NotImplementedException();
+            UpdateState();
+            return _lastState.Gamepad.LeftTrigger;
+        }
+
+        /// <summary>
+        /// Returns the value of the right trigger Z-axis.
+        /// </summary>
+        /// <returns></returns>
+        public int GetZAxisRight()
+        {
+            UpdateState();
+            return _lastState.Gamepad.RightTrigger;
         }
 
         #endregion Axis
 
         #region SetParameters
-        
+
         /// <summary>
         /// Sets the current gamepap depending on the index given.
         /// </summary>
