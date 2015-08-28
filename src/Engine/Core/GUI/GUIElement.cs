@@ -334,14 +334,14 @@ namespace Fusee.Engine
             // build complete structure
             var vertices = new float3[4*Text.Length];
             var uvs = new float2[4*Text.Length];
-            var indices = new ushort[6*Text.Length];
+            var indices = new uint[6*Text.Length];
 
             var charInfo = Font.CharInfo;
             var atlasWidth = Font.Width;
             var atlasHeight = Font.Height;
 
             var index = 0;
-            ushort vertex = 0;
+            uint vertex = 0;
 
             // now build the mesh
             foreach (var letter in Text)
@@ -414,7 +414,7 @@ namespace Fusee.Engine
             // build complete structure
             var vertices = new float3[(borderWidth > 0) ? 8 : 4];
             var uvs = new float2[(borderWidth > 0) ? 8 : 4];
-            var indices = new ushort[(borderWidth > 0) ? 12 : 6];
+            var indices = new uint[(borderWidth > 0) ? 12 : 6];
             var colors = new uint[(borderWidth > 0) ? 8 : 4];
 
             var c1 = xS + borderX;
@@ -439,7 +439,7 @@ namespace Fusee.Engine
         }
 
         protected void DrawRectangle(float c1, float c2, float c3, float c4, int vtStart, int indStart, float4 color,
-            ref float3[] vertices, ref ushort[] indices, ref uint[] colors)
+            ref float3[] vertices, ref uint[] indices, ref uint[] colors)
         {
             // vertices
             vertices[vtStart + 0] = new float3(c1, c3, 0);
@@ -465,7 +465,7 @@ namespace Fusee.Engine
             indices[indStart + 5] = (ushort) (vtStart + 3);
         }
 
-        protected void CreateGUIMesh(float3[] vertices, float2[] uvs, ushort[] indices, uint[] colors)
+        protected void CreateGUIMesh(float3[] vertices, float2[] uvs, uint[] indices, uint[] colors)
         {
             if (GUIMesh == null)
                 GUIMesh = new Mesh {Vertices = vertices, UVs = uvs, Triangles = indices, Colors = colors};
@@ -478,7 +478,7 @@ namespace Fusee.Engine
             }
         }
 
-        protected void CreateTextMesh(float3[] vertices, float2[] uvs, ushort[] indices)
+        protected void CreateTextMesh(float3[] vertices, float2[] uvs, uint[] indices)
         {
             if (TextMesh == null)
                 TextMesh = new Mesh {Vertices = vertices, UVs = uvs, Triangles = indices};

@@ -386,7 +386,7 @@ namespace Fusee.Engine
         public void Tick(double deltaTime)
         {
              var vertices = new float3[_customCount * 4];
-             var triangles = new ushort[_customCount * 6];
+             var triangles = new uint[_customCount * 6];
              var normals = new float3[_customCount * 4];
              var uVs = new float2[_customCount * 4];
              _rnd = new Random();

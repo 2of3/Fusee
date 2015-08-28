@@ -973,7 +973,7 @@ namespace Fusee.Engine
         /// <param name="triangleIndices">The triangle indices.</param>
         /// <exception cref="System.ArgumentException">triangleIndices must not be null or empty</exception>
         /// <exception cref="System.ApplicationException"></exception>
-        public void SetTriangles(IMeshImp mr, ushort[] triangleIndices)
+        public void SetTriangles(IMeshImp mr, uint[] triangleIndices)
         {
             if (triangleIndices == null || triangleIndices.Length == 0)
             {
@@ -981,7 +981,7 @@ namespace Fusee.Engine
             }
             ((MeshImp) mr).NElements = triangleIndices.Length;
             int vboBytes;
-            int trisBytes = triangleIndices.Length*sizeof (short);
+            int trisBytes = triangleIndices.Length*sizeof (uint);
 
             if (((MeshImp) mr).ElementBufferObject == 0)
                 GL.GenBuffers(1, out ((MeshImp) mr).ElementBufferObject);
@@ -1035,7 +1035,7 @@ namespace Fusee.Engine
             if (((MeshImp) mr).ElementBufferObject != 0)
             {
                 GL.BindBuffer(BufferTarget.ElementArrayBuffer, ((MeshImp) mr).ElementBufferObject);
-                GL.DrawElements(BeginMode.Triangles, ((MeshImp) mr).NElements, DrawElementsType.UnsignedShort,
+                GL.DrawElements(BeginMode.Triangles, ((MeshImp) mr).NElements, DrawElementsType.UnsignedInt,
                     IntPtr.Zero);
                 //GL.DrawArrays(GL.Enums.BeginMode.POINTS, 0, shape.Vertices.Length);
             }

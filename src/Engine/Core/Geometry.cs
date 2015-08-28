@@ -394,7 +394,7 @@ namespace Fusee.Engine
 
             Dictionary<TripleInx, int> _vDict = new Dictionary<TripleInx, int>();
 
-            List<ushort> mTris = new List<ushort>();
+            List<uint> mTris = new List<uint>();
             List<float3> mVerts = new List<float3>();
             List<float2> mTexCoords = (HasTexCoords) ? new List<float2>() : null;
             List<float3> mNormals = (HasNormals) ? new List<float3>() : null;
@@ -447,7 +447,7 @@ namespace Fusee.Engine
             return m;
         }
 
-        private IEnumerable<ushort> Triangulate(Face f, int[] indices)
+        private IEnumerable<uint> Triangulate(Face f, int[] indices)
         {
             if (f.InxVert.Length < 3)
                 return null;
@@ -455,13 +455,13 @@ namespace Fusee.Engine
             if (indices == null)
                 indices = f.InxVert;
 
-            ushort[] ret = new ushort[3 * (f.InxVert.Length-2)];
+            uint[] ret = new uint[3 * (f.InxVert.Length - 2)];
             // Perform a fan triangulation
             for (int i = 2; i < f.InxVert.Length; i++ )
             {
-                ret[(i - 2)*3 + 0] = (ushort)indices[0];
-                ret[(i - 2)*3 + 1] = (ushort)indices[i - 1];
-                ret[(i - 2)*3 + 2] = (ushort)indices[i];
+                ret[(i - 2) * 3 + 0] = (uint)indices[0];
+                ret[(i - 2) * 3 + 1] = (uint)indices[i - 1];
+                ret[(i - 2) * 3 + 2] = (uint)indices[i];
             }
             return ret;
         }

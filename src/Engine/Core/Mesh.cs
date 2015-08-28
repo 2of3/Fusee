@@ -100,7 +100,7 @@ namespace Fusee.Engine
         /// </value>
         public bool UVsSet { get { return (_meshImp != null) && _meshImp.UVsSet; } }
         
-        private ushort[] _triangles;
+        private uint[] _triangles;
         /// <summary>
         /// Gets or sets the triangles.
         /// </summary>
@@ -108,7 +108,7 @@ namespace Fusee.Engine
         /// The triangles.
         /// </value>
         [ProtoMember(5)]
-        public ushort[] Triangles
+        public uint[] Triangles
         {
             get { return _triangles; }
             set { if (_meshImp != null) _meshImp.InvalidateTriangles(); _triangles = value; }

@@ -47,7 +47,7 @@ namespace Fusee.Engine
             
             };
 
-            Triangles = new ushort[]
+            Triangles = new uint[]
             {
                 // front face
                 0, 2, 1, 0, 3, 2,

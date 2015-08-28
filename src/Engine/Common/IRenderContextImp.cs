@@ -326,7 +326,7 @@ namespace Fusee.Engine
         /// <param name="triangleIndices">The triangle indices.</param>
         /// <exception cref="System.ArgumentException">triangleIndices must not be null or empty</exception>
         /// <exception cref="System.ApplicationException"></exception>
-        void SetTriangles(IMeshImp mr, ushort[] triangleIndices);
+        void SetTriangles(IMeshImp mr, uint[] triangleIndices);
 
         /// <summary>
         /// Activates the passed shader program as the current shader for geometry rendering.

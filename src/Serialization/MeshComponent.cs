@@ -17,7 +17,7 @@ namespace Fusee.Serialization
         public float2[] UVs;
 
         [ProtoMember(4)]
-        public ushort[] Triangles;
+        public uint[] Triangles;
 
         [ProtoMember(5)] 
         public AABBf BoundingBox;
