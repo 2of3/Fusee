@@ -31,6 +31,7 @@ namespace Fusee.Engine
         [JSIgnore] private static Type _physicsImplementor;
         [JSIgnore] private static Type _networkImplementor;
         [JSIgnore] private static Type _inputDriverImplementor;
+        [JSIgnore] private static Type _XinputDriverImplementor;
         [JSIgnore] private static Type _videoManagerImplementor;
 
         [JSIgnore]
@@ -108,6 +109,18 @@ namespace Fusee.Engine
                        (_inputDriverImplementor =
                            LoadImplementorAssemblyType("Fusee.Engine.Imp.SlimDX.dll",
                                "Fusee.Engine.InputDriverImplementor"));
+            }
+        }
+
+        [JSIgnore]
+        private static Type XInputDriverImplementor
+        {
+            get
+            {
+                return _XinputDriverImplementor ??
+                       (_XinputDriverImplementor =
+                           LoadImplementorAssemblyType("Fusee.Engine.Imp.SharpDX.XInput.dll",
+                               "Fusee.Engine.XInputDriverImplementor"));
             }
         }
 
@@ -225,6 +238,18 @@ namespace Fusee.Engine
         public static IInputDriverImp CreateIInputDriverImp()
         {
             return (IInputDriverImp) CreateIImp(InputDriverImplementor, "CreateInputDriverImp").Invoke(null, null);
+        }
+
+        /// <summary>
+        ///     Creates an instance of <see cref="IInputDriverImp" /> by reflection of InputDriverImplementor.
+        /// </summary>
+        /// <returns>
+        ///     An instance of <see cref="IInputDriverImp" />.
+        /// </returns>
+        [JSExternal]
+        public static IXInputDriverImp CreateIXInputDriverImp()
+        {
+            return (IXInputDriverImp)CreateIImp(XInputDriverImplementor, "CreateXInputDriverImp").Invoke(null, null);
         }
 
         [JSExternal]

@@ -359,5 +359,43 @@ namespace Fusee.Engine
         }
 
         #endregion
+
+        #region XInputDevices
+        public Collection<XInputDevice> XIDevices = new Collection<XInputDevice>();
+
+        private IXInputDriverImp _xinputDriverImp;
+
+        public void InitializeXInputDevices()
+        {
+            List<IXInputDeviceImp> tmp = _xinputDriverImp.DeviceImps();
+            foreach(var xinputDevice in tmp)
+            {
+                XIDevices.Add(new XInputDevice(xinputDevice));
+            }
+        }
+
+        public XInputDevice GetXIDevice(int deviceIndex)
+        {
+            try
+            {
+                return XIDevices[deviceIndex];
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                throw new ArgumentOutOfRangeException("Can not find Input Device with Device-Index " + deviceIndex + "!");
+            }
+        }
+
+        public int CountXIDevices()
+        {
+            return XIDevices.Count;
+        }
+
+        internal IXInputDriverImp XInputDriverImp
+        {
+            set { _xinputDriverImp = value; }
+        }
+
+        #endregion
     }
 }

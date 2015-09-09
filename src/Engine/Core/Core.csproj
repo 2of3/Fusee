@@ -83,6 +83,7 @@
     <Compile Include="HingeConstraint.cs" />
     <Compile Include="ImpFactory.cs" />
     <Compile Include="Input.cs" />
+    <Compile Include="XInputDevice.cs" />
     <Compile Include="InputDevice.cs" />
     <Compile Include="Mesh.cs" />
     <Compile Include="MeshReader.cs" />

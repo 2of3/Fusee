@@ -59,7 +59,9 @@
     <Compile Include="Attributes.cs" />
     <Compile Include="ColorUint.cs" />
     <Compile Include="IAudioStream.cs" />
+    <Compile Include="IXInputDeviceImp.cs" />
     <Compile Include="IInputDeviceImp.cs" />
+    <Compile Include="IXInputDriverImp.cs" />
     <Compile Include="IInputDriverImp.cs" />
     <Compile Include="IFont.cs" />
     <Compile Include="IBoxShapeImp.cs" />

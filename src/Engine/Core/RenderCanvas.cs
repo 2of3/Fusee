@@ -59,6 +59,15 @@ namespace Fusee.Engine
         public IInputDriverImp InputDriverImplementor { set; get; }
 
         /// <summary>
+        ///     Gets or sets the input driver implementor.
+        /// </summary>
+        /// <value>
+        ///     The input driver implementor.
+        /// </value>
+        [InjectMe]
+        public IXInputDriverImp XInputDriverImplementor { set; get; }
+
+        /// <summary>
         ///     Gets or sets the video manager implementor.
         /// </summary>
         /// <value>
@@ -113,6 +122,9 @@ namespace Fusee.Engine
 
             if (InputDriverImplementor == null)
                 InputDriverImplementor = ImpFactory.CreateIInputDriverImp();
+
+            if (XInputDriverImplementor == null)
+                XInputDriverImplementor = ImpFactory.CreateIXInputDriverImp();
 
             if (NetworkImplementor == null)
                 NetworkImplementor = ImpFactory.CreateINetworkImp();
@@ -195,6 +207,7 @@ namespace Fusee.Engine
             Input.Instance.InputImp = InputImplementor;
             Audio.Instance.AudioImp = AudioImplementor;
             Input.Instance.InputDriverImp = InputDriverImplementor;
+            Input.Instance.XInputDriverImp = XInputDriverImplementor;
             Network.Instance.NetworkImp = NetworkImplementor;
             VideoManager.Instance.VideoManagerImp = VideoManagerImplementor;
 

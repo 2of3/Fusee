@@ -12,7 +12,7 @@ namespace Fusee.Engine
     {
         #region Fields
 
-        private List<Controller> _Devices; // A list of all connected xinput devices.
+        private List<Controller> _Devices = new List<Controller>(); // A list of all connected xinput devices.
         private Controller _Controller; // The currently active controller device.
         
         // Settings
@@ -30,6 +30,8 @@ namespace Fusee.Engine
         /// <param name="instance">The DeviceInstance.</param>
         public XInputDeviceImp()
         {
+            //_Devices = new List<Controller>();
+
             for(int idx = 0; idx < (int)UserIndex.Four; idx++)
             {
                 Controller cTmp = new Controller((UserIndex)idx);
@@ -40,7 +42,28 @@ namespace Fusee.Engine
                 }
             }
 
-            _Controller = _Devices[0];
+            //_Controller = _Devices[0];
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InputDeviceImp"/> class.
+        /// This constructor is called with an instance of a controller.
+        /// </summary>
+        /// <param name="instance">The DeviceInstance.</param>
+        public XInputDeviceImp(Controller contr)
+        {
+            //_Devices = new List<Controller>();
+
+            if (contr.IsConnected)
+            {
+                // We can add the controller to the devices list now.
+                _Devices.Add(contr);
+                if(_Devices[0] != null)
+                {
+                    _Controller = _Devices[0];
+                }
+                
+            }            
         }
 
         /// <summary>
@@ -261,24 +284,27 @@ namespace Fusee.Engine
         /// <returns>Integer for the battery level. 0 = empty, 1 = low, 2 = medium, 3 = full</returns>
         public int BatteryLevel()
         {
-            BatteryLevel level = _Controller.GetBatteryInformation(BatteryDeviceType.Gamepad).BatteryLevel;
-            if(level == SharpDX.XInput.BatteryLevel.Empty)
-            {
-                return 0;
-            }
-            else if (level == SharpDX.XInput.BatteryLevel.Low)
-            {
-                return 1;
-            }
-            else if (level == SharpDX.XInput.BatteryLevel.Medium)
-            {
-                return 2;
-            }
-            else if (level == SharpDX.XInput.BatteryLevel.Full)
-            {
-                return 3;
-            }
-            return 0;
+
+            return (int) _Controller.GetBatteryInformation(BatteryDeviceType.Gamepad).BatteryLevel;
+
+            //BatteryLevel level = _Controller.GetBatteryInformation(BatteryDeviceType.Gamepad).BatteryLevel;
+            //if(level == SharpDX.XInput.BatteryLevel.Empty)
+            //{
+            //    return 0;
+            //}
+            //else if (level == SharpDX.XInput.BatteryLevel.Low)
+            //{
+            //    return 1;
+            //}
+            //else if (level == SharpDX.XInput.BatteryLevel.Medium)
+            //{
+            //    return 2;
+            //}
+            //else if (level == SharpDX.XInput.BatteryLevel.Full)
+            //{
+            //    return 3;
+            //}
+            //return 0;
         }
 
         /// <summary>
