@@ -34,6 +34,15 @@ namespace Fusee.Engine
         }
 
         /// <summary>
+        /// Very important function. Updates the device status.
+        /// Without calling this every intervall (e.g. frame) there will be no data.
+        /// </summary>
+        public void UpdateStatus()
+        {
+            _inputDeviceImp.UpdateState();
+        }
+
+        /// <summary>
         /// Gets the current value of one axis (i.e. joystick or trigger).
         /// </summary>
         /// <param name="axis">Specifies the desired axis, can be "horizontal", "vertical" or "z".</param>
@@ -42,6 +51,7 @@ namespace Fusee.Engine
         /// </returns>
         public float GetAxis(Axis axis)
         {
+            UpdateStatus();
             switch (axis)
             {
                 case Axis.LTHorizontal:

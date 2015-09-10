@@ -13,11 +13,13 @@ namespace Examples.InputDevices
         private ShaderProgram _spColor;
         private IShaderParam _colorParam;
 
+        private XInputDevice _gamepad;
+
         public override void Init()
         {
             //Input.Instance.InitializeDevices();
             Input.Instance.InitializeXInputDevices();
-            
+            _gamepad = Input.Instance.GetXIDevice(0);
 
             _meshTea = MeshReader.LoadMesh(@"Assets/Teapot.obj.model");
 
@@ -33,15 +35,17 @@ namespace Examples.InputDevices
             float x = 0;
             if (Input.Instance.CountXIDevices() != 0)
             {
-                System.Diagnostics.Debug.WriteLine(Input.Instance.GetXIDevice(0).GetAxis(XInputDevice.Axis.LTHorizontal));
-                System.Diagnostics.Debug.WriteLine(Input.Instance.GetXIDevice(0).GetAxis(XInputDevice.Axis.LTVertical));
+                // This is a very important call.
+                _gamepad.UpdateStatus();
 
-                y = 50 * Input.Instance.GetXIDevice(0).GetAxis(XInputDevice.Axis.LTVertical);
+                System.Diagnostics.Debug.WriteLine("LT Vertical: " + MathHelper.Clamp(_gamepad.GetAxis(XInputDevice.Axis.LTVertical), -1, 1));
+                System.Diagnostics.Debug.WriteLine("LT Horizontal: " + MathHelper.Clamp(_gamepad.GetAxis(XInputDevice.Axis.LTHorizontal), -1, 1));    
 
-                x = 50 * Input.Instance.GetXIDevice(0).GetAxis(XInputDevice.Axis.LTHorizontal);
+                y = 50 * MathHelper.Clamp(_gamepad.GetAxis(XInputDevice.Axis.LTVertical), -1, 1);
+                x = 50 * MathHelper.Clamp(_gamepad.GetAxis(XInputDevice.Axis.LTHorizontal), -1, 1);
 
-                z = 50 * Input.Instance.GetXIDevice(0).GetAxis(XInputDevice.Axis.LeftZ);
-                z = 50 * Input.Instance.GetXIDevice(0).GetAxis(XInputDevice.Axis.RightZ);
+                z = _gamepad.GetAxis(XInputDevice.Axis.LeftZ);
+                z = _gamepad.GetAxis(XInputDevice.Axis.RightZ);
             }
             else
             {

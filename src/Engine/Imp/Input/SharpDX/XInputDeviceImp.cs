@@ -39,6 +39,7 @@ namespace Fusee.Engine
                 {
                     // We can add the controller to the devices list now.
                     _Devices.Add(cTmp);
+
                 }
             }
 
@@ -104,13 +105,15 @@ namespace Fusee.Engine
         /// This should be called at least every frame (more often for less input lag). Probably in the OnRenderFrame() function.
         /// Caution: More calls are putting more stress on the gamepad connection and the cpu.
         /// </summary>
-        public void UpdateState()
+        public bool UpdateState()
         {
             UpdatePacketNumber();
             if(_newUpdate)
             {
                 _lastState = _Controller.GetState();
-            }            
+                return true;
+            }
+            return false;
         }
 
         #region Buttons
@@ -311,7 +314,7 @@ namespace Fusee.Engine
         /// Gets the current state of the input device. The state is used to poll the device.
         /// </summary>
         /// <returns>The state of the input device.</returns>
-        public State GetState(UserIndex userIndex)
+        private State GetState(UserIndex userIndex)
         {
             return _Controller.GetState();
         }

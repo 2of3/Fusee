@@ -4,6 +4,12 @@ namespace Fusee.Engine
     public interface IXInputDeviceImp
     {
         /// <summary>
+        /// This one updates the device state and pulls data from the device.
+        /// </summary>
+        /// <returns></returns>
+        bool UpdateState();
+
+        /// <summary>
         /// Implement this to get the left thumbstick's X-Axis.
         /// </summary>
         /// <returns>The left thumbstick's X-Axis value.</returns>
