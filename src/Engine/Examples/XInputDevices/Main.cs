@@ -27,6 +27,19 @@ namespace Examples.InputDevices
             _colorParam = _spColor.GetShaderParam("color");
         }
 
+        private float MapStickRange(float value, int leftMin = -32768, int leftMax = 32767, int rightMin = -255, int rightMax = 255)
+        {
+            //Figure out how 'wide' each range is
+            int leftSpan = leftMax - leftMin;
+            int rightSpan = rightMax - rightMin;
+
+            //Convert the left range into a -255 to 255 range (float)
+            float valueScaled = (float)(value - leftMin) / (float)(leftSpan);
+
+            //Convert the 0-1 range into a value in the right range.
+            return rightMin + (valueScaled * rightSpan);
+        }
+
         public override void RenderAFrame()
         {
             #region PullInput
@@ -38,11 +51,14 @@ namespace Examples.InputDevices
                 // This is a very important call.
                 _gamepad.UpdateStatus();
 
-                System.Diagnostics.Debug.WriteLine("LT Vertical: " + MathHelper.Clamp(_gamepad.GetAxis(XInputDevice.Axis.LTVertical), -1, 1));
-                System.Diagnostics.Debug.WriteLine("LT Horizontal: " + MathHelper.Clamp(_gamepad.GetAxis(XInputDevice.Axis.LTHorizontal), -1, 1));    
+                float newy = MapStickRange(_gamepad.GetAxis(XInputDevice.Axis.LTVertical));
+                float newx = MapStickRange(_gamepad.GetAxis(XInputDevice.Axis.LTHorizontal));
 
-                y = 50 * MathHelper.Clamp(_gamepad.GetAxis(XInputDevice.Axis.LTVertical), -1, 1);
-                x = 50 * MathHelper.Clamp(_gamepad.GetAxis(XInputDevice.Axis.LTHorizontal), -1, 1);
+                System.Diagnostics.Debug.WriteLine("LT Vertical: " + newy);
+                System.Diagnostics.Debug.WriteLine("LT Horizontal: " + newx);
+
+                y = newy;
+                x = newx;
 
                 z = _gamepad.GetAxis(XInputDevice.Axis.LeftZ);
                 z = _gamepad.GetAxis(XInputDevice.Axis.RightZ);
