@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Fusee.Engine;
 using Fusee.Math;
+using System.Collections.Generic;
 
 namespace Examples.InputDevices
 {
@@ -41,10 +42,10 @@ namespace Examples.InputDevices
                 float newy = _gamepad.GetAxis(XInputDevice.Axis.LTVertical);
                 float newx = _gamepad.GetAxis(XInputDevice.Axis.LTHorizontal);
 
-                // Some debug output
+                // Some debug output                
                 System.Diagnostics.Debug.WriteLine("LT Vertical: " + newy);
                 System.Diagnostics.Debug.WriteLine("LT Horizontal: " + newx);
-
+                
                 y = newy;
                 x = newx;
 
@@ -54,15 +55,36 @@ namespace Examples.InputDevices
                 z = z * -1;
 
                 #region Buttons
+                
                 if(_gamepad.IsButtonDown((int)FuseeXInputButtons.A))
                 {
                     System.Diagnostics.Debug.WriteLine("Button pressed: " + FuseeXInputButtons.A);
+                }
+
+                if (_gamepad.IsButtonDown((int)FuseeXInputButtons.B))
+                {
+                    System.Diagnostics.Debug.WriteLine("Button pressed: " + FuseeXInputButtons.B);
                 }
 
                 if (_gamepad.IsButtonDown((int)FuseeXInputButtons.Start))
                 {
                     System.Diagnostics.Debug.WriteLine("Button pressed: " + FuseeXInputButtons.Start);
                 }
+                if (_gamepad.IsButtonDown((int)FuseeXInputButtons.Back))
+                {
+                    System.Diagnostics.Debug.WriteLine("Button pressed: " + FuseeXInputButtons.Back);
+                }                                              
+                
+                //Method to get all buttons at once. More costly than retrieving a single button with an id.
+                string res = "";
+                List<FuseeXInputButtons> buttons = new List<FuseeXInputButtons>();
+                foreach(var btn in _gamepad.GetPressedButtons())
+                {
+                    buttons.Add((FuseeXInputButtons)btn);
+                    res += " | " + (FuseeXInputButtons)btn;
+                }
+                System.Diagnostics.Debug.WriteLine("Buttons pressed: " + res);
+
                 #endregion Buttons
             }
             else

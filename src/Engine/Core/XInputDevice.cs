@@ -1,26 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Fusee.Engine
 {
-    public enum FuseeXInputButtons : short
-    {
-        Y = short.MinValue,
-        None = 0,
-        DPadUp = 1,
-        DPadDown = 2,
-        DPadLeft = 4,
-        DPadRight = 8,
-        Start = 16,
-        Back = 32,
-        LeftThumb = 64,
-        RightThumb = 128,
-        LeftShoulder = 256,
-        RightShoulder = 512,
-        A = 4096,
-        B = 8192,
-        X = 16384
-    }
-
     /// <summary>
     /// Represents one instance of an input device other than keyboard or mouse
     /// </summary>
@@ -122,9 +104,9 @@ namespace Fusee.Engine
         /// Gets the index of the currently pressed button on the input device.
         /// </summary>
         /// <returns>The index of the currently pressed button</returns>
-        public int GetPressedButton()
+        public List<int> GetPressedButtons()
         {
-            return _inputDeviceImp.GetPressedButton();
+            return _inputDeviceImp.GetPressedButtons();
         }
 
         /// <summary>

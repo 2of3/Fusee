@@ -1,4 +1,6 @@
-﻿namespace Fusee.Engine
+﻿using System.Collections.Generic;
+
+namespace Fusee.Engine
 {
     public interface IXInputDeviceImp
     {
@@ -54,7 +56,7 @@
         /// Implement this to get the pressed button.
         /// </summary>
         /// <returns>The Index of the pressed button.</returns>
-        int GetPressedButton();
+        List<int> GetPressedButtons();
 
         /// <summary>
         /// Implement this to check if button is down.

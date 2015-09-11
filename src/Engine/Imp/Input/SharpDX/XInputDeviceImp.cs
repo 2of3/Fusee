@@ -1,9 +1,29 @@
 ﻿using System;
 using SharpDX.XInput;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Fusee.Engine
 {
+    public enum FuseeXInputButtons : short
+    {
+        Y = short.MinValue,
+        None = 0,
+        DPadUp = 1,
+        DPadDown = 2,
+        DPadLeft = 4,
+        DPadRight = 8,
+        Start = 16,
+        Back = 32,
+        LeftThumb = 64,
+        RightThumb = 128,
+        LeftShoulder = 256,
+        RightShoulder = 512,
+        A = 4096,
+        B = 8192,
+        X = 16384
+    }
+
     /// <summary>
     /// The SlimDX - specific implementation for the input devices.
     /// </summary>
@@ -88,13 +108,14 @@ namespace Fusee.Engine
         private void UpdatePacketNumber()
         {
             int pnr = _Controller.GetState().PacketNumber;
-            if(pnr == _lastpackageNumber)
+            if (pnr == _lastpackageNumber)
             {
                 _newUpdate = false;
                 return;
             }
             _lastpackageNumber = pnr;
-            _newUpdate = true;            
+            _newUpdate = true;
+            return;            
         }
 
         /// <summary>
@@ -104,12 +125,16 @@ namespace Fusee.Engine
         /// </summary>
         public bool UpdateState()
         {
-            UpdatePacketNumber();
-            if(_newUpdate)
+            if (_Controller.IsConnected)
             {
-                _lastState = _Controller.GetState();
-                _buttonflags = _Controller.GetState().Gamepad.Buttons;
-                return true;
+                UpdatePacketNumber();
+                if (_newUpdate)
+                {
+                    _lastState = _Controller.GetState();
+                    _buttonflags = _Controller.GetState().Gamepad.Buttons;
+                    return true;
+                }
+                return false;
             }
             return false;
         }
@@ -129,9 +154,22 @@ namespace Fusee.Engine
         /// Loop overt all buttons on the gamepad an see which one is pressed
         /// </summary>
         /// <returns>The pressed button</returns>
-        public int GetPressedButton()
+        public List<int> GetPressedButtons()
         {
-            return 0;
+            
+            List<int> result = new List<int>();
+            /*
+            foreach (GamepadButtonFlags f in GamepadButtonFlags.GetValues(typeof(GamepadButtonFlags))) {
+                result.Add((int)f);
+            }
+            */
+
+            foreach(var item in Enum.GetValues(typeof(GamepadButtonFlags)).Cast<Enum>().Where(item => _buttonflags.HasFlag(item))){
+                //System.Diagnostics.Debug.WriteLine("Flag set loop: " + item);
+                result.Add((int)(FuseeXInputButtons)item);
+            }
+
+            return result;
         }
 
         /// <summary>
