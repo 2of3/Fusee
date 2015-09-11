@@ -4,7 +4,6 @@ using System.Collections.Generic;
 
 namespace Fusee.Engine
 {
-
     /// <summary>
     /// The SlimDX - specific implementation for the input devices.
     /// </summary>
@@ -21,6 +20,7 @@ namespace Fusee.Engine
         private int _lastpackageNumber;
         private bool _newUpdate = false;
         private State _lastState;
+        private GamepadButtonFlags _buttonflags;
 
         #endregion Fields
 
@@ -31,7 +31,7 @@ namespace Fusee.Engine
         public XInputDeviceImp()
         {
             //_Devices = new List<Controller>();
-
+            /*
             for(int idx = 0; idx < (int)UserIndex.Four; idx++)
             {
                 Controller cTmp = new Controller((UserIndex)idx);
@@ -42,7 +42,7 @@ namespace Fusee.Engine
 
                 }
             }
-
+            */
             //_Controller = _Devices[0];
         }
 
@@ -54,16 +54,11 @@ namespace Fusee.Engine
         public XInputDeviceImp(Controller contr)
         {
             //_Devices = new List<Controller>();
-
             if (contr.IsConnected)
             {
                 // We can add the controller to the devices list now.
-                _Devices.Add(contr);
-                if(_Devices[0] != null)
-                {
-                    _Controller = _Devices[0];
-                }
-                
+                _Controller = contr;
+                UpdateState();                                    
             }            
         }
 
@@ -72,6 +67,7 @@ namespace Fusee.Engine
         /// </summary>
         public void ReinitializeGamepads()
         {
+            /*
             for (int idx = 0; idx < (int)UserIndex.Four; idx++)
             {
                 Controller cTmp = new Controller((UserIndex)idx);
@@ -83,6 +79,7 @@ namespace Fusee.Engine
             }
 
             _Controller = _Devices[0];
+            */
         }
 
         /// <summary>
@@ -111,6 +108,7 @@ namespace Fusee.Engine
             if(_newUpdate)
             {
                 _lastState = _Controller.GetState();
+                _buttonflags = _Controller.GetState().Gamepad.Buttons;
                 return true;
             }
             return false;
@@ -141,9 +139,9 @@ namespace Fusee.Engine
         /// </summary>
         /// <param name="buttonIndex">The button to check.</param>
         /// <returns>True if the button is pressed and false if not.</returns>
-        public bool IsButtonDown(int buttonIndex)
+        public bool IsButtonDown(int button)
         {
-            return false;
+            return _buttonflags.HasFlag((GamepadButtonFlags)button);
         }
 
         /// <summary>
@@ -223,11 +221,11 @@ namespace Fusee.Engine
         /// </summary>
         /// <param name="index">The index of the desired controller from the active devices list.</param>
         /// <returns>Returns bool if successful</returns>
-        public bool SetCurrentController(int index)
+        public bool SetCurrentController(Controller contr)
         {
-            if (index <= _Devices.Count)
+            if (contr != null)
             {
-                _Controller = _Devices[index];
+                _Controller = contr;
                 return true;
             }
             return false;
@@ -269,7 +267,7 @@ namespace Fusee.Engine
         /// <returns>The category of the device</returns>
         public String GetCategory()
         {
-            return "XInput";
+            return _Controller.GetCapabilities(DeviceQueryType.Gamepad).Type.ToString();
         }
 
         /// <summary>
@@ -278,7 +276,7 @@ namespace Fusee.Engine
         /// <returns>The device name.</returns>
         public string GetName()
         {
-            return "XInputGamepad";
+            return _Controller.GetCapabilities(DeviceQueryType.Gamepad).Type.ToString();
         }
 
         /// <summary>
@@ -287,27 +285,7 @@ namespace Fusee.Engine
         /// <returns>Integer for the battery level. 0 = empty, 1 = low, 2 = medium, 3 = full</returns>
         public int BatteryLevel()
         {
-
-            return (int) _Controller.GetBatteryInformation(BatteryDeviceType.Gamepad).BatteryLevel;
-
-            //BatteryLevel level = _Controller.GetBatteryInformation(BatteryDeviceType.Gamepad).BatteryLevel;
-            //if(level == SharpDX.XInput.BatteryLevel.Empty)
-            //{
-            //    return 0;
-            //}
-            //else if (level == SharpDX.XInput.BatteryLevel.Low)
-            //{
-            //    return 1;
-            //}
-            //else if (level == SharpDX.XInput.BatteryLevel.Medium)
-            //{
-            //    return 2;
-            //}
-            //else if (level == SharpDX.XInput.BatteryLevel.Full)
-            //{
-            //    return 3;
-            //}
-            //return 0;
+            return (int) _Controller.GetBatteryInformation(BatteryDeviceType.Gamepad).BatteryLevel;            
         }
 
         /// <summary>

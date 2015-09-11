@@ -17,7 +17,7 @@ namespace Examples.InputDevices
 
         public override void Init()
         {
-            //Input.Instance.InitializeDevices();
+            // Initialize the xinput devices and save the device with id one to access it faster.
             Input.Instance.InitializeXInputDevices();
             _gamepad = Input.Instance.GetXIDevice(0);
 
@@ -25,19 +25,6 @@ namespace Examples.InputDevices
 
             _spColor = MoreShaders.GetDiffuseColorShader(RC);
             _colorParam = _spColor.GetShaderParam("color");
-        }
-
-        private float MapStickRange(float value, int leftMin = -32768, int leftMax = 32767, int rightMin = -255, int rightMax = 255)
-        {
-            //Figure out how 'wide' each range is
-            int leftSpan = leftMax - leftMin;
-            int rightSpan = rightMax - rightMin;
-
-            //Convert the left range into a -255 to 255 range (float)
-            float valueScaled = (float)(value - leftMin) / (float)(leftSpan);
-
-            //Convert the 0-1 range into a value in the right range.
-            return rightMin + (valueScaled * rightSpan);
         }
 
         public override void RenderAFrame()
@@ -51,17 +38,32 @@ namespace Examples.InputDevices
                 // This is a very important call.
                 _gamepad.UpdateStatus();
 
-                float newy = MapStickRange(_gamepad.GetAxis(XInputDevice.Axis.LTVertical));
-                float newx = MapStickRange(_gamepad.GetAxis(XInputDevice.Axis.LTHorizontal));
+                float newy = _gamepad.GetAxis(XInputDevice.Axis.LTVertical);
+                float newx = _gamepad.GetAxis(XInputDevice.Axis.LTHorizontal);
 
+                // Some debug output
                 System.Diagnostics.Debug.WriteLine("LT Vertical: " + newy);
                 System.Diagnostics.Debug.WriteLine("LT Horizontal: " + newx);
 
                 y = newy;
                 x = newx;
 
-                z = _gamepad.GetAxis(XInputDevice.Axis.LeftZ);
-                z = _gamepad.GetAxis(XInputDevice.Axis.RightZ);
+                // Using the triggers of the gamepad to adjust the objects z axis.
+                z = -_gamepad.GetAxis(XInputDevice.Axis.LeftZ);
+                z += _gamepad.GetAxis(XInputDevice.Axis.RightZ);
+                z = z * -1;
+
+                #region Buttons
+                if(_gamepad.IsButtonDown((int)FuseeXInputButtons.A))
+                {
+                    System.Diagnostics.Debug.WriteLine("Button pressed: " + FuseeXInputButtons.A);
+                }
+
+                if (_gamepad.IsButtonDown((int)FuseeXInputButtons.Start))
+                {
+                    System.Diagnostics.Debug.WriteLine("Button pressed: " + FuseeXInputButtons.Start);
+                }
+                #endregion Buttons
             }
             else
             {

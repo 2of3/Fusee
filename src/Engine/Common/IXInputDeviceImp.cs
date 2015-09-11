@@ -1,5 +1,4 @@
-﻿
-namespace Fusee.Engine
+﻿namespace Fusee.Engine
 {
     public interface IXInputDeviceImp
     {

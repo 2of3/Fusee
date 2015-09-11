@@ -2,6 +2,25 @@
 
 namespace Fusee.Engine
 {
+    public enum FuseeXInputButtons : short
+    {
+        Y = short.MinValue,
+        None = 0,
+        DPadUp = 1,
+        DPadDown = 2,
+        DPadLeft = 4,
+        DPadRight = 8,
+        Start = 16,
+        Back = 32,
+        LeftThumb = 64,
+        RightThumb = 128,
+        LeftShoulder = 256,
+        RightShoulder = 512,
+        A = 4096,
+        B = 8192,
+        X = 16384
+    }
+
     /// <summary>
     /// Represents one instance of an input device other than keyboard or mouse
     /// </summary>
@@ -55,16 +74,16 @@ namespace Fusee.Engine
             switch (axis)
             {
                 case Axis.LTHorizontal:
-                    return _inputDeviceImp.GetThumbLXAxis();
+                    return MapStickRange(_inputDeviceImp.GetThumbLXAxis());
 
                 case Axis.LTVertical:
-                    return _inputDeviceImp.GetThumbLYAxis();
+                    return MapStickRange(_inputDeviceImp.GetThumbLYAxis());
 
                 case Axis.RTHorizontal:
-                    return _inputDeviceImp.GetThumbRXAxis();
+                    return MapStickRange(_inputDeviceImp.GetThumbRXAxis());
 
                 case Axis.RTVertical:
-                    return _inputDeviceImp.GetThumbRYAxis();
+                    return MapStickRange(_inputDeviceImp.GetThumbRYAxis());
 
                 case Axis.RightZ:
                     return _inputDeviceImp.GetZAxisLeft();
@@ -75,6 +94,19 @@ namespace Fusee.Engine
                 default:
                     return 0.0f;
             }
+        }
+
+        private float MapStickRange(float value, int leftMin = -32768, int leftMax = 32767, int rightMin = -255, int rightMax = 255)
+        {
+            //Figure out how 'wide' each range is
+            int leftSpan = leftMax - leftMin;
+            int rightSpan = rightMax - rightMin;
+
+            //Convert the left range into a -255 to 255 range (float)
+            float valueScaled = (float)(value - leftMin) / (float)(leftSpan);
+
+            //Convert the 0-1 range into a value in the right range.
+            return rightMin + (valueScaled * rightSpan);
         }
 
         /// <summary>
@@ -131,6 +163,16 @@ namespace Fusee.Engine
         public String GetCategory()
         {
             return _inputDeviceImp.GetCategory();
+        }
+
+        /// <summary>
+        /// Sets the vibration of the rumble motors.
+        /// </summary>
+        /// <param name="rumbleLeft"></param>
+        /// <param name="rumbleRight"></param>
+        public void SetRumble(ushort rumbleLeft, ushort rumbleRight)
+        {
+            _inputDeviceImp.SetRumble(rumbleLeft, rumbleRight);
         }
     }
 }
