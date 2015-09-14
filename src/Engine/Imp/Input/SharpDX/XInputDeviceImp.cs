@@ -42,6 +42,10 @@ namespace Fusee.Engine
         private bool _newUpdate = false;
         private State _lastState;
         private GamepadButtonFlags _buttonflags;
+        private const int deadZoneMax = 32767;
+        private const int deadZoneMin = -32768;
+        private float deadZonePercentL = 5;
+        private float deadZonePercentR = 5;
 
         #endregion Fields
 
@@ -126,6 +130,9 @@ namespace Fusee.Engine
         /// </summary>
         public bool UpdateState()
         {
+            if (_Controller == null)
+                return false;
+
             if (_Controller.IsConnected)
             {
                 UpdatePacketNumber();
@@ -156,17 +163,10 @@ namespace Fusee.Engine
         /// </summary>
         /// <returns>The pressed button</returns>
         public List<int> GetPressedButtons()
-        {
-            
-            List<int> result = new List<int>();
-            /*
-            foreach (GamepadButtonFlags f in GamepadButtonFlags.GetValues(typeof(GamepadButtonFlags))) {
-                result.Add((int)f);
-            }
-            */
+        {            
+            List<int> result = new List<int>();            
 
             foreach(var item in Enum.GetValues(typeof(GamepadButtonFlags)).Cast<Enum>().Where(item => _buttonflags.HasFlag(item))){
-                //System.Diagnostics.Debug.WriteLine("Flag set loop: " + item);
                 result.Add((int)(FuseeXInputButtons)item);
             }
 
@@ -203,7 +203,17 @@ namespace Fusee.Engine
         /// <returns></returns>
         public int GetThumbLXAxis()
         {
-            return _lastState.Gamepad.LeftThumbX;
+            int val = _lastState.Gamepad.LeftThumbX;
+            if (val > _deadZoneL || val < _deadZoneL * -1)
+            {
+                if(val < 0)
+                    return val + (int)_deadZoneL;
+
+                if(val > 0)
+                    return val - (int)_deadZoneL;
+            }
+                
+            return 0;
         }
 
         /// <summary>
@@ -212,7 +222,17 @@ namespace Fusee.Engine
         /// <returns></returns>
         public int GetThumbLYAxis()
         {
-            return _lastState.Gamepad.LeftThumbY;
+            int val = _lastState.Gamepad.LeftThumbY;
+            if (val > _deadZoneL || val < _deadZoneL * -1)
+            {
+                if (val < 0)
+                    return val + (int)_deadZoneL;
+
+                if (val > 0)
+                    return val - (int)_deadZoneL;
+            }
+
+            return 0;
         }
 
         /// <summary>
@@ -221,7 +241,17 @@ namespace Fusee.Engine
         /// <returns></returns>
         public int GetThumbRXAxis()
         {
-            return _lastState.Gamepad.RightThumbX;
+            int val = _lastState.Gamepad.RightThumbX;
+            if (val > _deadZoneR || val < _deadZoneR * -1)
+            {
+                if (val < 0)
+                    return val + (int)_deadZoneR;
+
+                if (val > 0)
+                    return val - (int)_deadZoneR;
+            }
+
+            return 0;
         }
 
         /// <summary>
@@ -230,7 +260,17 @@ namespace Fusee.Engine
         /// <returns></returns>
         public int GetThumbRYAxis()
         {
-            return _lastState.Gamepad.RightThumbY;
+            int val = _lastState.Gamepad.RightThumbY;
+            if (val > _deadZoneR || val < _deadZoneR * -1)
+            {
+                if (val < 0)
+                    return val + (int)_deadZoneR;
+
+                if (val > 0)
+                    return val - (int)_deadZoneR;
+            }
+
+            return 0;
         }
 
         /// <summary>
@@ -269,16 +309,21 @@ namespace Fusee.Engine
             }
             return false;
         }
-        
+
         /// <summary>
         /// Sets the Deadzone to the gamepad.
+        /// Both in the range of 0 to positive max
         /// </summary>
-        /// <param name="dL">The Deadzone for the left stick.</param>
-        /// /// <param name="dL">The Deadzone for the right stick</param>
+        /// <param name="dL">The Deadzone for the left stick in %.</param>
+        /// <param name="dL">The Deadzone for the right stick in %.</param>
         public void SetDeadZone(float dzLeftThumb, float dzRightThumb)
         {
-            _deadZoneL = dzLeftThumb;
-            _deadZoneR = dzRightThumb;
+            deadZonePercentL = dzLeftThumb;
+            deadZonePercentR = dzRightThumb;
+
+            int range = deadZoneMin * -1 + deadZoneMax;
+            _deadZoneL = ((deadZonePercentL / 100) * range) / 2;
+            _deadZoneR = ((deadZonePercentR / 100) * range) / 2;
         }
 
         /// <summary>
@@ -335,7 +380,6 @@ namespace Fusee.Engine
         {
             return _Controller.GetState();
         }
-
         #endregion RetrieveInformation        
     }
 }

@@ -99,6 +99,5 @@ namespace Fusee.Engine
         /// </summary>
         /// <returns>The name of the device categroy.</returns>
         string GetCategory();
-
     }
 }

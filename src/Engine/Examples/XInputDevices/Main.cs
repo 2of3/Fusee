@@ -21,6 +21,8 @@ namespace Examples.InputDevices
             // Initialize the xinput devices and save the device with id one to access it faster.
             Input.Instance.InitializeXInputDevices();
             _gamepad = Input.Instance.GetXIDevice(0);
+            // Setting the deadzone in % of one range. Deadzone is x% of the range 255.
+            _gamepad.SetDeadZone(10, 10);
 
             _meshTea = MeshReader.LoadMesh(@"Assets/Teapot.obj.model");
 
@@ -41,11 +43,14 @@ namespace Examples.InputDevices
                 // This asks the input device if new data has been generated.
                 _gamepad.UpdateStatus();
 
-                y = _gamepad.GetAxis(XInputDevice.Axis.LTVertical);
-                x = _gamepad.GetAxis(XInputDevice.Axis.LTHorizontal);
+                y = 2 * _gamepad.GetAxis(XInputDevice.Axis.LTVertical);
+                x = 2 * _gamepad.GetAxis(XInputDevice.Axis.LTHorizontal);
 
-                System.Diagnostics.Debug.WriteLine("LT Vertical: " + y);
-                System.Diagnostics.Debug.WriteLine("LT Horizontal: " + x);
+                if(x != 0)
+                    Debug.WriteLine("LT Horizontal: " + x);
+
+                if (y != 0)
+                    Debug.WriteLine("LT Vertical: " + y);                
                 
                 // Using the triggers of the gamepad to adjust the objects z axis.
                 z = -_gamepad.GetAxis(XInputDevice.Axis.LeftZ);
@@ -57,16 +62,16 @@ namespace Examples.InputDevices
                 // This is useful for if else stuff, etc.
                 if(_gamepad.IsButtonDown((int)FuseeXInputButtons.A))
                 {
-                    System.Diagnostics.Debug.WriteLine("Button pressed: " + FuseeXInputButtons.A);
+                    Debug.WriteLine("Button pressed: " + FuseeXInputButtons.A);
                 } else if (_gamepad.IsButtonDown((int)FuseeXInputButtons.B))
                 {
-                    System.Diagnostics.Debug.WriteLine("Button pressed: " + FuseeXInputButtons.B);
+                    Debug.WriteLine("Button pressed: " + FuseeXInputButtons.B);
                 } else if (_gamepad.IsButtonDown((int)FuseeXInputButtons.Start))
                 {
-                    System.Diagnostics.Debug.WriteLine("Button pressed: " + FuseeXInputButtons.Start);
+                    Debug.WriteLine("Button pressed: " + FuseeXInputButtons.Start);
                 } else if (_gamepad.IsButtonDown((int)FuseeXInputButtons.Back))
                 {
-                    System.Diagnostics.Debug.WriteLine("Button pressed: " + FuseeXInputButtons.Back);
+                    Debug.WriteLine("Button pressed: " + FuseeXInputButtons.Back);
                 }                                              
                 
                 // Method to get all buttons at once.
@@ -75,11 +80,14 @@ namespace Examples.InputDevices
                 List<FuseeXInputButtons> buttons = new List<FuseeXInputButtons>();
                 foreach(var btn in _gamepad.GetPressedButtons())
                 {
+                    if (btn == (int)FuseeXInputButtons.None)
+                        continue;
+
                     buttons.Add((FuseeXInputButtons)btn);
                     res += " | " + (FuseeXInputButtons)btn;
                 }
-                System.Diagnostics.Debug.WriteLine("Buttons pressed: " + res);
-
+                if (!string.IsNullOrEmpty(res))
+                    Debug.WriteLine("Buttons pressed: " + res);                   
                 #endregion Buttons
             }
             else
@@ -94,7 +102,6 @@ namespace Examples.InputDevices
                     x++;
             }
             #endregion
-
 
             #region Render
             RC.Clear(ClearFlags.Color | ClearFlags.Depth);
@@ -111,6 +118,7 @@ namespace Examples.InputDevices
             #endregion
 
             Present();
+            Debug.WriteLine("--");
         }
 
         public override void Resize()
