@@ -25,6 +25,14 @@ namespace Fusee.Engine
         X = 16384
     }
 
+    public enum GamepadBatteryLevel : byte
+    {
+        Empty = 0,
+        Low = 1,
+        Medium = 2,
+        Full = 3
+    }
+
     /// <summary>
     /// The SlimDX - specific implementation for the input devices.
     /// </summary>

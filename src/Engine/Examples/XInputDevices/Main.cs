@@ -119,6 +119,7 @@ namespace Examples.InputDevices
 
             Present();
             Debug.WriteLine("--");
+            Debug.WriteLine("Battery: " + ((GamepadBatteryLevel)_gamepad.BatteryLevel()));
         }
 
         public override void Resize()

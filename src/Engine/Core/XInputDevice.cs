@@ -82,7 +82,6 @@ namespace Fusee.Engine
         {
             //Figure out how 'wide' each range is
             int leftSpan = leftMax - leftMin;
-            System.Diagnostics.Debug.WriteLine("Span x: " + leftSpan);
             int rightSpan = rightMax - rightMin;
 
             //Convert the left range into a -255 to 255 range (float)
@@ -162,5 +161,12 @@ namespace Fusee.Engine
         {
             _inputDeviceImp.SetDeadZone(dzLeftThumb, dzRightThumb);
         }
+
+
+        public int BatteryLevel()
+        {
+            return _inputDeviceImp.BatteryLevel();
+        }
+
     }
 }
