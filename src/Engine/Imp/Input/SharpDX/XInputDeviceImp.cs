@@ -5,8 +5,9 @@ using System.Linq;
 
 namespace Fusee.Engine
 {
+    [Flags]
     public enum FuseeXInputButtons : short
-    {
+    {        
         Y = short.MinValue,
         None = 0,
         DPadUp = 1,

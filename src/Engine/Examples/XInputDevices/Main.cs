@@ -31,51 +31,46 @@ namespace Examples.InputDevices
         public override void RenderAFrame()
         {
             #region PullInput
-            float y = 0;
-            float z = 0;
             float x = 0;
-            if (Input.Instance.CountXIDevices() != 0)
+            float y = 0;
+            float z = 0;                       
+            
+            if (_gamepad != null)
             {
                 // This is a very important call.
+                // This asks the input device if new data has been generated.
                 _gamepad.UpdateStatus();
 
-                float newy = _gamepad.GetAxis(XInputDevice.Axis.LTVertical);
-                float newx = _gamepad.GetAxis(XInputDevice.Axis.LTHorizontal);
+                y = _gamepad.GetAxis(XInputDevice.Axis.LTVertical);
+                x = _gamepad.GetAxis(XInputDevice.Axis.LTHorizontal);
 
-                // Some debug output                
-                System.Diagnostics.Debug.WriteLine("LT Vertical: " + newy);
-                System.Diagnostics.Debug.WriteLine("LT Horizontal: " + newx);
+                System.Diagnostics.Debug.WriteLine("LT Vertical: " + y);
+                System.Diagnostics.Debug.WriteLine("LT Horizontal: " + x);
                 
-                y = newy;
-                x = newx;
-
                 // Using the triggers of the gamepad to adjust the objects z axis.
                 z = -_gamepad.GetAxis(XInputDevice.Axis.LeftZ);
                 z += _gamepad.GetAxis(XInputDevice.Axis.RightZ);
-                z = z * -1;
+                z = z * -1; // Now the z axis feels more natural.
 
-                #region Buttons
-                
+                #region Buttons                
+                // Asking the buttons individually if they have been pressed.
+                // This is useful for if else stuff, etc.
                 if(_gamepad.IsButtonDown((int)FuseeXInputButtons.A))
                 {
                     System.Diagnostics.Debug.WriteLine("Button pressed: " + FuseeXInputButtons.A);
-                }
-
-                if (_gamepad.IsButtonDown((int)FuseeXInputButtons.B))
+                } else if (_gamepad.IsButtonDown((int)FuseeXInputButtons.B))
                 {
                     System.Diagnostics.Debug.WriteLine("Button pressed: " + FuseeXInputButtons.B);
-                }
-
-                if (_gamepad.IsButtonDown((int)FuseeXInputButtons.Start))
+                } else if (_gamepad.IsButtonDown((int)FuseeXInputButtons.Start))
                 {
                     System.Diagnostics.Debug.WriteLine("Button pressed: " + FuseeXInputButtons.Start);
-                }
-                if (_gamepad.IsButtonDown((int)FuseeXInputButtons.Back))
+                } else if (_gamepad.IsButtonDown((int)FuseeXInputButtons.Back))
                 {
                     System.Diagnostics.Debug.WriteLine("Button pressed: " + FuseeXInputButtons.Back);
                 }                                              
                 
-                //Method to get all buttons at once. More costly than retrieving a single button with an id.
+                // Method to get all buttons at once.
+                // Can be more costly than asking one button, but makes sense in specific situations like "combo" button presses etc.                
                 string res = "";
                 List<FuseeXInputButtons> buttons = new List<FuseeXInputButtons>();
                 foreach(var btn in _gamepad.GetPressedButtons())
