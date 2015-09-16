@@ -120,16 +120,6 @@ namespace Fusee.Engine
         }
 
         /// <summary>
-        /// Checks if a specified button is held down for more than one frame.
-        /// </summary>
-        /// <param name="buttonIndex">The index of the button that is checked.</param>
-        /// <returns>True if the button at the specified index is held down for more than one frame and false if not.</returns>
-        public bool IsButtonPressed(int buttonIndex)
-        {
-            return _inputDeviceImp.IsButtonPressed(buttonIndex);
-        }
-
-        /// <summary>
         /// Counts the buttons on the input device.
         /// </summary>
         /// <returns>The amount of buttons on the device.</returns>
@@ -148,11 +138,20 @@ namespace Fusee.Engine
         }
 
         /// <summary>
+        /// Returns the Device Name.
+        /// </summary>
+        /// <returns></returns>
+        public String GetName()
+        {
+            return _inputDeviceImp.GetName();
+        }
+
+        /// <summary>
         /// Sets the vibration of the rumble motors.
         /// </summary>
         /// <param name="rumbleLeft"></param>
         /// <param name="rumbleRight"></param>
-        public void SetRumble(ushort rumbleLeft, ushort rumbleRight)
+        public void SetRumble(int rumbleLeft, int rumbleRight)
         {
             _inputDeviceImp.SetRumble(rumbleLeft, rumbleRight);
         }

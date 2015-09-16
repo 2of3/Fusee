@@ -65,12 +65,6 @@ namespace Fusee.Engine
         bool IsButtonDown(int button);
 
         /// <summary>
-        /// Implement this to check if button has been pressed.
-        /// </summary>
-        /// <returns>True, if button has been pressed.</returns>
-        bool IsButtonPressed(int button);
-
-        /// <summary>
         /// Implement this to get the amount of buttons.
         /// </summary>
         /// <returns>The amount of buttons.</returns>
@@ -92,7 +86,7 @@ namespace Fusee.Engine
         /// Implement this to set the rumble motor.
         /// </summary>
         /// <returns>The amount of rumble</returns>
-        void SetRumble(ushort rumbleLeft, ushort rumbleRight);
+        void SetRumble(int rumbleLeft, int rumbleRight);
 
         /// <summary>
         /// Implement this to get the device category name.

@@ -15,12 +15,14 @@ namespace Examples.InputDevices
         private IShaderParam _colorParam;
 
         private XInputDevice _gamepad;
+        private bool _rumble = false;
 
         public override void Init()
         {
             // Initialize the xinput devices and save the device with id one to access it faster.
             Input.Instance.InitializeXInputDevices();
             _gamepad = Input.Instance.GetXIDevice(0);
+            Debug.WriteLine("Device Name: " + _gamepad.GetName());
             // Setting the deadzone in % of one range. Deadzone is x% of the range 255.
             _gamepad.SetDeadZone(10, 10);
 
@@ -60,18 +62,18 @@ namespace Examples.InputDevices
                 #region Buttons                
                 // Asking the buttons individually if they have been pressed.
                 // This is useful for if else stuff, etc.
-                if(_gamepad.IsButtonDown((int)FuseeXInputButtons.A))
+                if(_gamepad.IsButtonDown((int)FuseeXInputButtons.DPadUp))
                 {
-                    Debug.WriteLine("Button pressed: " + FuseeXInputButtons.A);
-                } else if (_gamepad.IsButtonDown((int)FuseeXInputButtons.B))
+                    Debug.WriteLine("Button pressed: " + FuseeXInputButtons.DPadUp);
+                } else if (_gamepad.IsButtonDown((int)FuseeXInputButtons.DPadDown))
                 {
-                    Debug.WriteLine("Button pressed: " + FuseeXInputButtons.B);
-                } else if (_gamepad.IsButtonDown((int)FuseeXInputButtons.Start))
+                    Debug.WriteLine("Button pressed: " + FuseeXInputButtons.DPadDown);
+                } else if (_gamepad.IsButtonDown((int)FuseeXInputButtons.DPadLeft))
                 {
-                    Debug.WriteLine("Button pressed: " + FuseeXInputButtons.Start);
-                } else if (_gamepad.IsButtonDown((int)FuseeXInputButtons.Back))
+                    Debug.WriteLine("Button pressed: " + FuseeXInputButtons.DPadLeft);
+                } else if (_gamepad.IsButtonDown((int)FuseeXInputButtons.DPadRight))
                 {
-                    Debug.WriteLine("Button pressed: " + FuseeXInputButtons.Back);
+                    Debug.WriteLine("Button pressed: " + FuseeXInputButtons.DPadRight);
                 }                                              
                 
                 // Method to get all buttons at once.
@@ -101,6 +103,17 @@ namespace Examples.InputDevices
                 if (Input.Instance.IsKeyDown(KeyCodes.Right))
                     x++;
             }
+
+            // This is how you can use the rumble functionality.
+            // The parameters in SetRumble() represent a percentage of the maximum rumble capability.
+            if (_gamepad.IsButtonDown((int)FuseeXInputButtons.Y))
+            {
+                _gamepad.SetRumble(50, 50);
+            } else
+            {
+                _gamepad.SetRumble(0, 0);
+            }
+
             #endregion
 
             #region Render
@@ -118,8 +131,8 @@ namespace Examples.InputDevices
             #endregion
 
             Present();
-            Debug.WriteLine("--");
             Debug.WriteLine("Battery: " + ((GamepadBatteryLevel)_gamepad.BatteryLevel()));
+            Debug.WriteLine("--");
         }
 
         public override void Resize()

@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace Fusee.Engine
 {
+    #region Enums
     [Flags]
     public enum FuseeXInputButtons : short
     {        
@@ -32,6 +33,7 @@ namespace Fusee.Engine
         Medium = 2,
         Full = 3
     }
+    #endregion Enums
 
     /// <summary>
     /// The SlimDX - specific implementation for the input devices.
@@ -54,6 +56,8 @@ namespace Fusee.Engine
         private const int deadZoneMin = -32768;
         private float deadZonePercentL = 5;
         private float deadZonePercentR = 5;
+        private const int _rumbleMax = 65535;
+        private const int _rumbleMin = 0;
 
         #endregion Fields
 
@@ -189,16 +193,6 @@ namespace Fusee.Engine
         public bool IsButtonDown(int button)
         {
             return _buttonflags.HasFlag((GamepadButtonFlags)button);
-        }
-
-        /// <summary>
-        /// Checks if a specified button is held down for more than one frame.
-        /// </summary>
-        /// <param name="buttonIndex">The index of the button that is checked.</param>
-        /// <returns>true if the button at the specified index is held down for more than one frame and false if not.</returns>
-        public bool IsButtonPressed(int buttonIndex)
-        {
-            return false;
         }
 
         #endregion Buttons
@@ -338,14 +332,17 @@ namespace Fusee.Engine
         /// Sets the rumble motors vibration.
         /// </summary>
         /// <param name="vibL">The rumble vibration for the left motor.</param>
-        /// /// <param name="vibR">The rumble vibration for the right motor.</param>
-        public void SetRumble(ushort rumbleLeft, ushort rumbleRight)
+        /// <param name="vibR">The rumble vibration for the right motor.</param>
+        public void SetRumble(int rumbleLeft, int rumbleRight)
         {
+            ushort valLeft = (ushort)((_rumbleMax / 100) * rumbleLeft);
+            ushort valRight = (ushort)((_rumbleMax / 100) * rumbleRight);
+
             _Controller.SetVibration(
                 new Vibration()
                 {
-                    LeftMotorSpeed = rumbleLeft,
-                    RightMotorSpeed = rumbleRight
+                    LeftMotorSpeed = valLeft,
+                    RightMotorSpeed = valRight
                 }
                 );
         }
@@ -368,7 +365,7 @@ namespace Fusee.Engine
         /// <returns>The device name.</returns>
         public string GetName()
         {
-            return _Controller.GetCapabilities(DeviceQueryType.Gamepad).Type.ToString();
+            return _Controller.GetCapabilities(DeviceQueryType.Gamepad).Type.ToString() + "_" + _Controller.UserIndex.ToString();
         }
 
         /// <summary>
