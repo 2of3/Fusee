@@ -58,6 +58,7 @@ namespace Fusee.Engine
         private float deadZonePercentR = 5;
         private const int _rumbleMax = 65535;
         private const int _rumbleMin = 0;
+        private bool _rumbleActive = false;
 
         #endregion Fields
 
@@ -337,7 +338,6 @@ namespace Fusee.Engine
         {
             ushort valLeft = (ushort)((_rumbleMax / 100) * rumbleLeft);
             ushort valRight = (ushort)((_rumbleMax / 100) * rumbleRight);
-
             _Controller.SetVibration(
                 new Vibration()
                 {

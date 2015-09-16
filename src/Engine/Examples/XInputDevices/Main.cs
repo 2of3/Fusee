@@ -106,12 +106,21 @@ namespace Examples.InputDevices
 
             // This is how you can use the rumble functionality.
             // The parameters in SetRumble() represent a percentage of the maximum rumble capability.
-            if (_gamepad.IsButtonDown((int)FuseeXInputButtons.Y))
+            int zRumble = (int)MapRange(_gamepad.GetAxis(XInputDevice.Axis.RightZ));
+            Debug.WriteLine("Rumble intesity: " + zRumble);
+            if (zRumble != 0)
             {
-                _gamepad.SetRumble(50, 50);
+                _gamepad.SetRumble(zRumble, zRumble);
+                Debug.WriteLine("Enable rumble.");                    
+                _rumble = true;
             } else
-            {
-                _gamepad.SetRumble(0, 0);
+            {   
+                if(_rumble)
+                {
+                    _gamepad.SetRumble(0, 0);
+                    _rumble = false;
+                }                                                
+                Debug.WriteLine("Disable rumble.");
             }
 
             #endregion
@@ -150,5 +159,24 @@ namespace Examples.InputDevices
             app.Run();
         }
 
+        /// <summary>
+        /// Can map a range of numbers from x to y to a range of u to v.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="leftMin"></param>
+        /// <param name="leftMax"></param>
+        /// <param name="rightMin"></param>
+        /// <param name="rightMax"></param>
+        /// <returns></returns>
+        private float MapRange(float value, int leftMin = 0, int leftMax = 255, int rightMin = 0, int rightMax = 100)
+        {
+            //Figure out how 'wide' each range is
+            int leftSpan = leftMax - leftMin;
+            int rightSpan = rightMax - rightMin;
+
+            //Convert the ranges
+            float valueScaled = (float)(value - leftMin) / (float)(leftSpan);
+            return rightMin + (valueScaled * rightSpan);
+        }
     }
 }

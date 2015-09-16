@@ -68,10 +68,10 @@ namespace Fusee.Engine
                     return MapStickRange(_inputDeviceImp.GetThumbRYAxis());
 
                 case Axis.RightZ:
-                    return _inputDeviceImp.GetZAxisLeft();
+                    return _inputDeviceImp.GetZAxisRight();
 
                 case Axis.LeftZ:
-                    return _inputDeviceImp.GetZAxisRight();
+                    return _inputDeviceImp.GetZAxisLeft();
 
                 default:
                     return 0.0f;
