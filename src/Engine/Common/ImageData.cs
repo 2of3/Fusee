@@ -16,7 +16,12 @@ namespace Fusee.Engine
         /// <summary>
         /// Used for images without an alpha-channel.
         /// </summary>
-        RGB
+        RGB,
+
+        /// <summary>
+        /// Used for images without an alpha-channel.
+        /// </summary>
+        Gray
     }
 
     /// <summary>
@@ -49,13 +54,18 @@ namespace Fusee.Engine
         {
             if (PixelFormat == ImagePixelFormat.RGB)
             {
-                int iPix = y*Stride + 3*x;
+                int iPix = y * Stride + 3 * x;
                 return new ColorUint(PixelData, iPix, true);
             }
-            else
+            else if (PixelFormat == ImagePixelFormat.RGBA)
             {
                 int iPix = y * Stride + 4 * x;
                 return new ColorUint(PixelData, iPix, false);
+            }
+            else
+            {
+                int iPix = y * Stride + 1 * x;
+                return new ColorUint(PixelData, iPix, true);
             }
         }
     }
