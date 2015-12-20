@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
@@ -32,12 +33,15 @@ namespace Examples.DepthVideo
             
             uniform mat4 FUSEE_MVP;
             uniform mat4 FUSEE_ITMV;
+            uniform mat4 FUSEE_MV;
+ 
 
 
             void main(){
     
                 vUV = fuUV;
-                gl_Position = FUSEE_MVP * vec4(fuVertex, 1.0);
+                gl_Position = (FUSEE_MVP * vec4(fuVertex, 1.0))- vec4(0,0,10,1);
+
                 vNormal = mat3(FUSEE_ITMV[0].xyz, FUSEE_ITMV[1].xyz, FUSEE_ITMV[2].xyz) * fuNormal;
             }";
 
@@ -46,20 +50,26 @@ namespace Examples.DepthVideo
                 precision mediump float;
             #endif
 
-            uniform sampler2D texture1, textureDepth;
+            uniform sampler2D  textureDepth;
             varying vec3 vNormal;
             varying vec2 vUV;
-
-
+            uniform mat4 FUSEE_MV;
+ 
+            float zvalue(float posz)
+            {
+                return ((10+1)/(10-1))+(1/posz)*((-2*10*1)/(10-1));
+            }
             void main(){
                
                    
-                   vec4 col = texture2D(texture1, vUV);
-                   gl_FragColor = col;
-                   gl_FragDepth =(1-(texture(textureDepth, vUV).z));
+                   float  myvalue = zvalue(vec3(FUSEE_MV[3].xyz).z);
+                   gl_FragColor = vec4(myvalue, myvalue, myvalue, 1);
+                   gl_FragDepth =(1-(texture(textureDepth, vUV)));
 
            
             }";
+
+
         #endregion
         private Mesh _meshCube;
         private float3 _cubePos = float3.Zero;
@@ -97,7 +107,7 @@ namespace Examples.DepthVideo
 
             //init shader
             _spDepth = RC.CreateShader(VsDepth, PsDepth);
-            _textureColorParam = _spDepth.GetShaderParam("texture1");
+          //  _textureColorParam = _spDepth.GetShaderParam("texture1");
             _textureDepthParam = _spDepth.GetShaderParam("textureDepth");
 
             _spColor = Shaders.GetDiffuseColorShader(RC);
@@ -138,8 +148,10 @@ namespace Examples.DepthVideo
             var mtxCam = float4x4.LookAt(0, 0, -10, 0, 0, 0, 0, 1, 0);
             
             RC.SetShader(_spDepth);
-            RC.ModelView = mtxCam * float4x4.Scale(0.01f) * float4x4.CreateTranslation(0, 0, 0);
-            RC.SetShaderParamTexture(_textureColorParam, _iTextureColor);
+            RC.ModelView = mtxCam * float4x4.Scale(0.01f) * float4x4.CreateTranslation(0,1, -7);
+            //var fm = RC.ModelView;
+           // Console.WriteLine(fm);
+            //  RC.SetShaderParamTexture(_textureColorParam, _iTextureColor);
             RC.SetShaderParamTexture(_textureDepthParam, _iTextureDepth);
             RC.Render(_meshCube);
 
@@ -177,6 +189,7 @@ namespace Examples.DepthVideo
             {
                 frameListDepth.Add(tempFrameDepth);
                 tempFrameDepth = captureDepth.QueryFrame().ToImage<Gray, byte>();
+                var tempnorm = tempFrameDepth;
                 framecounter++;
                 if (framecounter >= 150)
                 {
@@ -205,7 +218,6 @@ namespace Examples.DepthVideo
                 _framesListDepthEnumerator.MoveNext();
             }
             cvf.CurrentDepthFrame = _framesListDepthEnumerator.Current;
-
             return cvf;
         }
 
