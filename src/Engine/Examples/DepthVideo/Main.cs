@@ -110,9 +110,10 @@ namespace Examples.DepthVideo
                 float newNonLinDepth = nonLinDepth(newDepthLin);
                     
 
-
+                float ld=linearDepth(gl_FragCoord.z);
+                float zp = depthToZ(ld);
                 vec4 col; 
-                if(0 <= newNonLinDepth && newNonLinDepth <=1 ) 
+                if(zp==5) 
                     col= vec4(0,1,0,1);
                 else
                     col = vec4(1,0,0,1);  
