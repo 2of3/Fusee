@@ -36,6 +36,7 @@ namespace Examples.DepthVideo
             uniform mat4 FUSEE_MV;
             uniform mat4 FUSEE_V;
             uniform mat4 FUSEE_P;
+            uniform mat4 FUSEE_IP;
     
  
             varying vec3 pos;
@@ -54,12 +55,13 @@ namespace Examples.DepthVideo
                 precision mediump float;
             #endif
 
-            uniform sampler2D  textureColor, textureDepth;
+            uniform sampler2D   textureDepth;
             varying vec3 vNormal;
             varying vec2 vUV;
             varying vec3 fuVertex;
-            uniform mat4 FUSEE_MV;
+
             uniform mat4 FUSEE_P;
+            uniform mat4 FUSEE_IP;
             float zFar = 1;
             float zNear = 10;
 
@@ -75,16 +77,17 @@ namespace Examples.DepthVideo
             }
           
             float nonLinDepth(float linearDepth)
-            {      
+            {   
                 float nonLinearDepth = (zFar + zNear - 2.0 * zNear * zFar / linearDepth) / (zFar - zNear);
                 nonLinearDepth = (nonLinearDepth + 1.0) / 2.0;
                 return nonLinearDepth;
             }
             float linearDepth(float nonLinearDepth)
             {
-                nonLinearDepth = 2.0 * nonLinearDepth - 1.0;
-                float zLinear = 2.0 * zNear * zFar / (zFar + zNear - nonLinearDepth * (zFar - zNear));
-                return zLinear;
+                  return ((2.0 * zNear) / (zFar + zNear - nonLinearDepth * (zFar - zNear)))+zNear;
+////                nonLinearDepth = 2.0 * nonLinearDepth - 1.0;
+////                float zLinear = 2.0 * zNear * zFar / (zFar + zNear - nonLinearDepth * (zFar - zNear));
+////                return zLinear;
                
             }
 
@@ -92,37 +95,32 @@ namespace Examples.DepthVideo
             
   
                 //get nonlinear depthvalue form depth texture
-                float depthTexValue = 1-texture2D(textureDepth, vUV);              
-              
-                //calculate pos refering to linear depth value
-                float depthTexZ =depthToZ(depthTexValue);                                            
+                float depthTexValue =texture2D(textureDepth, vUV).r;          
 
-                //difference between actual pos of the plane and the one from the depthtexture
-                float dif = pos.z-depthTexZ;
-                
-                //pos.z from the depth
-                float p = depthTexZ+dif;      
-  
-                //get linear depth from new pos
-                float newDepthLin = zPosToLinDepth(p);
+                //position 'in the DepthTexture'
+                //vec4 texPos = FUSEE_P*vec4(0,0,depthTexValue,1);
 
-                //convert to non-linear depth
-                float newNonLinDepth = nonLinDepth(newDepthLin);
-                    
+                //difference of the positions
+                //float tmpDif = pos.z-texPos.z;
 
-                float ld=linearDepth(gl_FragCoord.z);
-                float zp = depthToZ(ld);
+                //add diff to position
+                //vec4 posTemp = vec4(0,0,pos.z-tmpDif,1);
+
+                //calc nonlinearDepth from new position
+               // vec4 pcalc = FUSEE_IP*posTemp;
+              //  vec4 x = FUSEE_IP* vec4(0,0,pos.z,1);
+                float l =  zPosToLinDepth(pos.z);
+                vec4 y = FUSEE_IP*vec4(pos,1);
+                vec4 x = FUSEE_P*y;
                 vec4 col; 
-                if(zp==5) 
+                if(l==y.z) 
                     col= vec4(0,1,0,1);
                 else
                     col = vec4(1,0,0,1);  
 
 
-                gl_FragColor =texture2D(textureColor, vUV)*col;
-                gl_FragDepth = newNonLinDepth;
-                
-
+                gl_FragColor = vec4(depthTexValue,depthTexValue,depthTexValue,1)*col;
+               // gl_FragDepth = pcalc.z;              
            
             }";
 
@@ -233,7 +231,7 @@ namespace Examples.DepthVideo
 
             //init shader
             _spDepth = RC.CreateShader(VsDepth, PsDepth);
-            _textureColorParam = _spDepth.GetShaderParam("textureColor");
+            //_textureColorParam = _spDepth.GetShaderParam("textureColor");
             _textureDepthParam = _spDepth.GetShaderParam("textureDepth");
 
             _spDrawDepth = RC.CreateShader(VsDrawDepth, PsDrawDepth);
@@ -343,7 +341,7 @@ namespace Examples.DepthVideo
             
             RC.SetShader(_spDepth);
             var bbpos = RC.ModelView = mtxCam * mtxRot * float4x4.CreateTranslation(0, 0, -5);
-            RC.SetShaderParamTexture(_textureColorParam, _iTextureColor);
+         //   RC.SetShaderParamTexture(_textureColorParam, _iTextureColor);
             RC.SetShaderParamTexture(_textureDepthParam, _iTextureDepth);
             RC.Render(_meshPlane);
 
