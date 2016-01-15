@@ -33,6 +33,7 @@ namespace Examples.DepthVideo
             uniform mat4 FUSEE_MVP;
             uniform mat4 FUSEE_ITMV;               
 
+            
             void main(){
     
                 vUV = fuUV;
@@ -47,6 +48,7 @@ namespace Examples.DepthVideo
             #endif
 
             uniform sampler2D textureColor, textureDepth;
+            uniform float scale;
             varying vec3 vNormal;
             varying vec2 vUV;
 
@@ -59,7 +61,7 @@ namespace Examples.DepthVideo
 
                 gl_FragColor = texture2D(textureColor, vUV);         
             
-                gl_FragDepth = gl_FragCoord.z + (depthTexValue-0.5)*0.01;              
+                gl_FragDepth = gl_FragCoord.z + (depthTexValue-0.3)*(scale);              
            
             }";
         #endregion
@@ -110,6 +112,7 @@ namespace Examples.DepthVideo
         private ShaderProgram _spDepth;
         private IShaderParam _textureColorParam;
         private IShaderParam _textureDepthParam;
+        private IShaderParam _textureScaleParam;
         private ITexture _iTextureColor;
         private ITexture _iTextureDepth;
 
@@ -149,6 +152,7 @@ namespace Examples.DepthVideo
             _spDepth = RC.CreateShader(VsDepth, PsDepth);
             _textureColorParam = _spDepth.GetShaderParam("textureColor");
             _textureDepthParam = _spDepth.GetShaderParam("textureDepth");
+            _textureScaleParam = _spDepth.GetShaderParam("scale");
 
             _spDrawDepth = RC.CreateShader(VsDrawDepth, PsDrawDepth);
 
@@ -158,7 +162,7 @@ namespace Examples.DepthVideo
 
 
             //Load Videos
-            ImportVideos(_framesListColorVideo, "Assets/demoFarSmall.mkv", _framesListDepthVideo, "Assets/demoFarDepthSmall.mkv");
+            ImportVideos(_framesListColorVideo, "Assets/demoQuad.mkv", _framesListDepthVideo, "Assets/demoQuadDepth.mkv");
             _framesListColorEnumerator = _framesListColorVideo.GetEnumerator();
             _framesListDepthEnumerator = _framesListDepthVideo.GetEnumerator();
             Console.WriteLine(Width + " "+ Height);
@@ -216,16 +220,16 @@ namespace Examples.DepthVideo
                 CloseGameWindow();
             // move per keyboard
             if (Input.Instance.IsKey(KeyCodes.Left))
-                _cubePos.x+=0.2f;
+                _cubePos.x+=0.01f;
 
             if (Input.Instance.IsKey(KeyCodes.Right))
-                _cubePos.x -= 0.2f;
+                _cubePos.x -= 0.01f;
 
             if (Input.Instance.IsKey(KeyCodes.Up))
-                _cubePos.z-= 0.1f;
+                _cubePos.z-= 0.01f;
 
             if (Input.Instance.IsKey(KeyCodes.Down))
-                _cubePos.z += 0.1f;
+                _cubePos.z += 0.01f;
 
     
             // move per mouse
@@ -259,14 +263,15 @@ namespace Examples.DepthVideo
             var q = new Quaternion(float3.UnitY, 180);
 
             RC.SetShader(_spDepth);
-            var bbpos = RC.ModelView = mtxCam * mtxRot * float4x4.CreateTranslation(0, 0, -8f) *float4x4.CreateRotationZ((float)Math.PI)* float4x4.CreateScale(16 / 3f, 9 / 3f, 1);
+            var bbpos = RC.ModelView = mtxCam * mtxRot * float4x4.CreateTranslation(0, 0, -5f) *float4x4.CreateRotationZ((float)Math.PI)* float4x4.CreateScale(2,2, 1);
             RC.SetShaderParamTexture(_textureColorParam, _iTextureColor);
             RC.SetShaderParamTexture(_textureDepthParam, _iTextureDepth);
+            RC.SetShaderParam(_textureScaleParam,2f);
             RC.Render(_meshPlane);
 
             RC.SetShader(_spDrawDepth);
             var planepos = RC.ModelView = mtxCam * mtxRot * float4x4.CreateTranslation(-_cubePos.x, 0, _cubePos.z);
-            //RC.SetShaderParam(_colorParam,new float4(1,0,0,1));
+
             RC.Render(_meshPlane);
             
             if (Input.Instance.IsKey(KeyCodes.P))
