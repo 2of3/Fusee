@@ -29,24 +29,15 @@ namespace Examples.DepthVideo
 
             varying vec3 vNormal;
             varying vec2 vUV;
-
             
             uniform mat4 FUSEE_MVP;
-            uniform mat4 FUSEE_ITMV;
-            uniform mat4 FUSEE_MV;
-            uniform mat4 FUSEE_V;
-            uniform mat4 FUSEE_P;
-            uniform mat4 FUSEE_IP;
-    
- 
-            varying vec3 pos;
-            
+            uniform mat4 FUSEE_ITMV;               
 
             void main(){
     
                 vUV = fuUV;
+
                 gl_Position = FUSEE_MVP * vec4(fuVertex, 1.0);
-                pos = FUSEE_MV[3].xyz;
                 vNormal = mat3(FUSEE_ITMV[0].xyz, FUSEE_ITMV[1].xyz, FUSEE_ITMV[2].xyz) * fuNormal;
             }";
 
@@ -55,75 +46,24 @@ namespace Examples.DepthVideo
                 precision mediump float;
             #endif
 
-            uniform sampler2D   textureDepth;
+            uniform sampler2D textureColor, textureDepth;
             varying vec3 vNormal;
             varying vec2 vUV;
-            varying vec3 fuVertex;
 
-            uniform mat4 FUSEE_P;
-            uniform mat4 FUSEE_IP;
-            float zFar = 1;
-            float zNear = 10;
-
-            varying vec3 pos;
-
-            float zPosToLinDepth(float z)
-            {
-                return  -((2*zNear*zFar)/(zFar-zNear))*(1/z)+((zFar*zNear)/(zFar-zNear));
-            }
-            float depthToZ(float d)
-            {
-                return(2*zFar*zNear)/(-d*zFar+d*zNear+zFar+zNear);
-            }
-          
-            float nonLinDepth(float linearDepth)
-            {   
-                float nonLinearDepth = (zFar + zNear - 2.0 * zNear * zFar / linearDepth) / (zFar - zNear);
-                nonLinearDepth = (nonLinearDepth + 1.0) / 2.0;
-                return nonLinearDepth;
-            }
-            float linearDepth(float nonLinearDepth)
-            {
-                  return ((2.0 * zNear) / (zFar + zNear - nonLinearDepth * (zFar - zNear)))+zNear;
-////                nonLinearDepth = 2.0 * nonLinearDepth - 1.0;
-////                float zLinear = 2.0 * zNear * zFar / (zFar + zNear - nonLinearDepth * (zFar - zNear));
-////                return zLinear;
-               
-            }
 
             void main(){                               
             
   
-                //get nonlinear depthvalue form depth texture
-                float depthTexValue =texture2D(textureDepth, vUV).r;          
+                //get gray depthvalue form depth texture
+                float depthTexValue =1-texture2D(textureDepth, vUV).r;               
 
-                //position 'in the DepthTexture'
-                //vec4 texPos = FUSEE_P*vec4(0,0,depthTexValue,1);
-
-                //difference of the positions
-                //float tmpDif = pos.z-texPos.z;
-
-                //add diff to position
-                //vec4 posTemp = vec4(0,0,pos.z-tmpDif,1);
-
-                //calc nonlinearDepth from new position
-               // vec4 pcalc = FUSEE_IP*posTemp;
-              //  vec4 x = FUSEE_IP* vec4(0,0,pos.z,1);
-                float l =  zPosToLinDepth(pos.z);
-                vec4 y = FUSEE_IP*vec4(pos,1);
-                vec4 x = FUSEE_P*y;
-                vec4 col; 
-                if(l==y.z) 
-                    col= vec4(0,1,0,1);
-                else
-                    col = vec4(1,0,0,1);  
-
-
-                gl_FragColor = vec4(depthTexValue,depthTexValue,depthTexValue,1)*col;
-               // gl_FragDepth = pcalc.z;              
+                gl_FragColor = texture2D(textureColor, vUV);         
+            
+                gl_FragDepth = gl_FragCoord.z + (depthTexValue-0.5)*0.01;              
            
             }";
-
+        #endregion
+        #region colordepth
 
         private const string VsDrawDepth = @"
             #ifdef GL_ES
@@ -136,13 +76,8 @@ namespace Examples.DepthVideo
 
             varying vec3 vNormal;
             varying vec2 vUV;
-
             
             uniform mat4 FUSEE_MVP;
-            uniform mat4 FUSEE_ITMV;
-
-
-
 
             void main(){
     
@@ -155,33 +90,14 @@ namespace Examples.DepthVideo
             #ifdef GL_ES
                 precision mediump float;
             #endif
-            float zNear, zFar;
             
             void main(){
-                zNear = 1;
-                zFar = 10;     
-                //float zLin = -((2*zNear*zFar)/(zFar-zNear))*(-1/position.z)+((zFar+zNear)/(zFar-zNear));
-                //float zLog = (2*zFar*zNear)/(zFar*(-zLin)+zFar+zLin*zNear+zNear);
-            
-                //Linear Depth Value
-                float ndcDepth =  (2.0 * gl_FragCoord.z - zNear - zFar) / (zFar - zNear);
-               // float x = 1;
-                
-               //if(gl_DepthRange.far > 0)
-               //    gl_FragColor= vec4(0,1,0,1) ;
-               //else
-               //     gl_FragColor= vec4(1,0,0,1);
-
-                //  float clipDepth = ndcDepth / gl_FragCoord.w;
-                // gl_FragColor = vec4((clipDepth * 0.5) + 0.5); 
-                //gl_FragColor= vec4(ndcDepth,ndcDepth,ndcDepth,1) ;
-                
-                gl_FragColor= vec4(0,0,1,1);
-           
+         
+                gl_FragColor = vec4(0,0,1,1);
             }";
 
         #endregion
-        private Mesh _meshCube, _meshSphere, _meshTeapot;
+        private Mesh _meshCube, _meshKnot, _meshTeapot;
         private Mesh _meshPlane = new Mesh();
         private float3 _cubePos = float3.Zero;
         private Cube c =new Cube();
@@ -211,6 +127,8 @@ namespace Examples.DepthVideo
         private IEnumerator<Image<Bgr, byte>> _framesListColorEnumerator;
         private IEnumerator<Image<Gray, byte>> _framesListDepthEnumerator;
 
+        private ITexture _screenShot; 
+
         private CurrentVideoFrames _currentVideoFrames;
         
         // is called on startup
@@ -226,12 +144,12 @@ namespace Examples.DepthVideo
             //init mesh
             _meshCube = MeshReader.LoadMesh(@"Assets/Cube.obj.model");
             _meshTeapot = MeshReader.LoadMesh(@"Assets/Teapot.obj.model");
-            _meshSphere = MeshReader.LoadMesh(@"Assets/Sphere.obj.model");
+            _meshKnot = MeshReader.LoadMesh(@"Assets/knot.obj.model");
             CreatePlaneMesh();
 
             //init shader
             _spDepth = RC.CreateShader(VsDepth, PsDepth);
-            //_textureColorParam = _spDepth.GetShaderParam("textureColor");
+            _textureColorParam = _spDepth.GetShaderParam("textureColor");
             _textureDepthParam = _spDepth.GetShaderParam("textureDepth");
 
             _spDrawDepth = RC.CreateShader(VsDrawDepth, PsDrawDepth);
@@ -239,10 +157,15 @@ namespace Examples.DepthVideo
             _spColor = Shaders.GetColorShader(RC);
             _colorParam = _spColor.GetShaderParam("color");
 
+            // load texture
+            var imgData = RC.LoadImage("Assets/ScreenShotTest.PNG");
+            _screenShot = RC.CreateTexture(imgData);
+
             //Load Videos
             ImportVideos(_framesListColorVideo, "Assets/demoFarSmall.mkv", _framesListDepthVideo, "Assets/demoFarDepthSmall.mkv");
             _framesListColorEnumerator = _framesListColorVideo.GetEnumerator();
             _framesListDepthEnumerator = _framesListDepthVideo.GetEnumerator();
+            Console.WriteLine(Width + " "+ Height);
         }
 
         private void CreatePlaneMesh()
@@ -338,27 +261,20 @@ namespace Examples.DepthVideo
             var mtxCam = float4x4.LookAt(0, 0, 0, 0, 0, -10, 0, 1, 0);
 
             var q = new Quaternion(float3.UnitY, 180);
-            
+
             RC.SetShader(_spDepth);
-            var bbpos = RC.ModelView = mtxCam * mtxRot * float4x4.CreateTranslation(0, 0, -5);
-         //   RC.SetShaderParamTexture(_textureColorParam, _iTextureColor);
+            var bbpos = RC.ModelView = mtxCam * mtxRot * float4x4.CreateTranslation(0, 0, -8f) *float4x4.CreateRotationZ((float)Math.PI)* float4x4.CreateScale(16 / 3f, 9 / 3f, 1);
+            RC.SetShaderParamTexture(_textureColorParam, _iTextureColor);
             RC.SetShaderParamTexture(_textureDepthParam, _iTextureDepth);
             RC.Render(_meshPlane);
 
-
             RC.SetShader(_spDrawDepth);
-            var planepos  = RC.ModelView = mtxCam*mtxRot*float4x4.CreateTranslation(-_cubePos.x, 0, _cubePos.z);
+            var planepos = RC.ModelView = mtxCam * mtxRot * float4x4.CreateTranslation(-_cubePos.x, 0, _cubePos.z);
             //RC.SetShaderParam(_colorParam,new float4(1,0,0,1));
             RC.Render(_meshPlane);
-
-            //RC.SetShader(_spDepth);
-            //RC.ModelView = mtxCam * float4x4.Scale(0.01f) * float4x4.CreateTranslation(0, 1, -2);
-            //// RC.SetShaderParamTexture(_textureColorParam, _iTextureColor);
-            //RC.SetShaderParamTexture(_textureDepthParam, _iTextureDepth);
-            //RC.Render(_meshCube);
-
+            
             if (Input.Instance.IsKey(KeyCodes.P))
-                Console.WriteLine("Billboard: " + bbpos.Column3+ "  Plane: "+ planepos.Column3);
+                Console.WriteLine("Billboard: " + bbpos.Column3 + "  Plane: "+ planepos.Column3);
 
             Present();
         }
