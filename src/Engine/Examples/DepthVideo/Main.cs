@@ -97,7 +97,7 @@ namespace Examples.DepthVideo
             }";
 
         #endregion
-        private Mesh _meshCube, _meshKnot, _meshTeapot;
+        private Mesh _meshCube, _meshTeapot;
         private Mesh _meshPlane = new Mesh();
         private float3 _cubePos = float3.Zero;
         private Cube c =new Cube();
@@ -127,7 +127,6 @@ namespace Examples.DepthVideo
         private IEnumerator<Image<Bgr, byte>> _framesListColorEnumerator;
         private IEnumerator<Image<Gray, byte>> _framesListDepthEnumerator;
 
-        private ITexture _screenShot; 
 
         private CurrentVideoFrames _currentVideoFrames;
         
@@ -144,7 +143,6 @@ namespace Examples.DepthVideo
             //init mesh
             _meshCube = MeshReader.LoadMesh(@"Assets/Cube.obj.model");
             _meshTeapot = MeshReader.LoadMesh(@"Assets/Teapot.obj.model");
-            _meshKnot = MeshReader.LoadMesh(@"Assets/knot.obj.model");
             CreatePlaneMesh();
 
             //init shader
@@ -157,9 +155,7 @@ namespace Examples.DepthVideo
             _spColor = Shaders.GetColorShader(RC);
             _colorParam = _spColor.GetShaderParam("color");
 
-            // load texture
-            var imgData = RC.LoadImage("Assets/ScreenShotTest.PNG");
-            _screenShot = RC.CreateTexture(imgData);
+
 
             //Load Videos
             ImportVideos(_framesListColorVideo, "Assets/demoFarSmall.mkv", _framesListDepthVideo, "Assets/demoFarDepthSmall.mkv");
