@@ -31,13 +31,15 @@ namespace Examples.DepthVideo
             varying vec2 vUV;
             
             uniform mat4 FUSEE_MVP;
-            uniform mat4 FUSEE_ITMV;               
-
+            uniform mat4 FUSEE_ITMV;      
+            uniform mat4 FUSEE_P; 
+            uniform mat4 FUSEE_MV;        
             
+            varying vec4 pos;
             void main(){
     
                 vUV = fuUV;
-
+                pos = FUSEE_MV[3];
                 gl_Position = FUSEE_MVP * vec4(fuVertex, 1.0);
                 vNormal = mat3(FUSEE_ITMV[0].xyz, FUSEE_ITMV[1].xyz, FUSEE_ITMV[2].xyz) * fuNormal;
             }";
@@ -51,18 +53,61 @@ namespace Examples.DepthVideo
             uniform float scale;
             varying vec3 vNormal;
             varying vec2 vUV;
+            float zFar = 10;
+            float zNear =1;
+            varying vec4 pos;
+            uniform mat4 FUSEE_P;         
+            
+            
+            float linDepthToZ(float d)
+            {
+                return (2*zFar*zNear)/(-d*zFar+d*zNear+zFar+zNear);
+            }
+            float depthToZ(float din)
+            {
+                float d= (din-0.5)*2;
+                return (2*zFar*zNear)/(-d*zFar+d*zNear+zFar+zNear);
 
+             }
 
             void main(){                               
-            
+           
   
+                
                 //get gray depthvalue form depth texture
                 float depthTexValue =1-texture2D(textureDepth, vUV).r;               
-
-                gl_FragColor = texture2D(textureColor, vUV);         
+//                float z = linDepthToZ(depthTexValue);
+//            
+//                vec4 pTemp = pos;
+//                pTemp.z += linDepthToZ(depthTexValue);
+//                vec4 clipPos = FUSEE_P * vec4(pTemp.xyz, 1.0);
+//                float ndcDepth = clipPos.z / clipPos.w;
+//                gl_FragDepth = ((9 * ndcDepth) +1 + 10) / 2.0;
+//    
+                float z3 = depthToZ(gl_FragCoord.z);
+                float DEPTH = (depthTexValue*2)-1;
+                vec4 col;
+                if(depthTexValue <=0.5)
+                {
+                    col = vec4(0,1,0,1);
+                }
+                else
+                {
+                    col = vec4(1,0,0,1);
+                }
+                gl_FragColor = texture2D(textureColor, vUV)*col;         
             
-                gl_FragDepth = gl_FragCoord.z + (depthTexValue-0.3)*(scale);              
-           
+                //gl_FragDepth = gl_FragCoord.z + (depthTexValue/(log(10*24 -1)));
+               // gl_FragDepth= gl_FragCoord.z + ((depthTexValue+0.5)/(log(10*24 -1)));    
+                if(depthTexValue == 1)          
+                {
+                    gl_FragDepth = 1;
+                }
+                else
+                {
+
+                    gl_FragDepth = gl_FragCoord.z + (depthTexValue-(log(zFar*24 -1)*(pos.z/zFar)))*scale*0.01;
+                }
             }";
         #endregion
         #region colordepth
@@ -94,8 +139,19 @@ namespace Examples.DepthVideo
             #endif
             
             void main(){
-         
-                gl_FragColor = vec4(0,0,1,1);
+                
+            float temp = gl_FragCoord.z;
+            vec4 col;
+            if(temp >0)
+            {
+                col = vec4(0,1,0,1);
+            }
+            if(temp >0.5)
+            {
+                col = vec4(0,0,1,1);
+            }
+
+            gl_FragColor = col;
             }";
 
         #endregion
@@ -138,7 +194,7 @@ namespace Examples.DepthVideo
         {
             RC.ClearColor = new float4(1f, 1f, 1f, 1);
 
-            _cubePos.z = -5;
+            _cubePos.z = 4;
             //Set zNear and zFar (1, 10)
             // Wodth : Hwight :-> 1280 : 720
             Resize();
@@ -258,21 +314,21 @@ namespace Examples.DepthVideo
             CrateTextures(_currentVideoFrames);
 
      
-            var mtxCam = float4x4.LookAt(0, 0, 0, 0, 0, -10, 0, 1, 0);
+            var mtxCam = float4x4.LookAt(0, 0, 0, 0, 0, 10, 0, 1, 0);
 
             var q = new Quaternion(float3.UnitY, 180);
 
             RC.SetShader(_spDepth);
-            var bbpos = RC.ModelView = mtxCam * mtxRot * float4x4.CreateTranslation(0, 0, -5f) *float4x4.CreateRotationZ((float)Math.PI)* float4x4.CreateScale(2,2, 1);
+            var bbpos = RC.ModelView = mtxCam * mtxRot  * float4x4.CreateTranslation(0, 0, 4) * float4x4.CreateRotationY((float)Math.PI)* float4x4.CreateScale(2, 2, 1);
             RC.SetShaderParamTexture(_textureColorParam, _iTextureColor);
             RC.SetShaderParamTexture(_textureDepthParam, _iTextureDepth);
-            RC.SetShaderParam(_textureScaleParam,2f);
+            RC.SetShaderParam(_textureScaleParam,7f);
             RC.Render(_meshPlane);
 
             RC.SetShader(_spDrawDepth);
-            var planepos = RC.ModelView = mtxCam * mtxRot * float4x4.CreateTranslation(-_cubePos.x, 0, _cubePos.z);
-
+            var planepos = RC.ModelView = mtxCam * mtxRot * float4x4.CreateTranslation(-_cubePos.x, 0, _cubePos.z)  * float4x4.CreateRotationY((float)Math.PI)* float4x4.CreateScale(2, 2, 1);
             RC.Render(_meshPlane);
+          
             
             if (Input.Instance.IsKey(KeyCodes.P))
                 Console.WriteLine("Billboard: " + bbpos.Column3 + "  Plane: "+ planepos.Column3);
