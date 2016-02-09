@@ -231,7 +231,7 @@ namespace Examples.DepthVideo
         private IShaderParam _textureDepthParam;
         private IShaderParam _textureScaleParam;
         private ITexture _iTextureColor;
-        private ITexture _iTextureDepth;
+        
 
         // variables to dra depthtectuer of the Scene
         private ShaderProgram _spDrawDepth;
@@ -270,6 +270,7 @@ namespace Examples.DepthVideo
 
         private ITexture _iTextureLeft;
         private ITexture _iTextureRight;
+        private ITexture _iTextureDepth;
         private ITexture _iTexture;
         private ITexture iTextureDepthStatic;
 
@@ -329,9 +330,9 @@ namespace Examples.DepthVideo
 
 
             //Load S3d Videos
-            ImportVideo(_framesListLeft, "Assets/VideoLeft.avi");
-            ImportVideo(_framesListRight, "Assets/VideoRight.avi");
-            ImportVideo(_framesListDepth, "Assets/demoQuadDepth.mkv");
+            ImportVideo(_framesListLeft, "Assets/left.mkv");
+            ImportVideo(_framesListRight, "Assets/right.mkv");
+            ImportVideo(_framesListDepth, "Assets/DepthCenter.mkv");
             _framesListLeftEnumerator = _framesListLeft.GetEnumerator();
             _framesListRightEnumerator = _framesListRight.GetEnumerator();
             _framesListDepthEnumerator = _framesListDepth.GetEnumerator();
@@ -339,7 +340,7 @@ namespace Examples.DepthVideo
             _iTexture = RC.CreateTexture(RC.LoadImage("Assets/world_map.jpg"));
             //_iTextureLeft = RC.CreateTexture(RC.LoadImage("Assets/imL.png"));
             //_iTextureRight = RC.CreateTexture(RC.LoadImage("Assets/imR.png"));
-            iTextureDepthStatic = RC.CreateTexture(RC.LoadImage("Assets/depthMap.png"));
+            //iTextureDepthStatic = RC.CreateTexture(RC.LoadImage("Assets/depthMap.png"));
         }
 
         private void CreatePlaneMesh()
@@ -469,7 +470,7 @@ namespace Examples.DepthVideo
             _imgDataLeft = _imgDataRight;
             _imgDataLeft.PixelData = frameL.Bytes;
             _imgDataDepth = _imgDataRight;
-            _imgDataRight.PixelFormat = ImagePixelFormat.Gray;
+            _imgDataDepth.PixelFormat = ImagePixelFormat.Gray;
             _imgDataDepth.PixelData = frameD.Bytes;
 
             //Create textures
@@ -545,7 +546,7 @@ namespace Examples.DepthVideo
                         //left
                         RC.SetShaderParam(_colorParamS3D, new float4(new float3(1,1,1), 1.0f));
                         RC.SetShaderParamTexture(_textureParamS3DColor, _iTextureLeft);
-                        RC.SetShaderParamTexture(_textureParamS3DDepth, iTextureDepthStatic);
+                        RC.SetShaderParamTexture(_textureParamS3DDepth, _iTextureDepth);
                         RC.ModelView = lookAt * rot* float4x4.CreateTranslation(_cubePos.x+hit, 0, 30) * float4x4.CreateRotationY((float)Math.PI) * float4x4.CreateScale(0.64f * 10, 0.48f * 10, 1f);
                         RC.Render(_meshPlane);
 
@@ -554,7 +555,7 @@ namespace Examples.DepthVideo
  
                         RC.SetShaderParam(_colorParamS3D, new float4(new float3(1, 1, 1), b));
                         RC.SetShaderParamTexture(_textureParamS3DColor, _iTexture);
-                        RC.SetShaderParamTexture(_textureParamS3DDepth, iTextureDepthStatic);
+                        RC.SetShaderParamTexture(_textureParamS3DDepth, _iTextureDepth);
                         RC.ModelView = lookAt * rot * float4x4.CreateTranslation(_cubePos.x-5, 0, _cubePos.z) * float4x4.CreateRotationY((float)Math.PI/3) * float4x4.CreateScale(0.01f);
                         RC.Render(_meshCube);
 
@@ -572,7 +573,7 @@ namespace Examples.DepthVideo
                         //right
                         RC.SetShaderParam(_colorParamS3D, new float4(new float3(1,1,1), 1.0f));
                         RC.SetShaderParamTexture(_textureParamS3DColor, _iTextureRight);
-                        RC.SetShaderParamTexture(_textureParamS3DDepth, iTextureDepthStatic);
+                        RC.SetShaderParamTexture(_textureParamS3DDepth, _iTextureDepth);
                         RC.ModelView = lookAt  * rot * float4x4.CreateTranslation(_cubePos.x-hit, 0,30) * float4x4.CreateRotationY((float)Math.PI) * float4x4.CreateScale(0.64f * 10, 0.48f * 10, 1f);
                         RC.Render(_meshPlane);
 
@@ -581,7 +582,7 @@ namespace Examples.DepthVideo
                  
                         RC.SetShaderParam(_colorParamS3D, new float4(new float3(1, 1, 1), b));
                         RC.SetShaderParamTexture(_textureParamS3DColor, _iTexture);
-                        RC.SetShaderParamTexture(_textureParamS3DDepth, iTextureDepthStatic);
+                        RC.SetShaderParamTexture(_textureParamS3DDepth, _iTextureDepth);
                         RC.ModelView = lookAt * rot * float4x4.CreateTranslation(_cubePos.x-5, 0, _cubePos.z) * float4x4.CreateRotationY((float)Math.PI/3)*float4x4.CreateScale(0.01f);
                         RC.Render(_meshCube);
 
