@@ -346,7 +346,7 @@ namespace Examples.DepthVideo
 
             //Set up screen object
             _screenS3D = new ScreenS3D(RC, _stereo3D, _shaderProgramS3D);
-            _screenS3D.SetVideo("Assets/left.mkv", "Assets/right.mkv", "Assets/DepthCenter.mkv", 150);
+            _screenS3D.SetVideo("Assets/left.mkv", "Assets/right.mkv", "Assets/depthCenter.mkv", 299);
 
             Console.WriteLine(Width + " " + Height);         
 
