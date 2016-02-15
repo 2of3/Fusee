@@ -45,7 +45,7 @@ namespace Examples.DepthVideo
             #endif
         
             uniform sampler2D vTexture;
-            uniform sampler2D textureDepth;
+           // uniform sampler2D textureDepth;
             uniform vec4 vColor;
             varying vec3 vNormal;
             varying vec2 vUV;
@@ -58,16 +58,16 @@ namespace Examples.DepthVideo
                 vec4 colTex = vColor * texture2D(vTexture, vUV);
                 // colh gl_FragColor = dot(vColor, vec4(0, 0, 0, 1)) * colTex * dot(vNormal, vec3(0, 0, 1));
                 
-                float depthTexValue = 1-texture(textureDepth, vUV);
-                if(depthTexValue == 1)          
-                {
-                    gl_FragDepth = 1;
-                }
-                else
-                {
+                //float depthTexValue = 1-texture(textureDepth, vUV);
+                //if(depthTexValue == 1)          
+                //{
+                //    gl_FragDepth = 1;
+                //}
+                //else
+                //{
 
-                    gl_FragDepth = gl_FragCoord.z + (depthTexValue-0.5)*0.1;  
-                }
+                //    gl_FragDepth = gl_FragCoord.z + (depthTexValue-0.5)*0.1;  
+                //}
                 
                 gl_FragColor = dot(vColor, vec4(0, 0, 0, 1)) * colTex * dot(vNormal, vec3(0, 0, -1));
                
@@ -337,7 +337,7 @@ namespace Examples.DepthVideo
             _shaderProgramS3D = RC.CreateShader(VsD, PsD);
             _textureParamS3DColor = _shaderProgramS3D.GetShaderParam("vTexture");
             _colorParamS3D = _shaderProgramS3D.GetShaderParam("vColor");
-            _textureParamS3DDepth = _shaderProgramS3D.GetShaderParam("textureDepth");
+          //  _textureParamS3DDepth = _shaderProgramS3D.GetShaderParam("textureDepth");
 
 
             //s3d render stuff
@@ -427,6 +427,7 @@ namespace Examples.DepthVideo
 
         private void RenderS3D(float4x4 rot)
         {
+            Update();
             // 3d mode
             var eyeF = new float3(0, 0, 0);
             var targetF = new float3(0, 0, 100);
@@ -475,7 +476,11 @@ namespace Examples.DepthVideo
                 Console.WriteLine("contollpos z : " + _cubePos.z);
         }
 
-        
+
+        private void Update()
+        {
+            _screenS3D.Update();
+        }
 
         // is called when the window was resized
         public override void Resize()

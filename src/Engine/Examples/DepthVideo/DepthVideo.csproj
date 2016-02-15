@@ -145,6 +145,7 @@
       <HintPath>emgudll\Emgu.Util.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
