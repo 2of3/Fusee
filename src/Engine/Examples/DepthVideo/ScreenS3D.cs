@@ -14,13 +14,13 @@ namespace Examples.DepthVideo
     {
         public Image<Bgr, byte> CurrentLeftFrame;
         public Image<Bgr, byte> CurrentRightFrame;
-     //   public Image<Gray, byte> CurrentDepthFrame;
-    //    public Image<Gray, byte> CurrentLeftDepthFrame;
-    //    public Image<Gray, byte> CurrentRightDepthFrame;
+        public Image<Gray, byte> CurrentDepthFrame;
+        //public Image<Gray, byte> CurrentLeftDepthFrame;
+        //public Image<Gray, byte> CurrentRightDepthFrame;
 
         public ImageData ImgDataLeft;
         public ImageData ImgDataRight;
-       // public ImageData ImgDataDepth;
+        public ImageData ImgDataDepth;
     }
 
     public class ScreenS3D
@@ -124,10 +124,10 @@ namespace Examples.DepthVideo
         {
             ImportVideo(_framesListLeft, pathLeftVideo, ref _framesListLeftEnumerator, videoLength);
             ImportVideo(_framesListRight, pathRightVideo, ref _framesListRightEnumerator, videoLength);
-          //  ImportVideo(_framesListDepth, pathDepthVideo, ref _framesListDepthEnumerator, 299);
+            ImportVideo(_framesListDepth, pathDepthVideo, ref _framesListDepthEnumerator, videoLength);
 
-            //ImportVideo(_framesListDepthLeft, "Assets/depthLeft.mkv", ref _framesListDepthLeftEnumerator, 299);
-            //ImportVideo(_framesListDepthRight, "Assets/depthRight.mkv", ref _framesListDepthRightEnumerator, 299);
+            //ImportVideo(_framesListDepthLeft, "Assets/depthLeft.mkv", ref _framesListDepthLeftEnumerator, 100);
+            //ImportVideo(_framesListDepthRight, "Assets/depthRight.mkv", ref _framesListDepthRightEnumerator, 100);
         }
 
         /// <summary>
@@ -219,17 +219,17 @@ namespace Examples.DepthVideo
             var imgDataRight = imgDataLeft;
             imgDataRight.PixelData = vf.CurrentRightFrame.Bytes;
             vf.ImgDataRight = imgDataRight;
-            ////Iterating over the frames List - Depth
-            //if (!_framesListDepthEnumerator.MoveNext())
-            //{
-            //    _framesListDepthEnumerator.Reset();
-            //    _framesListDepthEnumerator.MoveNext();
-            //}
-            //vf.CurrentDepthFrame = _framesListDepthEnumerator.Current;
-            //var imgDataDepth = imgDataLeft;
-            //imgDataDepth.PixelFormat = ImagePixelFormat.Gray;
-            //imgDataDepth.PixelData = vf.CurrentDepthFrame.Bytes;
-            //vf.ImgDataDepth = imgDataDepth;
+            //Iterating over the frames List - Depth
+            if (!_framesListDepthEnumerator.MoveNext())
+            {
+                _framesListDepthEnumerator.Reset();
+                _framesListDepthEnumerator.MoveNext();
+            }
+            vf.CurrentDepthFrame = _framesListDepthEnumerator.Current;
+            var imgDataDepth = imgDataLeft;
+            imgDataDepth.PixelFormat = ImagePixelFormat.Gray;
+            imgDataDepth.PixelData = vf.CurrentDepthFrame.Bytes;
+            vf.ImgDataDepth = imgDataDepth;
 
 
             ////Iterating over the frames List - Depth
@@ -249,21 +249,22 @@ namespace Examples.DepthVideo
             //vf.CurrentRightDepthFrame = _framesListDepthRightEnumerator.Current;
 
 
-           CreateDisparityMap(vf.CurrentLeftFrame.Mat, vf.CurrentRightFrame.Mat);
+            //CreateDisparityMap(vf.CurrentLeftDepthFrame.Mat, vf.CurrentRightDepthFrame.Mat);
             return vf;
         }
 
         private void CreateDisparityMap(Mat left, Mat right)
         {
             Mat _left = CvInvoke.Imread("Assets/imL.png", LoadImageType.Color);
-           Mat _right = CvInvoke.Imread("Assets/imR.png", LoadImageType.Color);
+            Mat _right = CvInvoke.Imread("Assets/imR.png", LoadImageType.Color);
             UMat leftGray = new UMat();
             UMat rightGray = new UMat();
-            CvInvoke.CvtColor(_left, leftGray, ColorConversion.Bgr2Gray);
-            CvInvoke.CvtColor(_right, rightGray, ColorConversion.Bgr2Gray);
+
+            //CvInvoke.CvtColor(left, leftGray, ColorConversion.Bgr2Gray);
+            //CvInvoke.CvtColor(right, rightGray, ColorConversion.Bgr2Gray);
             Mat disparityMap = new Mat();
 
-            Disparity(leftGray, rightGray, disparityMap);
+            Disparity(left, right, disparityMap);
             
             CvInvoke.Imshow("Disp", disparityMap.ToImage<Gray,byte>());
         }
