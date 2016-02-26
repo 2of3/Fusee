@@ -15,12 +15,14 @@ namespace Examples.DepthVideo
         public Image<Bgr, byte> CurrentLeftFrame;
         public Image<Bgr, byte> CurrentRightFrame;
         public Image<Gray, byte> CurrentDepthFrame;
-        //public Image<Gray, byte> CurrentLeftDepthFrame;
-        //public Image<Gray, byte> CurrentRightDepthFrame;
+        public Image<Gray, byte> CurrentLeftDepthFrame;
+        public Image<Gray, byte> CurrentRightDepthFrame;
 
         public ImageData ImgDataLeft;
         public ImageData ImgDataRight;
         public ImageData ImgDataDepth;
+        public ImageData ImgDataDepthLeft;
+        public ImageData ImgDataDepthRight;
     }
 
     public class ScreenS3D
@@ -31,6 +33,11 @@ namespace Examples.DepthVideo
         private IShaderParam _colorShaderParam;
         private IShaderParam _colorTextureShaderParam;
         private IShaderParam _depthTextureShaderParam;
+
+        private ShaderProgram _stereo3DShaderProgram2;
+        private IShaderParam _colorShaderParam2;
+        private IShaderParam _colorTextureShaderParam2;
+        private IShaderParam _depthTextureShaderParam2;
 
 
         private Mesh _screenMesh = new Mesh();
@@ -54,24 +61,37 @@ namespace Examples.DepthVideo
         private ITexture _iTextureLeft;
         private ITexture _iTextureRight;
         private ITexture _iTextureDepth;
+        private ITexture _iTextureDepthLeft;
+        private ITexture _iTextureDepthRight;
+
+        public float3 Position { get; set; }
+        private float3 _scaleFactor;
+        public OcclusionScreen OcclusionScreen { get; set; }
 
         //private StereoBM _stereoSolver = new StereoBM();
 
-        public ScreenS3D(RenderContext rc, Stereo3D s3d, ShaderProgram sp)
+        public ScreenS3D(RenderContext rc, Stereo3D s3D, ShaderProgram sp, ShaderProgram sp2, float3 pos)
         {
             _rc = rc;
-            _stereo3D = s3d;
+            _stereo3D = s3D;
             _stereo3DShaderProgram = sp;
             _colorShaderParam = _stereo3DShaderProgram.GetShaderParam("vColor");
             _colorTextureShaderParam = _stereo3DShaderProgram.GetShaderParam("vTexture");
-            //  _depthTextureShaderParam = _stereo3DShaderProgram.GetShaderParam("textureDepth");
-   
-
-              CreatePlaneMesh();
-
+            _depthTextureShaderParam = _stereo3DShaderProgram.GetShaderParam("textureDepth");
+            _stereo3DShaderProgram2 = sp2;
+            _colorShaderParam2 = _stereo3DShaderProgram.GetShaderParam("vColor");
+            _colorTextureShaderParam2 = _stereo3DShaderProgram.GetShaderParam("vTexture");
+            _depthTextureShaderParam2 = _stereo3DShaderProgram.GetShaderParam("textureDepth");
+            Position = pos;
+            _scaleFactor = new float3(0.64f*10, 0.48f*10, 1f);
+            CreatePlaneMesh();
         }
 
 
+        public void AddOcclusionScreen(ShaderProgram shaderProgramm, RenderContext rc)
+        {
+            OcclusionScreen = new OcclusionScreen(rc, _screenMesh, shaderProgramm, float4x4.CreateTranslation(Position), _scaleFactor);
+        }
 
         private void CreatePlaneMesh()
         {
@@ -126,8 +146,8 @@ namespace Examples.DepthVideo
             ImportVideo(_framesListRight, pathRightVideo, ref _framesListRightEnumerator, videoLength);
             ImportVideo(_framesListDepth, pathDepthVideo, ref _framesListDepthEnumerator, videoLength);
 
-            //ImportVideo(_framesListDepthLeft, "Assets/depthLeft.mkv", ref _framesListDepthLeftEnumerator, 100);
-            //ImportVideo(_framesListDepthRight, "Assets/depthRight.mkv", ref _framesListDepthRightEnumerator, 100);
+            ImportVideo(_framesListDepthLeft, "Assets/depthLeft.mkv", ref _framesListDepthLeftEnumerator, 100);
+            ImportVideo(_framesListDepthRight, "Assets/depthRight.mkv", ref _framesListDepthRightEnumerator, 100);
         }
 
         /// <summary>
@@ -219,6 +239,7 @@ namespace Examples.DepthVideo
             var imgDataRight = imgDataLeft;
             imgDataRight.PixelData = vf.CurrentRightFrame.Bytes;
             vf.ImgDataRight = imgDataRight;
+
             //Iterating over the frames List - Depth
             if (!_framesListDepthEnumerator.MoveNext())
             {
@@ -232,21 +253,31 @@ namespace Examples.DepthVideo
             vf.ImgDataDepth = imgDataDepth;
 
 
-            ////Iterating over the frames List - Depth
-            //if (!_framesListDepthLeftEnumerator.MoveNext())
-            //{
-            //    _framesListDepthLeftEnumerator.Reset();
-            //    _framesListDepthLeftEnumerator.MoveNext();
-            //}
-            //vf.CurrentLeftDepthFrame = _framesListDepthLeftEnumerator.Current;
 
-            ////Iterating over the frames List - Depth
-            //if (!_framesListDepthRightEnumerator.MoveNext())
-            //{
-            //    _framesListDepthRightEnumerator.Reset();
-            //    _framesListDepthRightEnumerator.MoveNext();
-            //}
-            //vf.CurrentRightDepthFrame = _framesListDepthRightEnumerator.Current;
+            //Iterating over the frames List - Depth Left
+            if (!_framesListDepthLeftEnumerator.MoveNext())
+            {
+                _framesListDepthLeftEnumerator.Reset();
+                _framesListDepthLeftEnumerator.MoveNext();
+            }
+            vf.CurrentLeftDepthFrame = _framesListDepthLeftEnumerator.Current;
+            var imgDataDepthLeft = imgDataLeft;
+            imgDataDepthLeft.PixelFormat = ImagePixelFormat.Gray;
+            imgDataDepthLeft.PixelData = vf.CurrentLeftDepthFrame.Bytes;
+            vf.ImgDataDepthLeft = imgDataDepthLeft;
+
+
+            //Iterating over the frames List - Depth Right
+            if (!_framesListDepthRightEnumerator.MoveNext())
+            {
+                _framesListDepthRightEnumerator.Reset();
+                _framesListDepthRightEnumerator.MoveNext();
+            }
+            vf.CurrentRightDepthFrame = _framesListDepthRightEnumerator.Current;
+            var imgDataDepthRight= imgDataLeft;
+            imgDataDepthRight.PixelFormat = ImagePixelFormat.Gray;
+            imgDataDepthRight.PixelData = vf.CurrentRightDepthFrame.Bytes;
+            vf.ImgDataDepthRight = imgDataDepthRight;
 
 
             //CreateDisparityMap(vf.CurrentLeftDepthFrame.Mat, vf.CurrentRightDepthFrame.Mat);
@@ -275,6 +306,7 @@ namespace Examples.DepthVideo
             {
                 stereoSolver.Compute(left, right, outputDisparityMap);
             }
+
         }
 
         private void CrateTextures(VideoFrames vf)
@@ -298,44 +330,67 @@ namespace Examples.DepthVideo
             }
 
             //depth texture
-            //if (vf.ImgDataDepth.PixelData != null)
-            //{
-            //    if (_iTextureDepth == null)
-            //        _iTextureDepth = _rc.CreateTexture(vf.ImgDataDepth);
+            if (vf.ImgDataDepth.PixelData != null)
+            {
+                if (_iTextureDepth == null)
+                    _iTextureDepth = _rc.CreateTexture(vf.ImgDataDepth);
 
-            //    _rc.UpdateTextureRegion(_iTextureDepth, vf.ImgDataDepth, 0, 0, vf.ImgDataDepth.Width, vf.ImgDataDepth.Height);
-            //}
+                _rc.UpdateTextureRegion(_iTextureDepth, vf.ImgDataDepth, 0, 0, vf.ImgDataDepth.Width, vf.ImgDataDepth.Height);
+            }
+
+            //depth texture left
+            if (vf.ImgDataDepthLeft.PixelData != null)
+            {
+                if (_iTextureDepthLeft == null)
+                    _iTextureDepthLeft = _rc.CreateTexture(vf.ImgDataDepthLeft);
+
+                _rc.UpdateTextureRegion(_iTextureDepthLeft, vf.ImgDataDepthLeft, 0, 0, vf.ImgDataDepthLeft.Width, vf.ImgDataDepthLeft.Height);
+            }
+
+            //depth texture right
+            if (vf.ImgDataDepthRight.PixelData != null)
+            {
+                if (_iTextureDepthRight == null)
+                    _iTextureDepthRight = _rc.CreateTexture(vf.ImgDataDepthRight);
+
+                _rc.UpdateTextureRegion(_iTextureDepthRight, vf.ImgDataDepthRight, 0, 0, vf.ImgDataDepthRight.Width, vf.ImgDataDepthRight.Height);
+            }
         }
 
         public void Update()
         {
             _videoFrames = GetCurrentVideoFrames();
             CrateTextures(_videoFrames);
-
-            //var left = _videoFrames.CurrentLeftFrame;
-            //var right = _videoFrames.CurrentRightFrame;
-            //Mat disparityMap = new Mat();
-
-            //UMat leftGray = new UMat();
-            //UMat rightGray = new UMat();
-            //CvInvoke.CvtColor(left, leftGray, ColorConversion.Bgr2Gray);
-            //CvInvoke.CvtColor(right, rightGray, ColorConversion.Bgr2Gray);
-            //var disp = CreateDisparityMap(leftGray.ToImage<Gray,byte>(), rightGray.ToImage<Gray,byte>());
-            //CvInvoke.Imshow("dipsyritymap", disp);
+            OcclusionScreen?.Update(float4x4.CreateTranslation(Position), _iTextureDepth);
         }
-      
 
-        public void RenderScreen(float4x4 rot, float4x4 lookat)
+        public void RenderLeft(float4x4 rot, float4x4 lookat)
         {
+            //left
+            _rc.SetShader(_stereo3DShaderProgram);
+            _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1, 1, 1), 1.0f));
+            _rc.SetShaderParamTexture(_colorTextureShaderParam, _iTextureLeft);
+            _rc.SetShaderParamTexture(_depthTextureShaderParam, _iTextureDepthLeft);
+            _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position) * float4x4.CreateRotationY((float)Math.PI) *
+                           float4x4.CreateScale(0.64f * 10, 0.48f * 10, 1f);
+            _rc.Render(_screenMesh);
+        }
 
-           
-           
+        public void RenderRight(float4x4 rot, float4x4 lookat)
+        {
+            _rc.SetShader(_stereo3DShaderProgram2);
+            _rc.SetShaderParam(_colorShaderParam2, new float4(new float3(1, 1, 1), 1.0f));
+            _rc.SetShaderParamTexture(_colorTextureShaderParam2, _iTextureRight);
+            _rc.SetShaderParamTexture(_depthTextureShaderParam2, _iTextureDepthRight);
+            _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position) * float4x4.CreateRotationY((float)Math.PI) *
+                           float4x4.CreateScale(0.64f * 10, 0.48f * 10, 1f);
+            _rc.Render(_screenMesh);
+        }
+        /*public void RenderScreen(float4x4 rot, float4x4 lookat)
+        {
             for (var x = 0; x < 2; x++)
             {
-                var lookAt = lookat;
-
                 var renderOnly = (_stereo3D.CurrentEye == Stereo3DEye.Left);
-                var b = 0.02f;
                 if (_stereo3D.CurrentEye == Stereo3DEye.Left)
                 {
 
@@ -343,22 +398,25 @@ namespace Examples.DepthVideo
                     _rc.SetShader(_stereo3DShaderProgram);
                     _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1, 1, 1), 1.0f));
                     _rc.SetShaderParamTexture(_colorTextureShaderParam, _iTextureLeft);
-                  //  _rc.SetShaderParamTexture(_depthTextureShaderParam, _iTextureDepth);
-                    _rc.ModelView = lookAt * rot * float4x4.CreateTranslation(0, 0, 30) *float4x4.CreateRotationY((float)Math.PI) *
+                    _rc.SetShaderParamTexture(_depthTextureShaderParam, _iTextureDepthLeft);
+                    _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position) *float4x4.CreateRotationY((float)Math.PI) *
                                    float4x4.CreateScale(0.64f * 10, 0.48f * 10, 1f);
                     _rc.Render(_screenMesh);
+                    _stereo3D.Save();
+
+
                 }
                 else
                 {
                     //right
-
                     _rc.SetShader(_stereo3DShaderProgram);
                     _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1, 1, 1), 1.0f));
                     _rc.SetShaderParamTexture(_colorTextureShaderParam, _iTextureRight);
-                //    _rc.SetShaderParamTexture(_depthTextureShaderParam, _iTextureDepth);
-                    _rc.ModelView = lookAt * rot * float4x4.CreateTranslation(0, 0, 30) *float4x4.CreateRotationY((float)Math.PI) *
+                    _rc.SetShaderParamTexture(_depthTextureShaderParam, _iTextureDepthRight);
+                    _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position)*float4x4.CreateRotationY((float)Math.PI) *
                                    float4x4.CreateScale(0.64f * 10, 0.48f * 10, 1f);
                     _rc.Render(_screenMesh);
+                    _stereo3D.Save();
                 }
 
 
@@ -367,6 +425,6 @@ namespace Examples.DepthVideo
                 if (x == 0)
                     _stereo3D.Prepare(Stereo3DEye.Right);
             }
-        }
+        }*/
     }
 }

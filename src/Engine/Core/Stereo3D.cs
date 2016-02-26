@@ -34,7 +34,7 @@ namespace Fusee.Engine
 
     internal static class Stereo3DParams
     {
-        internal static float EyeDistance = 0.65f;
+        internal static float EyeDistance = 0.065f;
         internal static float Convergence = 0f;
     }
 

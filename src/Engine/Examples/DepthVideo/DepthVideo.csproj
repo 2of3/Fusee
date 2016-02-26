@@ -49,6 +49,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
+    <Compile Include="OcclusionScreen.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ScreenS3D.cs" />
   </ItemGroup>
