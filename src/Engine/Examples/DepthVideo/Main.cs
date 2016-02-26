@@ -15,7 +15,7 @@ namespace Examples.DepthVideo
         #region S3D-Shader + Depth
 
         // GLSL
-        private const string VsD = @"
+        private const string VsS3dDepth = @"
             attribute vec4 fuColor;
             attribute vec3 fuVertex;
             attribute vec3 fuNormal;
@@ -39,7 +39,7 @@ namespace Examples.DepthVideo
                 vUV = fuUV;
             }";
 
-        private const string PsD = @"
+        private const string PsS3dDepth = @"
             #ifdef GL_ES
                 precision highp float;
             #endif
@@ -79,7 +79,7 @@ namespace Examples.DepthVideo
         #region S3D-Shader
 
         // GLSL
-        private const string Vs = @"
+        private const string VsS3D = @"
             attribute vec4 fuColor;
             attribute vec3 fuVertex;
             attribute vec3 fuNormal;
@@ -103,7 +103,7 @@ namespace Examples.DepthVideo
                 vUV = fuUV;
             }";
 
-        private const string Ps = @"
+        private const string PsS3D = @"
             #ifdef GL_ES
                 precision highp float;
             #endif
@@ -126,9 +126,67 @@ namespace Examples.DepthVideo
 
         #endregion
 
+        #region Depth Shader
+
+        // GLSL
+        private const string VsDepth = @"
+            attribute vec4 fuColor;
+            attribute vec3 fuVertex;
+            attribute vec3 fuNormal;
+            attribute vec2 fuUV;
+        
+            varying vec4 vColor;
+            varying vec3 vNormal;
+            varying vec2 vUV;
+        
+            uniform mat4 FUSEE_MV;
+            uniform mat4 FUSEE_P;
+            uniform mat4 FUSEE_ITMV;
+            varying vec4 pos;
+
+            void main()
+            {
+                mat4 FUSEE_MVP = FUSEE_P * FUSEE_MV;
+                gl_Position = FUSEE_MVP * vec4(fuVertex, 1.0);
+                vNormal = mat3(FUSEE_ITMV[0].xyz, FUSEE_ITMV[1].xyz, FUSEE_ITMV[2].xyz) * fuNormal;
+                vUV = fuUV;
+            }";
+
+        private const string PsDepth = @"
+            #ifdef GL_ES
+                precision highp float;
+            #endif
+        
+
+            uniform sampler2D textureDepth;
+          
+            varying vec3 vNormal;
+            varying vec2 vUV;
+            varying vec4 pos;
+            float zNear = 1;
+            float zFar = 100;
+            vec4 transparency = 1;
+            void main()
+            {                            
+                float depthTexValue = 1-texture(textureDepth, vUV);
+                if(depthTexValue == 1)          
+                {
+                    gl_FragDepth = 1;
+                }
+                else
+                {
+
+                    gl_FragDepth = gl_FragCoord.z + (depthTexValue-0.5)*0.1;  
+                }  
+                gl_FragColor = depthTexValue;                        
+                
+            }";
+
+        #endregion
+
         #region custom depth shader
 
-        private const string VsDepth = @"
+        private const string VsDepthCustom = @"
             #ifdef GL_ES
                 precision mediump float;
             #endif
@@ -154,7 +212,7 @@ namespace Examples.DepthVideo
                 vNormal = mat3(FUSEE_ITMV[0].xyz, FUSEE_ITMV[1].xyz, FUSEE_ITMV[2].xyz) * fuNormal;
             }";
 
-        private const string PsDepth = @"
+        private const string PsDepthCustom = @"
             #ifdef GL_ES
                 precision mediump float;
             #endif
@@ -287,21 +345,21 @@ namespace Examples.DepthVideo
         // variables to dra depthtectuer of the Scene
         private ShaderProgram _spDrawDepth;
 
-        // variables for stereocolor shader
-        private ShaderProgram _spS3DColor;
+
+        // variables for stereoshader + depth
+        private ShaderProgram _shaderProgramS3DDepth;
+
+        // variables for stereoshader-> color only
+        private ShaderProgram _shaderProgram3DColor;
         private IShaderParam _s3dColorParam;
         private IShaderParam _s3dTextureParam;
 
-        // variables for stereoshader + depth
-        private ShaderProgram _shaderProgramS3D;
-        private IShaderParam _colorParamS3D;
-        private IShaderParam _textureParamS3DColor;
-        private IShaderParam _textureParamS3DDepth;
+        //variables depth shader
+        private ShaderProgram _shaderProgramDepth;
 
-        private ShaderProgram _shaderProgramS3D2;
-        private IShaderParam _colorParamS3D2;
-        private IShaderParam _textureParamS3DColor2;
-        private IShaderParam _textureParamS3DDepth2;
+        // 2D color shader
+        private ShaderProgram _colorShader;
+        private IShaderParam _color;
 
         private ITexture _iTexture;
 
@@ -329,31 +387,29 @@ namespace Examples.DepthVideo
             _meshCube = MeshReader.LoadMesh(@"Assets/Cube.obj.model");
             _meshTeapot = MeshReader.LoadMesh(@"Assets/Teapot.obj.model");
 
-            //stereoshader
-            _spS3DColor = RC.CreateShader(Vs, Ps);
-            _s3dColorParam = _spS3DColor.GetShaderParam("vColor");
-            _s3dTextureParam = _spS3DColor.GetShaderParam("vTexture");
+            //stereoshader -> color only
+            _shaderProgram3DColor = RC.CreateShader(VsS3D, PsS3D);
+            _s3dColorParam = _shaderProgram3DColor.GetShaderParam("vColor");
+            _s3dTextureParam = _shaderProgram3DColor.GetShaderParam("vTexture");
 
-            //stereoshader +depth
-            _shaderProgramS3D = RC.CreateShader(VsD, PsD);
-            _textureParamS3DColor = _shaderProgramS3D.GetShaderParam("vTexture");
-            _colorParamS3D = _shaderProgramS3D.GetShaderParam("vColor");
-            _textureParamS3DDepth = _shaderProgramS3D.GetShaderParam("textureDepth");
+            //stereoshader -> color+depth combo
+            _shaderProgramS3DDepth = RC.CreateShader(VsS3dDepth, PsS3dDepth);
 
-            //stereoshader +depth
-            _shaderProgramS3D2 = RC.CreateShader(VsD, PsD);
-            _textureParamS3DColor2 = _shaderProgramS3D.GetShaderParam("vTexture");
-            _colorParamS3D2 = _shaderProgramS3D.GetShaderParam("vColor");
-            _textureParamS3DDepth2 = _shaderProgramS3D.GetShaderParam("textureDepth");
+            //depthshader -> depth only
+            _shaderProgramDepth = RC.CreateShader(VsDepth, PsDepth);
 
+            //normal 2D color Shader
+            _colorShader = Shaders.GetColorShader(RC);
+            _color = _colorShader.GetShaderParam("color");
 
             //s3d render stuff
             _stereo3D = new Stereo3D(Stereo3DMode.Anaglyph, Width, Height);
             _stereo3D.AttachToContext(RC);
 
             //Set up screen object
-            _screenS3D = new ScreenS3D(RC, _stereo3D, _shaderProgramS3D, _shaderProgramS3D2, new float3(0,0,10));
+            _screenS3D = new ScreenS3D(RC, _stereo3D, _shaderProgramS3DDepth, new float3(0,0,10));
             _screenS3D.SetVideo("Assets/left.mkv", "Assets/right.mkv", "Assets/depthCenter.mkv", 100);
+
 
             Console.WriteLine(Width + " " + Height);         
 
@@ -365,6 +421,11 @@ namespace Examples.DepthVideo
         public override void RenderAFrame()
         {
             RC.Clear(ClearFlags.Color | ClearFlags.Depth);
+
+            //Update
+            Update();
+
+            //Esc -> close Application
             if (Input.Instance.IsKey(KeyCodes.Escape))
                 CloseGameWindow();
             // move per keyboard
@@ -380,11 +441,7 @@ namespace Examples.DepthVideo
             if (Input.Instance.IsKey(KeyCodes.Down))
                 _cubePos.z += 0.5f;
 
-            //Hit
-            if (Input.Instance.IsKey(KeyCodes.Add))
-                hit -= 0.001f;
-            if (Input.Instance.IsKey(KeyCodes.Subtract))
-                hit += 0.001f;
+            
 
 
             // move per mouse
@@ -406,21 +463,13 @@ namespace Examples.DepthVideo
 
 
             var mtxRot = float4x4.CreateRotationX(_angleVert)*float4x4.CreateRotationY(_angleHorz);
-           
-            // var mtxCam = float4x4.LookAt(0, 0, 0, 0, 0, 10, 0, 1, 0);
+            var mtxCam = float4x4.LookAt(0, 0, 0, 0, 0, 100, 0, 1, 0);
 
-            // var q = new Quaternion(float3.UnitY, 180);
 
-            //RC.SetShader(_spDepth);
-            //var bbpos = RC.ModelView = mtxCam * mtxRot  * float4x4.CreateTranslation(0, 0, 4) * float4x4.CreateRotationY((float)Math.PI)* float4x4.CreateScale(2, 2, 1);
-            //RC.SetShaderParamTexture(_textureColorParam, _iTextureColor);
-            //RC.SetShaderParamTexture(_textureDepthParam, _iTextureDepth);
-            //RC.SetShaderParam(_textureScaleParam,7f);
-            //RC.Render(_meshPlane);
 
-            //RC.SetShader(_spDrawDepth);
-            //var planepos = RC.ModelView = mtxCam * mtxRot * float4x4.CreateTranslation(-_cubePos.x, 0, _cubePos.z) * float4x4.CreateRotationY((float)Math.PI) * float4x4.CreateScale(2, 2, 1);
-            //RC.Render(_meshPlane);
+            RC.SetShader(_colorShader);
+            RC.ModelView = mtxCam * mtxRot * float4x4.CreateTranslation(-_cubePos.x, 2, _cubePos.z)  * float4x4.CreateScale(0.05f);
+            RC.Render(_meshCube);
 
 
             //if (Input.Instance.IsKey(KeyCodes.P))
@@ -428,13 +477,14 @@ namespace Examples.DepthVideo
 
 
             RenderS3D(mtxRot);
-
+            
             Present();
+            
         }
 
         private void RenderS3D(float4x4 rot)
         {
-            Update();
+           
             // 3d mode
             var eyeF = new float3(0, 0, 0);
             var targetF = new float3(0, 0, 100);
@@ -450,29 +500,21 @@ namespace Examples.DepthVideo
                 var b = 0.02f;
                 if (_stereo3D.CurrentEye == Stereo3DEye.Left)
                 {
-                    
-                    RC.SetShader(_spS3DColor);
-
-                    RC.SetShaderParam(_s3dColorParam, new float4(new float3(1, 1, 1), b));
-                    RC.SetShaderParamTexture(_s3dTextureParam, _iTexture);
-                    RC.ModelView = lookAt*rot*float4x4.CreateTranslation(_cubePos.x - 5, 0, _cubePos.z)*
-                                   float4x4.CreateRotationY((float) Math.PI/3)*float4x4.CreateScale(0.01f);
-                    RC.Render(_meshCube);
-
                     _screenS3D.RenderLeft(rot,lookAt);
                 }
                 else
                 {
-                    RC.SetShader(_spS3DColor);
-
-                    RC.SetShaderParam(_s3dColorParam, new float4(new float3(1, 1, 1), b));
-                    RC.SetShaderParamTexture(_s3dTextureParam, _iTexture);
-                    RC.ModelView = lookAt*rot*float4x4.CreateTranslation(_cubePos.x - 5, 0, _cubePos.z)*
-                                   float4x4.CreateRotationY((float) Math.PI/3)*float4x4.CreateScale(0.01f);
-                    RC.Render(_meshCube);
                     _screenS3D.RenderRight(rot, lookAt);
-
                 }
+
+
+                
+                RC.SetShader(_shaderProgram3DColor);
+                RC.SetShaderParam(_s3dColorParam, new float4(new float3(1, 1, 1), b));
+                RC.SetShaderParamTexture(_s3dTextureParam, _iTexture);
+                RC.ModelView = lookAt * rot * float4x4.CreateTranslation(_cubePos.x - 5, 0, _cubePos.z) *
+                               float4x4.CreateRotationY((float)Math.PI / 3) * float4x4.CreateScale(0.01f);
+                RC.Render(_meshCube);
 
 
                 _stereo3D.Save();

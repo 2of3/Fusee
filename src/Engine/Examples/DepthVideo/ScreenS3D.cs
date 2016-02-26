@@ -34,10 +34,7 @@ namespace Examples.DepthVideo
         private IShaderParam _colorTextureShaderParam;
         private IShaderParam _depthTextureShaderParam;
 
-        private ShaderProgram _stereo3DShaderProgram2;
-        private IShaderParam _colorShaderParam2;
-        private IShaderParam _colorTextureShaderParam2;
-        private IShaderParam _depthTextureShaderParam2;
+
 
 
         private Mesh _screenMesh = new Mesh();
@@ -66,32 +63,28 @@ namespace Examples.DepthVideo
 
         public float3 Position { get; set; }
         private float3 _scaleFactor;
-        public OcclusionScreen OcclusionScreen { get; set; }
+
+        public float Hit { get; private set; }
 
         //private StereoBM _stereoSolver = new StereoBM();
 
-        public ScreenS3D(RenderContext rc, Stereo3D s3D, ShaderProgram sp, ShaderProgram sp2, float3 pos)
+        public ScreenS3D(RenderContext rc, Stereo3D s3D, ShaderProgram sp, float3 pos)
         {
+            Hit = 0;
             _rc = rc;
             _stereo3D = s3D;
             _stereo3DShaderProgram = sp;
             _colorShaderParam = _stereo3DShaderProgram.GetShaderParam("vColor");
             _colorTextureShaderParam = _stereo3DShaderProgram.GetShaderParam("vTexture");
             _depthTextureShaderParam = _stereo3DShaderProgram.GetShaderParam("textureDepth");
-            _stereo3DShaderProgram2 = sp2;
-            _colorShaderParam2 = _stereo3DShaderProgram.GetShaderParam("vColor");
-            _colorTextureShaderParam2 = _stereo3DShaderProgram.GetShaderParam("vTexture");
-            _depthTextureShaderParam2 = _stereo3DShaderProgram.GetShaderParam("textureDepth");
+
             Position = pos;
             _scaleFactor = new float3(0.64f*10, 0.48f*10, 1f);
             CreatePlaneMesh();
         }
 
 
-        public void AddOcclusionScreen(ShaderProgram shaderProgramm, RenderContext rc)
-        {
-            OcclusionScreen = new OcclusionScreen(rc, _screenMesh, shaderProgramm, float4x4.CreateTranslation(Position), _scaleFactor);
-        }
+
 
         private void CreatePlaneMesh()
         {
@@ -361,7 +354,14 @@ namespace Examples.DepthVideo
         {
             _videoFrames = GetCurrentVideoFrames();
             CrateTextures(_videoFrames);
-            OcclusionScreen?.Update(float4x4.CreateTranslation(Position), _iTextureDepth);
+           
+
+
+            //Hit
+            if (Input.Instance.IsKey(KeyCodes.Add))
+                Hit += 0.001f;
+            if (Input.Instance.IsKey(KeyCodes.Subtract))
+                Hit -= 0.001f;
         }
 
         public void RenderLeft(float4x4 rot, float4x4 lookat)
@@ -371,19 +371,19 @@ namespace Examples.DepthVideo
             _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1, 1, 1), 1.0f));
             _rc.SetShaderParamTexture(_colorTextureShaderParam, _iTextureLeft);
             _rc.SetShaderParamTexture(_depthTextureShaderParam, _iTextureDepthLeft);
-            _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position) * float4x4.CreateRotationY((float)Math.PI) *
-                           float4x4.CreateScale(0.64f * 10, 0.48f * 10, 1f);
+            _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position)*float4x4.CreateTranslation(-Hit/2,0,0) * float4x4.CreateRotationY((float)Math.PI) *
+                           float4x4.CreateScale(_scaleFactor);
             _rc.Render(_screenMesh);
         }
 
         public void RenderRight(float4x4 rot, float4x4 lookat)
         {
-            _rc.SetShader(_stereo3DShaderProgram2);
-            _rc.SetShaderParam(_colorShaderParam2, new float4(new float3(1, 1, 1), 1.0f));
-            _rc.SetShaderParamTexture(_colorTextureShaderParam2, _iTextureRight);
-            _rc.SetShaderParamTexture(_depthTextureShaderParam2, _iTextureDepthRight);
-            _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position) * float4x4.CreateRotationY((float)Math.PI) *
-                           float4x4.CreateScale(0.64f * 10, 0.48f * 10, 1f);
+            _rc.SetShader(_stereo3DShaderProgram);
+            _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1, 1, 1), 1.0f));
+            _rc.SetShaderParamTexture(_colorTextureShaderParam, _iTextureRight);
+            _rc.SetShaderParamTexture(_depthTextureShaderParam, _iTextureDepthRight);
+            _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position) * float4x4.CreateTranslation(+Hit/2, 0, 0) * float4x4.CreateRotationY((float)Math.PI) *
+                           float4x4.CreateScale(_scaleFactor);
             _rc.Render(_screenMesh);
         }
         /*public void RenderScreen(float4x4 rot, float4x4 lookat)
