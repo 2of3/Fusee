@@ -14,13 +14,13 @@ namespace Examples.DepthVideo
     {
         public Image<Bgr, byte> CurrentLeftFrame;
         public Image<Bgr, byte> CurrentRightFrame;
-        public Image<Gray, byte> CurrentDepthFrame;
+       // public Image<Gray, byte> CurrentDepthFrame;
         public Image<Gray, byte> CurrentLeftDepthFrame;
         public Image<Gray, byte> CurrentRightDepthFrame;
 
         public ImageData ImgDataLeft;
         public ImageData ImgDataRight;
-        public ImageData ImgDataDepth;
+      //  public ImageData ImgDataDepth;
         public ImageData ImgDataDepthLeft;
         public ImageData ImgDataDepthRight;
     }
@@ -41,14 +41,14 @@ namespace Examples.DepthVideo
 
         private List<Image<Bgr, byte>> _framesListLeft = new List<Image<Bgr, byte>>();
         private List<Image<Bgr, byte>> _framesListRight = new List<Image<Bgr, byte>>();
-        private List<Image<Gray, byte>> _framesListDepth = new List<Image<Gray, byte>>();
+      //  private List<Image<Gray, byte>> _framesListDepth = new List<Image<Gray, byte>>();
         private List<Image<Gray, byte>> _framesListDepthLeft = new List<Image<Gray, byte>>();
         private List<Image<Gray, byte>> _framesListDepthRight = new List<Image<Gray, byte>>();
 
 
         private IEnumerator<Image<Bgr, byte>> _framesListLeftEnumerator;
         private IEnumerator<Image<Bgr, byte>> _framesListRightEnumerator;
-        private IEnumerator<Image<Gray, byte>> _framesListDepthEnumerator;
+       // private IEnumerator<Image<Gray, byte>> _framesListDepthEnumerator;
         private IEnumerator<Image<Gray, byte>> _framesListDepthLeftEnumerator;
         private IEnumerator<Image<Gray, byte>> _framesListDepthRightEnumerator;
 
@@ -137,7 +137,7 @@ namespace Examples.DepthVideo
         {
             ImportVideo(_framesListLeft, pathLeftVideo, ref _framesListLeftEnumerator, videoLength);
             ImportVideo(_framesListRight, pathRightVideo, ref _framesListRightEnumerator, videoLength);
-            ImportVideo(_framesListDepth, pathDepthVideo, ref _framesListDepthEnumerator, videoLength);
+            //ImportVideo(_framesListDepth, pathDepthVideo, ref _framesListDepthEnumerator, videoLength);
 
             ImportVideo(_framesListDepthLeft, "Assets/depthLeft.mkv", ref _framesListDepthLeftEnumerator, 100);
             ImportVideo(_framesListDepthRight, "Assets/depthRight.mkv", ref _framesListDepthRightEnumerator, 100);
@@ -233,17 +233,17 @@ namespace Examples.DepthVideo
             imgDataRight.PixelData = vf.CurrentRightFrame.Bytes;
             vf.ImgDataRight = imgDataRight;
 
-            //Iterating over the frames List - Depth
-            if (!_framesListDepthEnumerator.MoveNext())
-            {
-                _framesListDepthEnumerator.Reset();
-                _framesListDepthEnumerator.MoveNext();
-            }
-            vf.CurrentDepthFrame = _framesListDepthEnumerator.Current;
-            var imgDataDepth = imgDataLeft;
-            imgDataDepth.PixelFormat = ImagePixelFormat.Gray;
-            imgDataDepth.PixelData = vf.CurrentDepthFrame.Bytes;
-            vf.ImgDataDepth = imgDataDepth;
+            ////Iterating over the frames List - Depth
+            //if (!_framesListDepthEnumerator.MoveNext())
+            //{
+            //    _framesListDepthEnumerator.Reset();
+            //    _framesListDepthEnumerator.MoveNext();
+            //}
+            //vf.CurrentDepthFrame = _framesListDepthEnumerator.Current;
+            //var imgDataDepth = imgDataLeft;
+            //imgDataDepth.PixelFormat = ImagePixelFormat.Gray;
+            //imgDataDepth.PixelData = vf.CurrentDepthFrame.Bytes;
+            //vf.ImgDataDepth = imgDataDepth;
 
 
 
@@ -322,14 +322,14 @@ namespace Examples.DepthVideo
                 _rc.UpdateTextureRegion(_iTextureRight, vf.ImgDataRight, 0, 0, vf.ImgDataRight.Width, vf.ImgDataRight.Height);
             }
 
-            //depth texture
-            if (vf.ImgDataDepth.PixelData != null)
-            {
-                if (_iTextureDepth == null)
-                    _iTextureDepth = _rc.CreateTexture(vf.ImgDataDepth);
+            ////depth texture
+            //if (vf.ImgDataDepth.PixelData != null)
+            //{
+            //    if (_iTextureDepth == null)
+            //        _iTextureDepth = _rc.CreateTexture(vf.ImgDataDepth);
 
-                _rc.UpdateTextureRegion(_iTextureDepth, vf.ImgDataDepth, 0, 0, vf.ImgDataDepth.Width, vf.ImgDataDepth.Height);
-            }
+            //    _rc.UpdateTextureRegion(_iTextureDepth, vf.ImgDataDepth, 0, 0, vf.ImgDataDepth.Width, vf.ImgDataDepth.Height);
+            //}
 
             //depth texture left
             if (vf.ImgDataDepthLeft.PixelData != null)

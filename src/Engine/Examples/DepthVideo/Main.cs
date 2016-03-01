@@ -441,8 +441,13 @@ namespace Examples.DepthVideo
             if (Input.Instance.IsKey(KeyCodes.Down))
                 _cubePos.z += 0.5f;
 
-            
 
+
+            if (Input.Instance.IsKey(KeyCodes.W))
+                _screenS3D.Position += new float3(0,0,0.02f);
+
+            if (Input.Instance.IsKey(KeyCodes.S))
+                _screenS3D.Position += new float3(0, 0, -0.02f);
 
             // move per mouse
             if (Input.Instance.IsButton(MouseButtons.Left))
