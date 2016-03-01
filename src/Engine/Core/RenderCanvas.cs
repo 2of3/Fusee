@@ -254,6 +254,7 @@ namespace Fusee.Engine
             Time.Instance.Dispose();
             Input.Instance.Dispose();
             Network.Instance.Dispose();
+           // VideoManager.Instance.Dispose();
         }
 
         /// <summary>

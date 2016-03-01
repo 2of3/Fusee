@@ -25,6 +25,12 @@ namespace Fusee.Engine
             return _videoManagerImp.CreateVideoStreamImpFromCamera(cameraIndex, useAudio);
         }
 
+        internal void Dispose()
+        {
+            _instance._videoManagerImp.Dispose();
+            _instance = null;
+        }
+
         public static VideoManager Instance
         {
             get { return _instance ?? (_instance = new VideoManager()); }

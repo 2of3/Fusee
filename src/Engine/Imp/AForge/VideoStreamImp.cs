@@ -37,6 +37,7 @@ namespace Fusee.Engine
             _videoCaptureDevice.NewFrame += NextFrame;
             _videoCaptureDevice.VideoSourceError += VideoSourceError;
             _videoCaptureDevice.Start();
+            
         }
         #endregion
 
@@ -123,6 +124,12 @@ namespace Fusee.Engine
             _source.Start();
         }
         #endregion
+
+        public void Dispose()
+        {
+           
+            _source.Stop();
+        }
     }
 }
 
