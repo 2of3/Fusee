@@ -833,11 +833,6 @@ namespace Fusee.Engine
         }
 
 
-        public void DrawDepth()
-        {
-            
-        }
-
         /// <summary>
         /// Binds the vertices onto the GL Rendercontext and assigns an VertexBuffer index to the passed <see cref="IMeshImp" /> instance.
         /// </summary>
