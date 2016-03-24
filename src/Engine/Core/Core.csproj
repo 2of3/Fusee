@@ -104,6 +104,7 @@
     <Compile Include="RenderStateSet.cs" />
     <Compile Include="ShaderEffect.cs" />
     <Compile Include="Stereo3D.cs" />
+    <Compile Include="StereoCameraRig.cs" />
     <Compile Include="Time.cs" />
     <Compile Include="VideoManager.cs" />
     <Compile Include="VideoStream.cs" />

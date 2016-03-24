@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using Emgu.CV;
 using Emgu.CV.Cuda;
 using Emgu.CV.Structure;
 using Emgu.CV.CvEnum;
-
+using Emgu.CV.Features2D;
+using Emgu.CV.Util;
 using Emgu.CV.XFeatures2D;
 using Fusee.Engine;
 using Fusee.Math;
@@ -28,7 +30,6 @@ namespace Examples.DepthVideo
     {
 
         #region S3D-Shader + Depth
-
         // GLSL
         private const string VsS3dDepth = @"
             attribute vec4 fuColor;
@@ -46,11 +47,8 @@ namespace Examples.DepthVideo
             uniform mat4 FUSEE_MVP;
 
             void main()
-            {
-               
+            {               
                 gl_Position = FUSEE_MVP * vec4(fuVertex, 1.0);
-
-                //pos = FUSEE_MV[3];
                 vNormal = mat3(FUSEE_ITMV[0].xyz, FUSEE_ITMV[1].xyz, FUSEE_ITMV[2].xyz) * fuNormal;
                 vUV = fuUV;
             }";
@@ -68,11 +66,10 @@ namespace Examples.DepthVideo
 
             void main()
             {
-                vec4 colTex = vColor * texture2D(vTexture, vUV);
-               
+                vec4 colTex = vColor * texture2D(vTexture, vUV);               
                 
-                float depthTexValue = texture(textureDepth, vUV);
-                if(depthTexValue == 0)          
+                float depthTexValue = 1- texture(textureDepth, vUV);
+                if(depthTexValue > 0.9)          
                 {
                     gl_FragDepth = 1;
                 }
@@ -82,8 +79,7 @@ namespace Examples.DepthVideo
                     gl_FragDepth = gl_FragCoord.z + (depthTexValue-0.5)*0.15;  
                 }
                 
-                gl_FragColor = dot(vColor, vec4(0, 0, 0, 1)) * colTex * dot(vNormal, vec3(0, 0, -1));
-               
+                gl_FragColor = dot(vColor, vec4(0, 0, 0, 1)) * colTex * dot(vNormal, vec3(0, 0, -1));        
                 
             }";
 
@@ -127,7 +123,7 @@ namespace Examples.DepthVideo
 
         public float Hit { get; private set; }
 
-        //private StereoBM _stereoSolver = new StereoBM();
+        private StereoBM _stereoSolver = new StereoBM();
         private ITexture iTexLeft;
         private ITexture iTexRight;
 
@@ -154,6 +150,8 @@ namespace Examples.DepthVideo
             var faktor = 10;
             _scaleFactor = new float3(0.64f* faktor, 0.48f* faktor, 1f);
             CreatePlaneMesh();
+
+            //CalcEpipolar();
         }
 
        
@@ -307,20 +305,6 @@ namespace Examples.DepthVideo
             imgDataRight.PixelData = vf.CurrentRightFrame.Bytes;
             vf.ImgDataRight = imgDataRight;
 
-            ////Iterating over the frames List - Depth
-            //if (!_framesListDepthEnumerator.MoveNext())
-            //{
-            //    _framesListDepthEnumerator.Reset();
-            //    _framesListDepthEnumerator.MoveNext();
-            //}
-            //vf.CurrentDepthFrame = _framesListDepthEnumerator.Current;
-            //var imgDataDepth = imgDataLeft;
-            //imgDataDepth.PixelFormat = ImagePixelFormat.Gray;
-            //imgDataDepth.PixelData = vf.CurrentDepthFrame.Bytes;
-            //vf.ImgDataDepth = imgDataDepth;
-
-
-
             //Iterating over the frames List - Depth Left
             if (!_framesListDepthLeftEnumerator.MoveNext())
             {
@@ -350,7 +334,57 @@ namespace Examples.DepthVideo
             //CreateDisparityMap(vf.CurrentLeftDepthFrame.Mat, vf.CurrentRightDepthFrame.Mat);
             return vf;
         }
-        
+
+
+        private void CalcEpipolar()
+        {
+
+            Image<Bgr, byte> left = CvInvoke.Imread("Assets/imL.png", LoadImageType.Color).ToImage<Bgr, byte>();
+            Image<Bgr, byte> right = CvInvoke.Imread("Assets/imR.png", LoadImageType.Color).ToImage<Bgr, byte>();
+            //  var diff = left.AbsDiff(right);
+
+            VectorOfVectorOfDMatch matches = new VectorOfVectorOfDMatch();
+            SURF surfCPU = new SURF(300);
+            int k = 2;
+            UMat leftDescriptors = new UMat();
+            UMat rightDescriptors = new UMat();
+            VectorOfKeyPoint leftKeyPoints = new VectorOfKeyPoint();
+            VectorOfKeyPoint rightKeyPoints = new VectorOfKeyPoint();
+            surfCPU.DetectAndCompute(left, null, leftKeyPoints, leftDescriptors, false);
+            surfCPU.DetectAndCompute(right, null, rightKeyPoints, rightDescriptors, false);
+
+            BFMatcher matcher = new BFMatcher(DistanceType.L2);
+            matcher.Add(leftDescriptors);
+
+            matcher.KnnMatch(rightDescriptors, matches, k, null);
+            Mat mask = new Mat(matches.Size, 1, DepthType.Cv8U, 1);
+            mask.SetTo(new MCvScalar(255));
+
+              CvInvoke.Imshow("Diff", mask);
+
+            Mat _left = CvInvoke.Imread("Assets/imL.png", LoadImageType.Color);
+            Mat _right = CvInvoke.Imread("Assets/imR.png", LoadImageType.Color);
+            
+            // computeCorrespondEpilines
+            Feature2D f2d = new FastDetector();
+            var kpL = f2d.Detect(_left);
+            var kpR = f2d.Detect(_right);
+
+            for (int i = 0; i < kpL.Length; i++)
+            {
+
+                
+                var dx = kpL[i].Point.X - kpR[i].Point.X;
+                var dy = kpL[i].Point.Y - kpR[i].Point.Y;
+
+                if (dy != 0)
+                {
+                    Console.WriteLine(i+": L: "+ kpL[i].Point + ",  R: "+ kpR[i].Point + ", diff: "+ dx);
+                }
+            }
+            //CvInvoke.ComputeCorrespondEpilines();
+        }
+
 
         private void CreateDisparityMap(Mat left, Mat right)
         {
@@ -359,6 +393,7 @@ namespace Examples.DepthVideo
             UMat leftGray = new UMat();
             UMat rightGray = new UMat();
 
+            
             //CvInvoke.CvtColor(left, leftGray, ColorConversion.Bgr2Gray);
             //CvInvoke.CvtColor(right, rightGray, ColorConversion.Bgr2Gray);
             Mat disparityMap = new Mat();
@@ -372,7 +407,10 @@ namespace Examples.DepthVideo
         {
             using (StereoBM stereoSolver = new StereoBM())
             {
+  
+                
                 stereoSolver.Compute(left, right, outputDisparityMap);
+                
             }
 
         }
@@ -475,7 +513,7 @@ namespace Examples.DepthVideo
             }
 
             _rc.SetShader(_stereo3DShaderProgram);
-            _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1, 1, 1), 1.0f));
+            _rc.SetShaderParam(_colorShaderParam, new float4(new float3(0, 1, 0), 1.0f));
             _rc.SetShaderParamTexture(_colorTextureShaderParam, textureColor);
             _rc.SetShaderParamTexture(_depthTextureShaderParam, textureDepth);
             _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position) * float4x4.CreateTranslation(hit,0,0)*  float4x4.CreateScale(_scaleFactor);
@@ -484,13 +522,12 @@ namespace Examples.DepthVideo
 
         public void RenderLeft(float4x4 rot, float4x4 lookat)
         {
-           
             //left
             _rc.SetShader(_stereo3DShaderProgram);
-            _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1, 1, 1), 1.0f));
+            _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1,1,1), 1.0f));
             _rc.SetShaderParamTexture(_colorTextureShaderParam, _iTextureLeft);
             _rc.SetShaderParamTexture(_depthTextureShaderParam, _iTextureDepthLeft);
-            _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position)* float4x4.CreateTranslation(Hit, 0, 0)  * float4x4.CreateScale(_scaleFactor);
+            _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position)  * float4x4.CreateTranslation(0.15f, 0,0) * float4x4.CreateScale(_scaleFactor);
             _rc.Render(ScreenMesh);
         }
 
@@ -498,51 +535,11 @@ namespace Examples.DepthVideo
         {
             
             _rc.SetShader(_stereo3DShaderProgram);
-            _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1, 1, 1), 1.0f));
+            _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1,1,1), 1.0f));
             _rc.SetShaderParamTexture(_colorTextureShaderParam, _iTextureRight);
-             _rc.SetShaderParamTexture(_depthTextureShaderParam, _iTextureDepthRight);
-            _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position)  * float4x4.CreateTranslation(-Hit, 0, 0)   *float4x4.CreateScale(_scaleFactor);
+            _rc.SetShaderParamTexture(_depthTextureShaderParam, _iTextureDepthRight);
+            _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position) * float4x4.CreateTranslation(-0.15f, 0, 0)  *float4x4.CreateScale(_scaleFactor);
             _rc.Render(ScreenMesh);
         }
-        /*public void RenderScreen(float4x4 rot, float4x4 lookat)
-        {
-            for (var x = 0; x < 2; x++)
-            {
-                var renderOnly = (_stereo3D.CurrentEye == Stereo3DEye.Left);
-                if (_stereo3D.CurrentEye == Stereo3DEye.Left)
-                {
-
-                    //left
-                    _rc.SetShader(_stereo3DShaderProgram);
-                    _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1, 1, 1), 1.0f));
-                    _rc.SetShaderParamTexture(_colorTextureShaderParam, _iTextureLeft);
-                    _rc.SetShaderParamTexture(_depthTextureShaderParam, _iTextureDepthLeft);
-                    _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position) *float4x4.CreateRotationY((float)Math.PI) *
-                                   float4x4.CreateScale(0.64f * 10, 0.48f * 10, 1f);
-                    _rc.Render(ScreenMesh);
-                    _stereo3D.Save();
-
-
-                }
-                else
-                {
-                    //right
-                    _rc.SetShader(_stereo3DShaderProgram);
-                    _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1, 1, 1), 1.0f));
-                    _rc.SetShaderParamTexture(_colorTextureShaderParam, _iTextureRight);
-                    _rc.SetShaderParamTexture(_depthTextureShaderParam, _iTextureDepthRight);
-                    _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position)*float4x4.CreateRotationY((float)Math.PI) *
-                                   float4x4.CreateScale(0.64f * 10, 0.48f * 10, 1f);
-                    _rc.Render(ScreenMesh);
-                    _stereo3D.Save();
-                }
-
-
-                _stereo3D.Save();
-
-                if (x == 0)
-                    _stereo3D.Prepare(Stereo3DEye.Right);
-            }
-        }*/
     }
 }

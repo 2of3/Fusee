@@ -1,4 +1,5 @@
-﻿using Fusee.Math;
+﻿using System;
+using Fusee.Math;
 
 namespace Fusee.Engine
 {
@@ -389,8 +390,10 @@ namespace Fusee.Engine
         /// <param name="target">The target.</param>
         /// <param name="up">Up vector.</param>
         /// <returns>A Matrix that represents the current eye's orientation towards a target point.</returns>
-        public float4x4 LookAt3D(Stereo3DEye eye, float3 eyeV, float3 target, float3 up)
+        public string text;
+        public virtual float4x4 LookAt3D(Stereo3DEye eye, float3 eyeV, float3 target, float3 up)
         {
+
             var x = (eye == Stereo3DEye.Left)
                 ? eyeV.x - Stereo3DParams.EyeDistance
                 : eyeV.x + Stereo3DParams.EyeDistance;
