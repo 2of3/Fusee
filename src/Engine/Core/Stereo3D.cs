@@ -35,7 +35,7 @@ namespace Fusee.Engine
 
     internal static class Stereo3DParams
     {
-        internal static float EyeDistance = 0.065f;
+        internal static float EyeDistance = 0.05f;
         internal static float Convergence = 0f;
     }
 
@@ -44,7 +44,7 @@ namespace Fusee.Engine
     /// </summary>
     public class Stereo3D
     {
-        private RenderContext _rc;
+        protected RenderContext _rc;
         private float4 _clearColor;
 
         private readonly Stereo3DMode _activeMode;
@@ -67,8 +67,8 @@ namespace Fusee.Engine
         private ShaderProgram _shaderProgram;
         private IShaderParam _shaderTexture;
 
-        private readonly int _screenWidth;
-        private readonly int _screenHeight;
+        private int _screenWidth;
+        private int _screenHeight;
 
         #region Stereo3D Shaders
 
@@ -233,11 +233,19 @@ namespace Fusee.Engine
             }
         }
 
+
+        public void UpdateOnResize(int width, int height)
+        {
+            _screenWidth = width;
+            _screenHeight = height;
+          
+        }
+
         /// <summary>
         /// Prepares the specified eye side for 3D rendering.
         /// </summary>
         /// <param name="eye">The <see cref="Stereo3DEye"/>.</param>
-        public void Prepare(Stereo3DEye eye)
+        public virtual void Prepare(Stereo3DEye eye)
         {
             _currentEye = eye;
 
