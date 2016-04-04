@@ -61,13 +61,14 @@ namespace Examples.DepthVideo
             uniform sampler2D vTexture;
             uniform sampler2D textureDepth;
             uniform vec4 vColor;
+
             varying vec3 vNormal;
             varying vec2 vUV;
 
             void main()
             {
                 vec4 colTex = vColor * texture2D(vTexture, vUV);               
-                
+             
                 float depthTexValue = 1- texture(textureDepth, vUV);
                 if(depthTexValue > 0.9)          
                 {
@@ -75,8 +76,8 @@ namespace Examples.DepthVideo
                 }
                 else
                 {
-
-                    gl_FragDepth = gl_FragCoord.z + (depthTexValue-0.5)*0.15;  
+    
+                    gl_FragDepth = gl_FragCoord.z + (depthTexValue-0.5)*0.001;  
                 }
                 
                 gl_FragColor = dot(vColor, vec4(0, 0, 0, 1)) * colTex * dot(vNormal, vec3(0, 0, -1));        
@@ -513,33 +514,35 @@ namespace Examples.DepthVideo
             }
 
             _rc.SetShader(_stereo3DShaderProgram);
-            _rc.SetShaderParam(_colorShaderParam, new float4(new float3(0, 1, 0), 1.0f));
+            _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1, 1, 1), 1.0f));
             _rc.SetShaderParamTexture(_colorTextureShaderParam, textureColor);
             _rc.SetShaderParamTexture(_depthTextureShaderParam, textureDepth);
             _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position) * float4x4.CreateTranslation(hit,0,0)*  float4x4.CreateScale(_scaleFactor);
             _rc.Render(ScreenMesh);
         }
 
-        public void RenderLeft(float4x4 rot, float4x4 lookat)
-        {
-            //left
-            _rc.SetShader(_stereo3DShaderProgram);
-            _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1,1,1), 1.0f));
-            _rc.SetShaderParamTexture(_colorTextureShaderParam, _iTextureLeft);
-            _rc.SetShaderParamTexture(_depthTextureShaderParam, _iTextureDepthLeft);
-            _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position)  * float4x4.CreateTranslation(0.15f, 0,0) * float4x4.CreateScale(_scaleFactor);
-            _rc.Render(ScreenMesh);
-        }
+        #region alt
+        //public void RenderLeft(float4x4 rot, float4x4 lookat)
+        //{
+        //    //left
+        //    _rc.SetShader(_stereo3DShaderProgram);
+        //    _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1,1,1), 1.0f));
+        //    _rc.SetShaderParamTexture(_colorTextureShaderParam, _iTextureLeft);
+        //    _rc.SetShaderParamTexture(_depthTextureShaderParam, _iTextureDepthLeft);
+        //    _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position)  * float4x4.CreateTranslation(0.15f, 0,0) * float4x4.CreateScale(_scaleFactor);
+        //    _rc.Render(ScreenMesh);
+        //}
 
-        public void RenderRight(float4x4 rot, float4x4 lookat)
-        {
-            
-            _rc.SetShader(_stereo3DShaderProgram);
-            _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1,1,1), 1.0f));
-            _rc.SetShaderParamTexture(_colorTextureShaderParam, _iTextureRight);
-            _rc.SetShaderParamTexture(_depthTextureShaderParam, _iTextureDepthRight);
-            _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position) * float4x4.CreateTranslation(-0.15f, 0, 0)  *float4x4.CreateScale(_scaleFactor);
-            _rc.Render(ScreenMesh);
-        }
+        //public void RenderRight(float4x4 rot, float4x4 lookat)
+        //{
+
+        //    _rc.SetShader(_stereo3DShaderProgram);
+        //    _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1,1,1), 1.0f));
+        //    _rc.SetShaderParamTexture(_colorTextureShaderParam, _iTextureRight);
+        //    _rc.SetShaderParamTexture(_depthTextureShaderParam, _iTextureDepthRight);
+        //    _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position) * float4x4.CreateTranslation(-0.15f, 0, 0)  *float4x4.CreateScale(_scaleFactor);
+        //    _rc.Render(ScreenMesh);
+        //}
+        #endregion
     }
 }
