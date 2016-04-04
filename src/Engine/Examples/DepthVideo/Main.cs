@@ -332,22 +332,8 @@ namespace Examples.DepthVideo
 
         // angle variables
         private static float _angleHorz, _angleVert, _angleVelHorz, _angleVelVert;
-        private const float RotationSpeed = 1f;
-        private const float Damping = 0.92f;
-
-        // variables for depth shader
-        private ShaderProgram _spDepth;
-        private IShaderParam _textureColorParam;
-        private IShaderParam _textureDepthParam;
-        private IShaderParam _textureScaleParam;
-  
-
-        // variables to dra depthtectuer of the Scene
-        private ShaderProgram _spDrawDepth;
-
-
-        // variables for stereoshader + depth
-        private ShaderProgram _shaderProgramS3DDepth;
+        private const float _rotationSpeed = 1f;
+        private const float _damping = 0.92f;
 
         // variables for stereoshader-> color only
         private ShaderProgram _shaderProgram3DColor;
@@ -355,8 +341,7 @@ namespace Examples.DepthVideo
         private IShaderParam _s3dTextureParam;
         private IShaderParam _s3dDepthTextureParam;
 
-        //variables depth shader
-        private ShaderProgram _shaderProgramDepth;
+
 
         // 2D color shader
         private ShaderProgram _colorShader;
@@ -365,14 +350,12 @@ namespace Examples.DepthVideo
         private ITexture _iTexture;
 
 
-        //Anaglyph S3D
-        //private Stereo3D _stereo3D;
         private float hit;
 
         private ScreenS3D _screenS3D;
 
         private StereoCameraRig _stereoCameraRig;
-        //    private Stereo3D _stereo3D;
+
 
         private List<Object3D> _object3DList = new List<Object3D>(); 
 
@@ -382,12 +365,8 @@ namespace Examples.DepthVideo
 
             Console.WriteLine("Init");
             RC.ClearColor = new float4(1f, 1f, 1f, 1);
-
-
+            
             hit = 0;
-            //Set zNear and zFar (1, 10)
-            // Width : Hight :-> 1280 : 720
-           // Resize();
 
             //init mesh
             _meshCube = MeshReader.LoadMesh(@"Assets/Cube.obj.model");
@@ -399,14 +378,6 @@ namespace Examples.DepthVideo
             _s3dColorParam = _shaderProgram3DColor.GetShaderParam("vColor");
             _s3dTextureParam = _shaderProgram3DColor.GetShaderParam("vTexture");
 
-            //stereoshader -> color+depth combo
-            //_shaderProgramS3DDepth = RC.CreateShader(VsS3dDepth, PsS3dDepth);
-            //_s3dColorParam = _shaderProgramS3DDepth.GetShaderParam("vColor");
-            //_s3dTextureParam = _shaderProgramS3DDepth.GetShaderParam("vTexture");
-            //_s3dDepthTextureParam = _shaderProgramS3DDepth.GetShaderParam("textureDepth");
-
-            //depthshader -> depth only
-            _shaderProgramDepth = RC.CreateShader(VsDepth, PsDepth);
 
             //normal 2D color Shader
             _colorShader = Shaders.GetColorShader(RC);
@@ -416,10 +387,6 @@ namespace Examples.DepthVideo
             _stereoCameraRig = new StereoCameraRig(Stereo3DMode.Anaglyph, Width, Height);
             _stereoCameraRig.AttachToContext(RC);
 
-
-            //s3d render stuff
-           //  _stereo3D = new Stereo3D(Stereo3DMode.Anaglyph, Width, Height);
-           // _stereo3D.AttachToContext(RC);
 
             //Set up screen object
             _screenS3D = new ScreenS3D(RC, _stereoCameraRig, new float3(0,0,15));
@@ -474,12 +441,12 @@ namespace Examples.DepthVideo
             // move per mouse
             if (Input.Instance.IsButton(MouseButtons.Left))
             {
-                _angleVelHorz = -RotationSpeed*Input.Instance.GetAxis(InputAxis.MouseX);
-                _angleVelVert = -RotationSpeed*Input.Instance.GetAxis(InputAxis.MouseY);
+                _angleVelHorz = -_rotationSpeed*Input.Instance.GetAxis(InputAxis.MouseX);
+                _angleVelVert = -_rotationSpeed*Input.Instance.GetAxis(InputAxis.MouseY);
             }
             else
             {
-                var curDamp = (float) Math.Exp(-Damping*Time.Instance.DeltaTime);
+                var curDamp = (float) Math.Exp(-_damping*Time.Instance.DeltaTime);
 
                 _angleVelHorz *= curDamp;
                 _angleVelVert *= curDamp;
@@ -489,8 +456,8 @@ namespace Examples.DepthVideo
             _angleVert += _angleVelVert;
 
 
-            var mtxRot = float4x4.CreateRotationX(_angleVert)*float4x4.CreateRotationY(_angleHorz);//* float4x4.CreateTranslation(_cubePos);
-            //var mtxCam = float4x4.LookAt(0, 0, 0, 0, 0, 100, 0, 1, 0);
+            var mtxRot = float4x4.CreateRotationX(_angleVert)*float4x4.CreateRotationY(_angleHorz);
+
 
            
 
@@ -498,6 +465,7 @@ namespace Examples.DepthVideo
             //RC.SetShaderParam(_color, new float4(0,1,0,1));
             //RC.ModelView = mtxCam * mtxRot * float4x4.CreateTranslation(0, 0, _cubePos.z)  * float4x4.CreateScale(0.01f);
             //RC.Render(_meshCube);
+
             var move = float4x4.CreateTranslation(_move);
 
             RenderS3D(move*mtxRot);
@@ -555,19 +523,6 @@ namespace Examples.DepthVideo
                 //RC.ModelView = lookAt* rot * float4x4.CreateTranslation(_cubePos.x, 0, _cubePos.z + 5) * float4x4.CreateRotationY((float)Math.PI / 4) * float4x4.CreateRotationX((float)Math.PI / 4) * float4x4.CreateScale(0.01f);
                 //RC.Render(_meshCube);
 
-                //RC.SetShader(_shaderProgram3DColor);
-                //RC.SetShaderParam(_s3dColorParam, new float4(new float3(1, 1, 1), b));
-                //RC.SetShaderParamTexture(_s3dTextureParam, _iTexture);
-                //RC.ModelView = lookAt * rot * float4x4.CreateTranslation(_cubePos.x, 0, _cubePos.z)   * float4x4.CreateScale(5f,5f,1);
-                //RC.Render(_screenS3D.ScreenMesh);
-
-
-                //RC.SetShader(_shaderProgram3DColor);
-                //RC.SetShaderParam(_s3dColorParam, new float4(new float3(1, 1, 1), b));
-                //RC.SetShaderParamTexture(_s3dTextureParam, _iTexture);
-                //RC.ModelView = lookAt2 * rot * float4x4.CreateTranslation(_cubePos.x, 0, _cubePos.z - 5) * float4x4.CreateRotationY((float)Math.PI / 4) * float4x4.CreateRotationX((float)Math.PI / 4) * float4x4.CreateScale(0.01f);
-                //RC.Render(_meshCube);
-
                 foreach (var obj3d in _object3DList)
                 {
                     obj3d.Render(lookAt*rot);
@@ -600,7 +555,7 @@ namespace Examples.DepthVideo
 
             var aspectRatio = Width/(float) Height;
             _stereoCameraRig.UpdateOnResize(Width,Height);
-            _stereoCameraRig.SetFrustums(RC, MathHelper.PiOver4, aspectRatio, 1, 300);
+            _stereoCameraRig.SetFrustums(RC, MathHelper.PiOver4, aspectRatio, 1, 300,20);
             RC.Projection = _stereoCameraRig.CurrentProjection;
 
         }
