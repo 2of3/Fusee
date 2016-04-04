@@ -54,13 +54,13 @@ namespace Fusee.Engine
             ;
         }
 
-        public void SetFrustums(RenderContext rc, float fovy, float aspectRatio, float zNear, float zFar)
+        public void SetFrustums(RenderContext rc, float fovy, float aspectRatio, float zNear, float zFar, float screenZero)
         {
             Console.WriteLine("SetFrustums");
             _leftFrustum = CreatePerspectiveFieldOfViewFrustumShift(fovy, aspectRatio, zNear, zFar,
-                Stereo3DParams.EyeDistance, 15, true);
+                Stereo3DParams.EyeDistance, screenZero, true);
             _rightFrustum = CreatePerspectiveFieldOfViewFrustumShift(fovy, aspectRatio, zNear, zFar,
-                Stereo3DParams.EyeDistance, 15, false);
+                Stereo3DParams.EyeDistance, screenZero, false);
             CurrentProjection = _leftFrustum;
         }
 
