@@ -11,6 +11,7 @@ namespace Examples.DepthVideo
     public class Object3D
     {
         public float3 Position { get; set; }
+        public float3 Rotation { get; set; }
         public Mesh Mesh { get; set; }
         public float ScaleFactor { get; set; }
         public float Brightness { get; set; }
@@ -30,10 +31,11 @@ namespace Examples.DepthVideo
 
         }
 
-        public Object3D(RenderContext rc, float3 position, Mesh mesh, float scalefactor, float brightness)
+        public Object3D(RenderContext rc, float3 position, float3 rotation, Mesh mesh, float scalefactor, float brightness)
         {
             _currentMaterial = new CurrentShaterMaterial() { ShaderProgram = null, ShaderTextureParam = null, ShaderColorParam = null, MatTexture = null, MatColor = float4.Zero};
             Position = position;
+            Rotation = rotation;
             Mesh = mesh;
             ScaleFactor = scalefactor;
             Brightness = brightness;
@@ -50,7 +52,6 @@ namespace Examples.DepthVideo
             _currentMaterial.MatTexture = texture;
         }
 
-
         public void Render(float4x4 mtxCam)
         {
             if (_currentMaterial.ShaderProgram != null)
@@ -58,7 +59,7 @@ namespace Examples.DepthVideo
                 _rc.SetShader(_currentMaterial.ShaderProgram);
                 _rc.SetShaderParam(_currentMaterial.ShaderColorParam, new float4(new float3(_currentMaterial.MatColor.x, _currentMaterial.MatColor.y, _currentMaterial.MatColor.z), Brightness));
                 _rc.SetShaderParamTexture(_currentMaterial.ShaderTextureParam, _currentMaterial.MatTexture);
-                _rc.ModelView = mtxCam *  float4x4.CreateTranslation(Position) * float4x4.CreateRotationY((float)Math.PI / 4) * float4x4.CreateRotationX((float)Math.PI / 4) * float4x4.CreateScale(ScaleFactor);
+                _rc.ModelView = mtxCam *  float4x4.CreateTranslation(Position) * float4x4.CreateRotationX(Rotation.x) *float4x4.CreateRotationY(Rotation.y) * float4x4.CreateRotationZ(Rotation.z) * float4x4.CreateScale(ScaleFactor);
                 _rc.Render(Mesh);
             }
             else
