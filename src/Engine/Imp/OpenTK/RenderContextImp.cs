@@ -68,6 +68,9 @@ namespace Fusee.Engine
                 case ImagePixelFormat.RGB:
                     format = OpenTK.Graphics.OpenGL.PixelFormat.Bgr;
                     break;
+                case ImagePixelFormat.Gray:
+                    format = OpenTK.Graphics.OpenGL.PixelFormat.DepthComponent;
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
