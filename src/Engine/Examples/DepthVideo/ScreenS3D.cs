@@ -56,7 +56,7 @@ namespace Examples.DepthVideo
             {               
                
                 gl_Position = FUSEE_MVP * vec4(fuVertex, 1.0);
-                pos = gl_Position;
+                pos = FUSEE_MV * vec4(fuVertex, 1.0);;
                 // camPos =  FUSEE_MV * vec4(fuVertex, 1.0);
                 
                 vNormal = mat3(FUSEE_ITMV[0].xyz, FUSEE_ITMV[1].xyz, FUSEE_ITMV[2].xyz) * fuNormal;
@@ -79,12 +79,20 @@ namespace Examples.DepthVideo
             varying vec3 vNormal;
             varying vec2 vUV;
             //varying vec4 camPos;
-varying vec4 pos;
+            varying vec4 pos;
             vec4 temp;
             float zFar = 50;
             float zNear = 1;
-          
 
+            float LinToDBuffer(float linDHalf)
+            {
+                return ((zFar*linDHalf)+(linDHalf*zNear))/((zFar*linDHalf)-(zNear*linDHalf));
+            }
+
+            float DEPTH(float sample)
+            {
+                return ((1/sample)-(1/zNear))/((1/zFar)-(1/zNear));
+            }
 
             void main()
             {
@@ -92,7 +100,7 @@ varying vec4 pos;
                 vec4 colTex = vColor * texture2D(vTexture, vUV);               
              
                 float depthTexValue = 1-texture(textureDepth, vUV);
-
+ 
                 if(depthTexValue >0.9)          
                 {
                     gl_FragDepth = gl_FragCoord.z ;
@@ -100,20 +108,20 @@ varying vec4 pos;
                 }
                 else
                 {              
-                    //if( gl_FragCoord.z >0.89)
+                    //if(gl_FragCoord.z> 0.8)
                     //{
                     //  temp = vec4(0,0,1,1);
                     //}
-                    //else if( gl_FragCoord.z <0.89)
+                    //else if( gl_FragCoord.z >0.5)
                     //{
-                    //  temp = vec4(1,0,1,1);
+                    //  temp = vec4(1,0,0,1);
                     //}
-                    //else if( gl_FragCoord.z <0.0889)
+                    //else if(gl_FragCoord.z >0.3)
                     //{
                     //    temp = vec4(0,1,0,1);
                     //}                 
                    
-                    gl_FragDepth = gl_FragCoord.z + (depthTexValue-0.5)*0.001;
+                   gl_FragDepth = gl_FragCoord.z + (depthTexValue-0.5)*0.01;// LinToDBuffer(depthTexValue); //*-((50*(gl_FragCoord.w-1))/(50-1))*0.01;
                 }
                 
                gl_FragColor = dot(vColor, vec4(0, 0, 0, 1)) * colTex * dot(vNormal, vec3(0, 0, -1));        
@@ -587,16 +595,16 @@ varying vec4 pos;
             _currentVideoTextures = GetCurrentVideoITextures();
 
             if (Input.Instance.IsKey(KeyCodes.W))
-                Position += new float3(0, 0, 0.02f);
+                Position += new float3(0, 0, 0.05f);
 
             if (Input.Instance.IsKey(KeyCodes.S))
-                Position += new float3(0, 0, -0.02f);
+                Position += new float3(0, 0, -0.05f);
 
             //Hit
-            if (Input.Instance.IsKey(KeyCodes.Add))
+            if (Input.Instance.IsKeyUp(KeyCodes.Add))
                 Hit += 0.01f;
                 
-            if (Input.Instance.IsKey(KeyCodes.Subtract))
+            if (Input.Instance.IsKeyUp(KeyCodes.Subtract))
                 Hit -= 0.01f;
 
 
@@ -637,21 +645,34 @@ varying vec4 pos;
                     break;
             }
 
-            var temp = lookat*rot;
-            float3 p = temp.Column3.xyz;
+            //var temp = lookat*rot;
+            //float p = temp.Column3.z;
+            //float dist = 0;
+            //if (p>=0)
+            //{
+            //    dist = p + Position.z;
+            //}
+            //else
+            //{
+            //    dist = Math.Abs(Position.z + p);
+            //}
             if (textureColor != null && textureDepth != null)
             {
                 _rc.SetShader(_stereo3DShaderProgram);
-                _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1, 1, 1), 1.0f));
+                _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1, 1, 1), 1));
                 _rc.SetShaderParamTexture(_colorTextureShaderParam, textureColor);
-                _rc.SetShaderParamTexture(_depthTextureShaderParam, textureDepth); 
-
-                _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position) * float4x4.CreateTranslation(hit, 0, 0) * float4x4.CreateScale(_scaleFactor);
+                _rc.SetShaderParamTexture(_depthTextureShaderParam, textureDepth);
+                _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position) *float4x4.CreateTranslation(hit,0,0) *  float4x4.CreateScale(_scaleFactor);
                 _rc.Render(ScreenMesh);
             }
 
             if (Input.Instance.IsKey(KeyCodes.D))
-               Console.WriteLine("Distance: "+(Position.z-p.z)+ " position.z: "+Position.z+" p.z: "+p);
+            {
+                Console.WriteLine("Distance: "+(Position.z));
+              
+          
+            }
+             
         }
 
         #region alt
