@@ -7,7 +7,7 @@ namespace Fusee.Engine
     {
         public float4x4 CurrentProjection { get; private set; }
 
-        public float3 CurrentOffest { get; private set; }
+       // public float3 CurrentOffest { get; private set; }
         private float4x4 _leftFrustum, _rightFrustum;
 
         public float Iod
@@ -16,24 +16,15 @@ namespace Fusee.Engine
             set { Stereo3DParams.EyeDistance = value; }
         }
 
-        public StereoCameraRig(Stereo3DMode mode, int width, int height, float IOD = 0.065f) : base(mode, width, height)
+        public StereoCameraRig(Stereo3DMode mode, int width, int height, float iod = 0.065f) : base(mode, width, height)
         {
-            Stereo3DParams.EyeDistance = IOD;
+            Stereo3DParams.EyeDistance = iod;
         }
 
         public override void Prepare(Stereo3DEye eye)
-        {
+        {         
+            CurrentProjection = (eye == Stereo3DEye.Left) ? _leftFrustum : _rightFrustum;
             base.Prepare(eye);
-            if (eye == Stereo3DEye.Left)
-            {
-                CurrentProjection = _leftFrustum;
-                CurrentOffest = new float3(Stereo3DParams.EyeDistance*-0.5f, 0, 0);
-            }
-            else
-            {
-                CurrentProjection = _rightFrustum;
-                CurrentOffest = new float3(Stereo3DParams.EyeDistance*0.5f, 0, 0);
-            }
         }
 
         //LookAt3D -Shift -- override/hide
@@ -41,17 +32,18 @@ namespace Fusee.Engine
         {
             //shifttranslation
             var x = (eye == Stereo3DEye.Left)
-                ? eyeV.x - Stereo3DParams.EyeDistance
-                : eyeV.x + Stereo3DParams.EyeDistance;
+                ? eyeV.x - Stereo3DParams.EyeDistance/2
+                : eyeV.x + Stereo3DParams.EyeDistance/2;
 
             //set frustum
             _rc.Projection = eye == Stereo3DEye.Left ? _leftFrustum : _rightFrustum;
-
-            //tranlate cma accordingly
+          
+            
+        
             var newEye = new float3(x, eyeV.y, eyeV.z);
             var newTarget = new float3(x, target.y, target.z);
+            var lr = (eye == Stereo3DEye.Left) ? 1 : -1;
             return float4x4.LookAt(newEye, newTarget, up);
-            ;
         }
 
         public void SetFrustums(RenderContext rc, float fovy, float aspectRatio, float zNear, float zFar, float screenZero)
@@ -87,8 +79,10 @@ namespace Fusee.Engine
         ///     </list>
         /// </exception>
         public float4x4 CreatePerspectiveFieldOfViewFrustumShift(float fovy, float aspect, float zNear, float zFar,
-            float IOD, float screenZero, bool lefteye /* StereoRig*/)
+            float IOD, float screenZero, bool lefteye)
         {
+
+            //Allgemein
             if (fovy <= 0 || fovy > System.Math.PI)
                 throw new ArgumentOutOfRangeException("fovy");
             if (aspect <= 0)
@@ -101,13 +95,25 @@ namespace Fusee.Engine
                 throw new ArgumentOutOfRangeException("zNear");
 
 
-            float shiftToLeftRight = lefteye ? 1 : -1;
-            var shiftAmount = ((IOD*0.5f)*zNear)/screenZero;
-            var top = (float) System.Math.Tan(fovy*0.5f)*zNear;
+            var top = (float)System.Math.Tan(fovy * 0.5f) * zNear;
             var bottom = -top;
-            var right = (aspect*top) + (shiftAmount*shiftToLeftRight);
-            var left = (aspect*bottom) + (shiftAmount*shiftToLeftRight);
-
+            var a = aspect * (float)System.Math.Tan(fovy / 2) * screenZero;//halbe breite projectionsebene
+            var b = a - IOD/2;
+            var c = a + IOD/2;
+            
+            //L R spezifisch
+            float left;
+            float right;
+            if (lefteye)
+            {
+                left = -b * zNear / screenZero;
+                right = c * zNear / screenZero;
+            }
+            else
+            {
+                left = -c * zNear / screenZero;
+                right = b * zNear / screenZero;
+            }
 
             float4x4 result;
             float4x4.CreatePerspectiveOffCenter(left, right, bottom, top, zNear, zFar, out result);
