@@ -51,6 +51,7 @@ namespace Examples.DepthVideo
             uniform mat4 FUSEE_ITMV;
             uniform mat4 FUSEE_MVP;
             uniform mat4 FUSEE_V;
+            uniform mat4 FUSEE_IP;
 
             void main()
             {               
@@ -71,11 +72,13 @@ namespace Examples.DepthVideo
             uniform sampler2D vTexture;
             uniform sampler2D textureDepth;
             uniform vec4 vColor;
-
             uniform mat4 FUSEE_MV;
             uniform mat4 FUSEE_MVP;
             uniform mat4 FUSEE_P;
             uniform mat4 FUSEE_V;
+            uniform mat4 FUSEE_IP;
+            uniform mat4 FUSEE_ITMV;
+
             varying vec3 vNormal;
             varying vec2 vUV;
             //varying vec4 camPos;
@@ -84,15 +87,55 @@ namespace Examples.DepthVideo
             float zFar = 50;
             float zNear = 1;
 
-            float LinToDBuffer(float linDHalf)
+            //// depthSample from depthTexture.r, for instance
+            //float linearDepth(float depthSample)
+            //{
+            //    depthSample = 2.0 * depthSample - 1.0;
+            //    float zLinear = 2.0 * zNear * zFar / (zFar + zNear - (depthSample-0.5) * (zFar - zNear));
+            //    return zLinear;
+            //}
+
+            //// result suitable for assigning to gl_FragDepth
+            //float depthSample(float linearDepth)
+            //{
+            //    float nonLinearDepth = (zFar + zNear - 2.0 * zNear * zFar / linearDepth) / (zFar - zNear);
+            //    nonLinearDepth = (nonLinearDepth + 1.0) / 2.0;
+            //    return nonLinearDepth;
+            //}
+
+             float ndcPosZ (float d) 
             {
-                return ((zFar*linDHalf)+(linDHalf*zNear))/((zFar*linDHalf)-(zNear*linDHalf));
+                  return  (2*d-gl_DepthRange.near-gl_DepthRange.far)/(gl_DepthRange.far-gl_DepthRange.near);
+            }
+//-------------------------------------------------------
+            //step 1
+            float prepareSample(float samlpe)
+            {    
+                return (samlpe*2)-1; //[0,1]->[-1,1]
             }
 
-            float DEPTH(float sample)
+            //step 2
+            float ndcZ(float fragZ)
             {
-                return ((1/sample)-(1/zNear))/((1/zFar)-(1/zNear));
+                float zLin = (fragZ*2)-1; //[0,1]->[-1,1] 
+                zLin = (2*gl_DepthRange.near+gl_DepthRange.far)/(gl_DepthRange.far+gl_DepthRange.near-zLin*(gl_DepthRange.far-gl_DepthRange.near)); // linearize
+                return zLin;
             }
+
+            //step3 merge
+            float merge(float fragZLin, float preparedSample)
+            {
+                return fragZLin+preparedSample;
+            }
+
+            //step 4back to nonLin [0,1]
+            float fragCoordZ(float linZ)
+            {
+                float nonLin = (gl_DepthRange.far+gl_DepthRange.near-2*gl_DepthRange.near*gl_DepthRange.far)/linZ/(gl_DepthRange.far-gl_DepthRange.near);
+                return (nonLin+1)/2;
+            }
+//--------------------------------------------------------
+           
 
             void main()
             {
@@ -100,31 +143,25 @@ namespace Examples.DepthVideo
                 vec4 colTex = vColor * texture2D(vTexture, vUV);               
              
                 float depthTexValue = 1-texture(textureDepth, vUV);
- 
+
                 if(depthTexValue >0.9)          
                 {
                     gl_FragDepth = gl_FragCoord.z ;
                     discard;
                 }
                 else
-                {              
-                    //if(gl_FragCoord.z> 0.8)
-                    //{
-                    //  temp = vec4(0,0,1,1);
-                    //}
-                    //else if( gl_FragCoord.z >0.5)
-                    //{
-                    //  temp = vec4(1,0,0,1);
-                    //}
-                    //else if(gl_FragCoord.z >0.3)
-                    //{
-                    //    temp = vec4(0,1,0,1);
-                    //}                 
-                   
-                   gl_FragDepth = gl_FragCoord.z + (depthTexValue-0.5)*0.01;// LinToDBuffer(depthTexValue); //*-((50*(gl_FragCoord.w-1))/(50-1))*0.01;
+                {
+                    float prepSampale = prepareSample(depthTexValue);
+
+                    float linCoordZ = ndcZ(gl_FragCoord.z);
+
+                    float LNdcZ = merge(linCoordZ, prepSampale);
+
+                    float theDepth = fragCoordZ(LNdcZ);
+                        
+                    gl_FragDepth = theDepth;               
+                    gl_FragColor =  dot(vColor, vec4(0, 0, 0, 1))  *colTex * dot(vNormal, vec3(0, 0, -1));        
                 }
-                
-               gl_FragColor = dot(vColor, vec4(0, 0, 0, 1)) * colTex * dot(vNormal, vec3(0, 0, -1));        
                 
             }";
 
@@ -137,7 +174,7 @@ namespace Examples.DepthVideo
         private IShaderParam _colorShaderParam;
         private IShaderParam _colorTextureShaderParam;
         private IShaderParam _depthTextureShaderParam;
-        
+        private IShaderParam _depthShaderParamZ;
 
 
         public Mesh ScreenMesh { get; set; }
@@ -200,7 +237,7 @@ namespace Examples.DepthVideo
             _colorShaderParam = _stereo3DShaderProgram.GetShaderParam("vColor");
             _colorTextureShaderParam = _stereo3DShaderProgram.GetShaderParam("vTexture");
             _depthTextureShaderParam = _stereo3DShaderProgram.GetShaderParam("textureDepth");
-
+            //_depthShaderParamZ = _stereo3DShaderProgram.GetShaderParam("z");
 
             iTexLeft = _rc.CreateTexture(_rc.LoadImage("Assets/imL.png"));
             iTexRight = _rc.CreateTexture(_rc.LoadImage("Assets/imR.png"));
@@ -662,16 +699,21 @@ namespace Examples.DepthVideo
                 _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1, 1, 1), 1));
                 _rc.SetShaderParamTexture(_colorTextureShaderParam, textureColor);
                 _rc.SetShaderParamTexture(_depthTextureShaderParam, textureDepth);
-                _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position) *float4x4.CreateTranslation(hit,0,0) *  float4x4.CreateScale(_scaleFactor);
+                
+                  var mv= lookat* rot *float4x4.CreateTranslation(Position) * float4x4.CreateTranslation(hit, 0, 0) * float4x4.CreateScale(_scaleFactor);
+               // _rc.SetShaderParam(_depthShaderParamZ, mv.Column3.z);
+                _rc.ModelView = mv;
                 _rc.Render(ScreenMesh);
+                if (Input.Instance.IsKey(KeyCodes.D))
+                {
+                    Console.WriteLine("Distance: ");
+                    Console.WriteLine(lookat);
+                    Console.WriteLine(float4x4.CreateTranslation(Position));
+
+                }
             }
 
-            if (Input.Instance.IsKey(KeyCodes.D))
-            {
-                Console.WriteLine("Distance: "+(Position.z));
-              
-          
-            }
+           
              
         }
 
