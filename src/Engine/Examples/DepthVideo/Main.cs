@@ -91,13 +91,13 @@ namespace Examples.DepthVideo
             uniform mat4 FUSEE_P;
             uniform mat4 FUSEE_ITMV;
             uniform mat4 FUSEE_MVP;
-
+            varying vec4 clip;
 
             void main()
             {
   
                 gl_Position = FUSEE_MVP * vec4(fuVertex, 1.0);
-               
+                clip = FUSEE_P *FUSEE_MV * vec4(fuVertex, 1.0);
                 vNormal = mat3(FUSEE_ITMV[0].xyz, FUSEE_ITMV[1].xyz, FUSEE_ITMV[2].xyz) * fuNormal;
                 vUV = fuUV;
             }";
@@ -111,13 +111,21 @@ namespace Examples.DepthVideo
             uniform vec4 vColor;
             varying vec3 vNormal;
             varying vec2 vUV;
-
+            varying vec4 clip;
    
 
             void main()
             {
                 vec4 colTex = vColor * texture2D(vTexture, vUV);       
                 
+                //float ndcDepth = (clip.z/clip.w);
+                //float coordZ = (1-0)*0.5*ndcDepth+(gl_DepthRange.far-gl_DepthRange.near)*0.5; 
+                //vec4 temp = (1,1,1,1);
+                ////if(gl_FragCoord.z == coordZ)
+                ////{
+                ////    temp = vec4(0,1,0,1);
+                ////}
+                //gl_FragDepth =  coordZ;//gl_FragCoord.z;  
                 gl_FragColor = dot(vColor, vec4(0, 0, 0, 1)) * colTex * dot(vNormal, vec3(0, 0, -1));
                
                 
@@ -329,7 +337,7 @@ namespace Examples.DepthVideo
 
 
         private float3 _move = float3.Zero;
-        private float3 test = new float3(0,0,10);
+        private float3 test = new float3(0,0,25);
         // angle variables
         private static float _angleHorz, _angleVert, _angleVelHorz, _angleVelVert;
         private const float _rotationSpeed = 1f;
@@ -389,7 +397,7 @@ namespace Examples.DepthVideo
 
 
             //Set up screen object
-            _screenS3D = new ScreenS3D(RC, _stereoCameraRig, new float3(0,0,15));
+            _screenS3D = new ScreenS3D(RC, _stereoCameraRig, new float3(0,0,25));
             _screenS3D.SetVideo("Assets/left.mkv", "Assets/right.mkv", "Assets/depthLeft.mkv", "Assets/depthRight.mkv", 300);
 
 
@@ -419,10 +427,10 @@ namespace Examples.DepthVideo
                 CloseGameWindow();
             // move per keyboard
             if (Input.Instance.IsKey(KeyCodes.Left))
-                _move.x += 0.5f;
+                _move.x += 0.1f;
 
             if (Input.Instance.IsKey(KeyCodes.Right))
-                _move.x -= 0.5f;
+                _move.x -= 0.1f;
 
             if (Input.Instance.IsKey(KeyCodes.Up))
                 _move.z -= 0.1f;
@@ -434,6 +442,8 @@ namespace Examples.DepthVideo
                 test.z += 0.1f;
             if (Input.Instance.IsKey(KeyCodes.D2))
                 test.z -= 0.1f;
+
+           
 
             // move per mouse
             if (Input.Instance.IsButton(MouseButtons.Left))
@@ -454,6 +464,16 @@ namespace Examples.DepthVideo
 
             var mtxRot = float4x4.CreateRotationX(_angleVert)*float4x4.CreateRotationY(_angleHorz);
 
+            if (Input.Instance.IsKey(KeyCodes.D4))
+            {
+                _move = new float3(0,0,-10);
+            }
+            if (Input.Instance.IsKey(KeyCodes.D5))
+            {
+                _move = new float3(0, 0, 0);
+            }
+
+
             var move = float4x4.CreateTranslation(_move);
 
 
@@ -471,7 +491,7 @@ namespace Examples.DepthVideo
             RenderS3D(move*mtxRot);
             
             Present();
-            
+          
         }
 
 
@@ -481,8 +501,8 @@ namespace Examples.DepthVideo
            
             // 3d mode
             var eyeF = new float3(0, 0, 0);
-            var targetF = new float3(0, 0, 100);
-            var upF = new float3(0, 11, 0);
+            var targetF = new float3(0, 0,-50);
+            var upF = new float3(0, 1, 0);
 
             _stereoCameraRig.Prepare(Stereo3DEye.Left);
             for (var x = 0; x < 2; x++)
@@ -509,10 +529,20 @@ namespace Examples.DepthVideo
                     RC.ModelView = lookAt * mtx * float4x4.CreateTranslation(test) * float4x4.CreateScale(new float3(0.64f * 10, 0.48f * 10, 1f));
                     RC.Render(_screenS3D.ScreenMesh);
 
+                    if (Input.Instance.IsKeyUp(KeyCodes.D3))
+                    {
+                        Console.WriteLine("test");
+                        Console.WriteLine(test);
+                        Console.WriteLine("lookAt");
+                        Console.WriteLine(lookAt);
+                        Console.WriteLine("ModelView");
+                        Console.WriteLine(RC.ModelView);
+                    }
+
                     //_screenS3D.RenderRight(rot, lookAt);
                 }
-
-                 _screenS3D.Render3DScreen(mtx, lookAt);
+               
+                _screenS3D.Render3DScreen(mtx, lookAt);
              //   Console.WriteLine("camPos: "+ rot.Column3);
 
     
@@ -537,9 +567,9 @@ namespace Examples.DepthVideo
                     _stereoCameraRig.Prepare(Stereo3DEye.Right);
                 }
             }
-
+            
             _stereoCameraRig.Display();
-
+          
         }
 
 
@@ -556,10 +586,9 @@ namespace Examples.DepthVideo
 
             var aspectRatio = Width/(float) Height;
             _stereoCameraRig.UpdateOnResize(Width,Height);
-            //RC.Projection = float4x4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, aspectRatio, 10, 150);
-             _stereoCameraRig.SetFrustums(RC, MathHelper.PiOver4, aspectRatio,1, 50, 10);
+            //RC.Projection = float4x4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, aspectRatio, 1, 50);
+             _stereoCameraRig.SetFrustums(RC, MathHelper.PiOver4, aspectRatio,1, 150, 10);
              RC.Projection = _stereoCameraRig.CurrentProjection;
-
         }
 
         public static void Main()
