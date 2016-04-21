@@ -632,17 +632,6 @@ namespace Examples.DepthVideo
                     break;
             }
 
-            //var temp = lookat*rot;
-            //float p = temp.Column3.z;
-            //float dist = 0;
-            //if (p>=0)
-            //{
-            //    dist = p + Position.z;
-            //}
-            //else
-            //{
-            //    dist = Math.Abs(Position.z + p);
-            //}
             if (textureColor != null && textureDepth != null)
             {
                 _rc.SetShader(_stereo3DShaderProgram);
@@ -654,42 +643,10 @@ namespace Examples.DepthVideo
                // _rc.SetShaderParam(_depthShaderParamZ, mv.Column3.z);
                 _rc.ModelView = mv;
                 _rc.Render(ScreenMesh);
-                if (Input.Instance.IsKeyUp(KeyCodes.D))
-                {
-                    Console.WriteLine("Distance: ");
-                    Console.WriteLine(lookat);
-                    Console.WriteLine(float4x4.CreateTranslation(Position));
-                    Console.WriteLine(mv);
-
-                }
             }
 
            
              
         }
-
-        #region alt
-        //public void RenderLeft(float4x4 rot, float4x4 lookat)
-        //{
-        //    //left
-        //    _rc.SetShader(_stereo3DShaderProgram);
-        //    _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1,1,1), 1.0f));
-        //    _rc.SetShaderParamTexture(_colorTextureShaderParam, _iTextureLeft);
-        //    _rc.SetShaderParamTexture(_depthTextureShaderParam, _iTextureDepthLeft);
-        //    _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position)  * float4x4.CreateTranslation(0.15f, 0,0) * float4x4.CreateScale(_scaleFactor);
-        //    _rc.Render(ScreenMesh);
-        //}
-
-        //public void RenderRight(float4x4 rot, float4x4 lookat)
-        //{
-
-        //    _rc.SetShader(_stereo3DShaderProgram);
-        //    _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1,1,1), 1.0f));
-        //    _rc.SetShaderParamTexture(_colorTextureShaderParam, _iTextureRight);
-        //    _rc.SetShaderParamTexture(_depthTextureShaderParam, _iTextureDepthRight);
-        //    _rc.ModelView = lookat * rot * float4x4.CreateTranslation(Position) * float4x4.CreateTranslation(-0.15f, 0, 0)  *float4x4.CreateScale(_scaleFactor);
-        //    _rc.Render(ScreenMesh);
-        //}
-        #endregion
     }
 }
