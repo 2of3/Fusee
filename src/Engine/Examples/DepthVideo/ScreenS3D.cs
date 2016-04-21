@@ -37,30 +37,25 @@ namespace Examples.DepthVideo
             attribute vec4 fuColor;
             attribute vec3 fuVertex;
             attribute vec3 fuNormal;
-            attribute vec2 fuUV;
-        
-            varying vec4 vColor;
+            attribute vec2 fuUV;        
+
             varying vec3 vNormal;
             varying vec2 vUV;
-            varying vec4 camPos;
-            varying vec4 clip;
+            varying vec4 FuVertex;
+
         
             uniform mat4 FUSEE_MV;
             uniform mat4 FUSEE_P;
-            uniform mat4 FUSEE_IMV;
             uniform mat4 FUSEE_ITMV;
             uniform mat4 FUSEE_MVP;
-            uniform mat4 FUSEE_V;
-            uniform mat4 FUSEE_IP;
+
 
             void main()
             {               
                
-                gl_Position = FUSEE_MVP * vec4(fuVertex, 1.0);
-                clip = FUSEE_P*FUSEE_MV * vec4(fuVertex, 1.0);
+                gl_Position = FUSEE_MVP * vec4(fuVertex, 1.0);                
                 
-                
-                 camPos =  FUSEE_MV[3];//distance to cam
+                FuVertex = vec4(fuVertex, 1.0);              
                 
                 vNormal = mat3(FUSEE_ITMV[0].xyz, FUSEE_ITMV[1].xyz, FUSEE_ITMV[2].xyz) * fuNormal;
                 vUV = fuUV;
@@ -71,114 +66,59 @@ namespace Examples.DepthVideo
                 precision highp float;
             #endif
            
+            //SahderParams
             uniform sampler2D vTexture;
             uniform sampler2D textureDepth;
+            uniform float scale;
             uniform vec4 vColor;
             uniform mat4 FUSEE_MV;
-            uniform mat4 FUSEE_MVP;
             uniform mat4 FUSEE_P;
-            uniform mat4 FUSEE_V;
-            uniform mat4 FUSEE_IP;
-            uniform mat4 FUSEE_ITMV;
 
             varying vec3 vNormal;
             varying vec2 vUV;
-            varying vec4 camPos;
-            varying vec4 pos;
-            varying vec4 clip;
-            vec4 temp;
-            float zFar = 50;
-            float zNear = 1;
 
-            //// depthSample from depthTexture.r, for instance
-            //float linearDepth(float depthSample)
-            //{
-            //    depthSample = 2.0 * depthSample - 1.0;
-            //    float zLinear = 2.0 * zNear * zFar / (zFar + zNear - (depthSample-0.5) * (zFar - zNear));
-            //    return zLinear;
-            //}
-
-            //// result suitable for assigning to gl_FragDepth
-            //float depthSample(float linearDepth)
-            //{
-            //    float nonLinearDepth = (zFar + zNear - 2.0 * zNear * zFar / linearDepth) / (zFar - zNear);
-            //    nonLinearDepth = (nonLinearDepth + 1.0) / 2.0;
-            //    return nonLinearDepth;
-            //}
-
-             float ndcPosZ (float d) 
-            {
-                  return  ((2*d)-gl_DepthRange.far-gl_DepthRange.near)/(gl_DepthRange.far-gl_DepthRange.near);
-            }
-//-------------------------------------------------------
-            //step 1
-            float prepareSample(float samlpe)
-            {    
-                return ((samlpe*2)-1)*0.1; //[0,1]->[-1,1]
-            }
-
-            //step 2
-            float ndcZ(float fragZ)
-            {
-                float zLin = (fragZ*2)-1; //[0,1]->[-1,1] 
-                zLin = (2*gl_DepthRange.near+gl_DepthRange.far)/(gl_DepthRange.far+gl_DepthRange.near-zLin*(gl_DepthRange.far-gl_DepthRange.near)); // linearize
-                return zLin;
-            }
-
-            //step3 merge
-            float merge(float fragZLin, float preparedSample)
-            {
-                return fragZLin+preparedSample;
-            }
-
-            //step 4 back to nonLin [0,1]
-            float fragCoordZ(float linZ)
-            {
-                float nonLin = (gl_DepthRange.far+gl_DepthRange.near-2*gl_DepthRange.near*gl_DepthRange.far)/linZ/(gl_DepthRange.far-gl_DepthRange.near);
-                return (nonLin+1)/2;
-            }
-//--------------------------------------------------------
-           
+            varying vec4 FuVertex;
             float coordZ;
+         
             void main()
             {
-               
-                vec4 colTex = vColor * texture2D(vTexture, vUV);               
-             
-                float depthTexValue = 1-texture(textureDepth, vUV);
+                //Read Texture Values
+                //(RGB)
+                vec4 colTex = vColor * texture2D(vTexture, vUV);    
+                //Depth                      
+                float depthTexValue = (1-texture(textureDepth, vUV));
                 
-               // colTex *= depthTexValue;
+                //Object coordinates
+                vec4 vertex = FuVertex;
+                //ModelView
+                mat4 modelView =FUSEE_MV;
     
                 if(depthTexValue >0.9)          
                 {
-                    //float ndcDepth = (clip.z/clip.w);  
-                    //float coordZ = (gl_DepthRange.far-gl_DepthRange.near)*0.5*ndcDepth+(gl_DepthRange.far-gl_DepthRange.near)*0.5; 
-                    //gl_FragDepth =  coordZ;  
-                  //  gl_FragDepth = gl_FragCoord.z ;
+                    //ClipSpce
+                    vec4 clip = FUSEE_P*FUSEE_MV*FuVertex;
+                    //Noramlized Device Coordinates
+                    float ndcDepth = (clip.z/clip.w);  
+                    //Fragment Depth Value
+                    float coordZ = (gl_DepthRange.far-gl_DepthRange.near)*0.5*ndcDepth+(gl_DepthRange.far-gl_DepthRange.near)*0.5; 
+                    gl_FragDepth =  gl_FragCoord.z;  
                     discard;
                 }
                 else
-                {                   
-
-                    vec4 eye = clip; 
-                 //   eye = FUSEE_P*(eye+vec4(0,0,depthTexValue-1,1));
-                    
+                {          
+                    //Add offest from 'textureDepth' with scaling value;    
+                    modelView[3].z += (depthTexValue-0.5)*1;
+                    //trnasform to ClipSpace / EyeSpace
+                    vec4 eye = FUSEE_P*modelView*vertex;    
+                    //Noramlized Device Coordinates   
                     float ndcDepth = (eye.z/eye.w);
-                   // ndcDepth += prepareSample(depthTexValue);
-                   coordZ  = (gl_DepthRange.far-gl_DepthRange.near)*0.5*ndcDepth+(gl_DepthRange.far-gl_DepthRange.near)*0.5; 
-                   // gl_FragDepth =  coordZ;              
+                    //Fragment Depth Value
+                    coordZ  = (gl_DepthRange.far-gl_DepthRange.near)*0.5*ndcDepth+(gl_DepthRange.far-gl_DepthRange.near)*0.5; 
+                    gl_FragDepth =  coordZ;              
                 }
 
-                vec4 temp = vec4(1,1,1,1);
-                if(coordZ == gl_FragCoord.z)
-                {
-                    temp = vec4(0,1,0,1);
-                }  
-                if(clip.z == 35)
-                {
-                    temp = vec4(0,0,1,1);
-                }  
-                gl_FragColor =  dot(vColor, vec4(0, 0, 0, 1)) *temp *colTex * dot(vNormal, vec3(0, 0, -1));        
+                //write color 
+                gl_FragColor =  dot(vColor, vec4(0, 0, 0, 1)) *colTex * dot(vNormal, vec3(0, 0, -1));        
         
                 
                 
@@ -670,21 +610,11 @@ namespace Examples.DepthVideo
                 Console.WriteLine("Hit: "+ Hit);
         }
 
-        public float offsetFix = 6.5f*0.15f;
 
-        private float3 CalcOffset(float4x4 rot, float4x4 lookat, string side)
-        {
-            
-            //var modelView = lookat*float4x4.CreateTranslation(Position);
-            //var offsetVector =  _rc.Projection * modelView;
-            ////Console.WriteLine(side+": "+res);
-            //var ret = new float3(offsetVector.Column3.x, offsetVector.Column3.y, offsetVector.Column3.z);
-            return float3.One;
-        }
+
 
         public void Render3DScreen(float4x4 lookat, float4x4 rot)
         {
-            float4x4 offset;
             float hit = 0;
             ITexture textureColor = null;
             ITexture textureDepth = null; 
