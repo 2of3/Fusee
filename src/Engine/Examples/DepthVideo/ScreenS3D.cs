@@ -94,7 +94,7 @@ namespace Examples.DepthVideo
                 mat4 modelView =FUSEE_MV;
     
                 if(depthTexValue >0.9)          
-                {
+                {                   
                     //ClipSpce
                     vec4 clip = FUSEE_P*FUSEE_MV*FuVertex;
                     //Noramlized Device Coordinates
@@ -106,12 +106,15 @@ namespace Examples.DepthVideo
                 }
                 else
                 {          
-                    //Add offest from 'textureDepth' with scaling value;    
-                    modelView[3].z += (depthTexValue-0.5)*1;
+                    //Add offest from 'textureDepth' with scaling value;                  
+                    modelView[3].z += ((depthTexValue*2)-1)*scale;
+                    
                     //trnasform to ClipSpace / EyeSpace
                     vec4 eye = FUSEE_P*modelView*vertex;    
+                   
                     //Noramlized Device Coordinates   
                     float ndcDepth = (eye.z/eye.w);
+                    
                     //Fragment Depth Value
                     coordZ  = (gl_DepthRange.far-gl_DepthRange.near)*0.5*ndcDepth+(gl_DepthRange.far-gl_DepthRange.near)*0.5; 
                     gl_FragDepth =  coordZ;              
@@ -134,7 +137,7 @@ namespace Examples.DepthVideo
         private IShaderParam _colorShaderParam;
         private IShaderParam _colorTextureShaderParam;
         private IShaderParam _depthTextureShaderParam;
-        private IShaderParam _depthShaderParamZ;
+        private IShaderParam _depthShaderParamScale;
 
 
         public Mesh ScreenMesh { get; set; }
@@ -197,7 +200,7 @@ namespace Examples.DepthVideo
             _colorShaderParam = _stereo3DShaderProgram.GetShaderParam("vColor");
             _colorTextureShaderParam = _stereo3DShaderProgram.GetShaderParam("vTexture");
             _depthTextureShaderParam = _stereo3DShaderProgram.GetShaderParam("textureDepth");
-            //_depthShaderParamZ = _stereo3DShaderProgram.GetShaderParam("z");
+            _depthShaderParamScale = _stereo3DShaderProgram.GetShaderParam("scale");
 
             iTexLeft = _rc.CreateTexture(_rc.LoadImage("Assets/imL.png"));
             iTexRight = _rc.CreateTexture(_rc.LoadImage("Assets/imR.png"));
@@ -638,9 +641,9 @@ namespace Examples.DepthVideo
                 _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1, 1, 1), 1));
                 _rc.SetShaderParamTexture(_colorTextureShaderParam, textureColor);
                 _rc.SetShaderParamTexture(_depthTextureShaderParam, textureDepth);
-                
-                  var mv= lookat* rot *float4x4.CreateTranslation(Position) * float4x4.CreateTranslation(hit, 0, 0) * float4x4.CreateScale(_scaleFactor);
-               // _rc.SetShaderParam(_depthShaderParamZ, mv.Column3.z);
+                _rc.SetShaderParam(_depthShaderParamScale, 5f);
+                var mv = lookat* rot *float4x4.CreateTranslation(Position) * float4x4.CreateTranslation(hit, 0, 0) * float4x4.CreateScale(_scaleFactor);
+               
                 _rc.ModelView = mv;
                 _rc.Render(ScreenMesh);
             }

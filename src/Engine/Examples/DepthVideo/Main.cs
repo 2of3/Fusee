@@ -517,8 +517,6 @@ namespace Examples.DepthVideo
                     RC.SetShaderParamTexture(_s3dTextureParam, _iTexture);
                     RC.ModelView = lookAt * mtx * float4x4.CreateTranslation(test) * float4x4.CreateScale(new float3(0.64f * 10, 0.48f * 10, 1f));
                     RC.Render(_screenS3D.ScreenMesh);
-
-                    //_screenS3D.RenderLeft(rot, lookAt);
                 }
                 else
                 {
@@ -533,17 +531,15 @@ namespace Examples.DepthVideo
                     {
                         Console.WriteLine("test");
                         Console.WriteLine(test);
-                        Console.WriteLine("lookAt");
-                        Console.WriteLine(lookAt);
-                        Console.WriteLine("ModelView");
-                        Console.WriteLine(RC.ModelView);
+                        //Console.WriteLine("lookAt");
+                        //Console.WriteLine(lookAt);
+                        //Console.WriteLine("ModelView");
+                        //Console.WriteLine(RC.ModelView);
                     }
-
-                    //_screenS3D.RenderRight(rot, lookAt);
                 }
                
                 _screenS3D.Render3DScreen(mtx, lookAt);
-             //   Console.WriteLine("camPos: "+ rot.Column3);
+          
 
     
                     //RC.SetShader(_shaderProgram3DColor);
