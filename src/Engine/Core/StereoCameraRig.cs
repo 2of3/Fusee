@@ -42,7 +42,7 @@ namespace Fusee.Engine
         
             var newEye = new float3(x, eyeV.y, eyeV.z);
             var newTarget = new float3(x, target.y, target.z);
-           // var lr = (eye == Stereo3DEye.Left) ? 1 : -1;
+
             return float4x4.LookAtRH(newEye, newTarget, up);
         }
 

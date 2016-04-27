@@ -115,8 +115,9 @@ namespace Examples.DepthVideo
                     //Noramlized Device Coordinates   
                     float ndcDepth = (eye.z/eye.w);
                     
-                    //Fragment Depth Value
+                    //Viewport transformation
                     coordZ  = (gl_DepthRange.far-gl_DepthRange.near)*0.5*ndcDepth+(gl_DepthRange.far-gl_DepthRange.near)*0.5; 
+                    //Fragment Depth Value
                     gl_FragDepth =  coordZ;              
                 }
 
