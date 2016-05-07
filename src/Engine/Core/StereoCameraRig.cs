@@ -22,7 +22,8 @@ namespace Fusee.Engine
         }
 
         public override void Prepare(Stereo3DEye eye)
-        {         
+        {
+
             CurrentProjection = (eye == Stereo3DEye.Left) ? _leftFrustum : _rightFrustum;
             base.Prepare(eye);
         }
@@ -43,7 +44,29 @@ namespace Fusee.Engine
             var newEye = new float3(x, eyeV.y, eyeV.z);
             var newTarget = new float3(x, target.y, target.z);
 
-            return float4x4.LookAtRH(newEye, newTarget, up);
+
+
+            return float4x4.LookAt(newEye, newTarget, up);
+        }
+
+        private float4x4 LookAt3D(float3 eye, float3 target, float3 up)
+        {
+            var n = float3.Normalize(target  -eye);//z
+            var u = float3.Normalize(float3.Cross(up, n));//x
+            var v = float3.Cross(n, u);//y
+
+            // Row order notation
+            //return new float4x4(new float4(x.x, y.x, z.x, 0),
+            //                    new float4(x.y, y.y, z.y, 0),
+            //                    new float4(x.z, y.z, z.z, 0),
+            //                    new float4(-float3.Dot(x, eye), -float3.Dot(y, eye), -float3.Dot(z, eye), 1));
+
+            // Column order notation
+            float3 d = new float3(float3.Dot(-eye, u), float3.Dot(-eye, v), float3.Dot(-eye, n));
+            return new float4x4(u.x, u.y, u.z, d.x,
+                                v.x, v.y, v.z, d.y,
+                                n.x, n.y, n.z, d.z,
+                                0, 0, 0, 1);
         }
 
         public void SetFrustums(RenderContext rc, float fovy, float aspectRatio, float zNear, float zFar, float screenZero)
@@ -97,23 +120,11 @@ namespace Fusee.Engine
 
             var top = (float)System.Math.Tan(fovy * 0.5f) * zNear;
             var bottom = -top;
-            var a = aspect * (float)System.Math.Tan(fovy / 2) * screenZero;//halbe breite projectionsebene
-            var b = a - IOD/2;
-            var c = a + IOD/2;
             
-            //L R spezifisch
-            float left;
-            float right;
-            if (lefteye)
-            {
-                left = -b * zNear / screenZero;
-                right = c * zNear / screenZero;
-            }
-            else
-            {
-                left = -c * zNear / screenZero;
-                right = b * zNear / screenZero;
-            }
+            float shift = lefteye ? -1 : 1;             
+
+            float left = -aspect * top + ((IOD * 0.5f) * (zNear / screenZero))*shift;
+            float right = aspect * top + ((IOD * 0.5f) * (zNear / screenZero)) * shift;
 
             float4x4 result;
             float4x4.CreatePerspectiveOffCenter(left, right, bottom, top, zNear, zFar, out result);

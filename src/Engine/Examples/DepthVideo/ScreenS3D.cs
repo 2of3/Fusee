@@ -43,12 +43,13 @@ namespace Examples.DepthVideo
             varying vec2 vUV;
             varying vec4 FuVertex;
 
-        
+            uniform mat4 FUSEE_V;
+            uniform mat4 FUSEE_M;
             uniform mat4 FUSEE_MV;
             uniform mat4 FUSEE_P;
             uniform mat4 FUSEE_ITMV;
             uniform mat4 FUSEE_MVP;
-
+            uniform mat4 FUSEE_IMV;
 
             void main()
             {               
@@ -73,7 +74,10 @@ namespace Examples.DepthVideo
             uniform vec4 vColor;
             uniform mat4 FUSEE_MV;
             uniform mat4 FUSEE_P;
-
+            uniform mat4 FUSEE_V;
+            uniform mat4 FUSEE_M;
+            uniform mat4 FUSEE_MVP;
+            uniform mat4 FUSEE_IMV;
             varying vec3 vNormal;
             varying vec2 vUV;
 
@@ -87,9 +91,10 @@ namespace Examples.DepthVideo
                 vec4 colTex = vColor * texture2D(vTexture, vUV);    
                 //Depth                      
                 float depthTexValue = (1-texture(textureDepth, vUV));
-                
+                vec4 temp =vec4(1,1,1,1);
                 //Object coordinates
-                vec4 vertex = FuVertex;
+               
+                vec4 vertex = FuVertex;             
                 //ModelView
                 mat4 modelView =FUSEE_MV;
     
@@ -109,11 +114,11 @@ namespace Examples.DepthVideo
                     //Add offest from 'textureDepth' with scaling value;                  
                     modelView[3].z += ((depthTexValue*2)-1)*scale;
                     
-                    //trnasform to ClipSpace / EyeSpace
-                    vec4 eye = FUSEE_P*modelView*vertex;    
+                    //trnasform to ClipSpace 
+                    vec4 clip = FUSEE_P*modelView*vertex;    
                    
                     //Noramlized Device Coordinates   
-                    float ndcDepth = (eye.z/eye.w);
+                    float ndcDepth = (clip.z/clip.w);
                     
                     //Viewport transformation
                     coordZ  = (gl_DepthRange.far-gl_DepthRange.near)*0.5*ndcDepth+(gl_DepthRange.far-gl_DepthRange.near)*0.5; 
@@ -122,7 +127,7 @@ namespace Examples.DepthVideo
                 }
 
                 //write color 
-                gl_FragColor =  dot(vColor, vec4(0, 0, 0, 1)) *colTex * dot(vNormal, vec3(0, 0, -1));        
+                gl_FragColor =  dot(vColor, vec4(0, 0, depthTexValue, 1))  *colTex * dot(vNormal, vec3(0, 0, -1));        
         
                 
                 
@@ -602,10 +607,10 @@ namespace Examples.DepthVideo
                 Position += new float3(0, 0, -0.5f);
 
             //Hit
-            if (Input.Instance.IsKeyUp(KeyCodes.Add))
+            if (Input.Instance.IsKey(KeyCodes.Add))
                 Hit += 0.01f;
                 
-            if (Input.Instance.IsKeyUp(KeyCodes.Subtract))
+            if (Input.Instance.IsKey(KeyCodes.Subtract))
                 Hit -= 0.01f;
 
 
@@ -643,7 +648,7 @@ namespace Examples.DepthVideo
                 _rc.SetShaderParamTexture(_colorTextureShaderParam, textureColor);
                 _rc.SetShaderParamTexture(_depthTextureShaderParam, textureDepth);
                 _rc.SetShaderParam(_depthShaderParamScale, 5f);
-                var mv = lookat* rot *float4x4.CreateTranslation(Position) * float4x4.CreateTranslation(hit, 0, 0) * float4x4.CreateScale(_scaleFactor);
+                var mv = lookat* rot *float4x4.CreateTranslation(Position) * float4x4.CreateRotationY((float)Math.PI)*float4x4.CreateTranslation(hit, 0, 0) * float4x4.CreateScale(_scaleFactor);
                
                 _rc.ModelView = mv;
                 _rc.Render(ScreenMesh);
