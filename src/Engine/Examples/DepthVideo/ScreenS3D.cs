@@ -28,7 +28,7 @@ namespace Examples.DepthVideo
 
     
 
-    public class ScreenS3D
+    public class ScreenS3D : IDisposable
     {
 
         #region S3D-Shader + Depth
@@ -43,8 +43,6 @@ namespace Examples.DepthVideo
             varying vec2 vUV;
             varying vec4 FuVertex;
 
-            uniform mat4 FUSEE_V;
-            uniform mat4 FUSEE_M;
             uniform mat4 FUSEE_MV;
             uniform mat4 FUSEE_P;
             uniform mat4 FUSEE_ITMV;
@@ -74,69 +72,52 @@ namespace Examples.DepthVideo
             uniform vec4 vColor;
             uniform mat4 FUSEE_MV;
             uniform mat4 FUSEE_P;
-            uniform mat4 FUSEE_V;
-            uniform mat4 FUSEE_M;
             uniform mat4 FUSEE_MVP;
-            uniform mat4 FUSEE_IMV;
             varying vec3 vNormal;
             varying vec2 vUV;
-
             varying vec4 FuVertex;
             float coordZ;
          
             void main()
             {
-                //Read Texture Values
-                //(RGB)
+                //Read Texture Value (RGB)
                 vec4 colTex = vColor * texture2D(vTexture, vUV);    
-                //Depth                      
+                //Read Texture Value (Grey/Depth)                  
                 float depthTexValue = (1-texture(textureDepth, vUV));
-                vec4 temp =vec4(1,1,1,1);
-                //Object coordinates
-               
+                //homogenous vertex coordinates               
                 vec4 vertex = FuVertex;             
-                //ModelView
-                mat4 modelView =FUSEE_MV;
     
                 if(depthTexValue >0.9)          
                 {                   
-                    //ClipSpce
-                    vec4 clip = FUSEE_P*FUSEE_MV*FuVertex;
-                    //Noramlized Device Coordinates
-                    float ndcDepth = (clip.z/clip.w);  
-                    //Fragment Depth Value
-                    float coordZ = (gl_DepthRange.far-gl_DepthRange.near)*0.5*ndcDepth+(gl_DepthRange.far-gl_DepthRange.near)*0.5; 
-                    gl_FragDepth =  gl_FragCoord.z;  
+                    ////ClipSpce
+                    //vec4 clip = FUSEE_P*FUSEE_MV*FuVertex;
+                    ////Noramlized Device Coordinates
+                    //float ndcDepth = (clip.z/clip.w);  
+                    ////Fragment Depth Value
+                    //float coordZ = (gl_DepthRange.far-gl_DepthRange.near)*0.5*ndcDepth+(gl_DepthRange.far-gl_DepthRange.near)*0.5; 
+                    //gl_FragDepth =  gl_FragCoord.z;  
                     discard;
                 }
                 else
                 {          
-                    //Add offest from 'textureDepth' with scaling value;                  
-                    modelView[3].z += ((depthTexValue*2)-1)*scale;
-                    
+                    //Add offest from 'textureDepth' with scaling value;               
+                    vertex.z += ((depthTexValue*2)-1)*scale;
                     //trnasform to ClipSpace 
-                    vec4 clip = FUSEE_P*modelView*vertex;    
-                   
+                    vec4 clip = FUSEE_P*FUSEE_MV*vertex;                     
                     //Noramlized Device Coordinates   
-                    float ndcDepth = (clip.z/clip.w);
-                    
+                    float ndcDepth = (clip.z/clip.w);                    
                     //Viewport transformation
-                    coordZ  = (gl_DepthRange.far-gl_DepthRange.near)*0.5*ndcDepth+(gl_DepthRange.far-gl_DepthRange.near)*0.5; 
+                    coordZ  = (gl_DepthRange.diff)*0.5*ndcDepth+(gl_DepthRange.diff)*0.5; 
                     //Fragment Depth Value
                     gl_FragDepth =  coordZ;              
                 }
-
                 //write color 
-                gl_FragColor =  dot(vColor, vec4(0, 0, depthTexValue, 1))  *colTex * dot(vNormal, vec3(0, 0, -1));        
-        
-                
-                
-
+                gl_FragColor =  dot(vColor, vec4(0, 0, 0, 1))  *colTex * dot(vNormal, vec3(0, 0, -1));                            
             }";
 
         #endregion
 
-
+        private bool disposed;
         private readonly RenderContext _rc;
         private readonly Stereo3D _stereo3D;
         private ShaderProgram _stereo3DShaderProgram;
@@ -193,8 +174,11 @@ namespace Examples.DepthVideo
         public float Hit { get; private set; }
 
         private StereoBM _stereoSolver = new StereoBM();
-        private ITexture iTexLeft;
-        private ITexture iTexRight;
+        private ITexture _iTexLeft, _iTexLeftDepth;
+        private ITexture _iTexRight, _iTexRightDepth;
+
+        private IVideoStreamImp _videoStreamL, _videoStreamLD, _videoStreamR, _videoStreamRD;
+        private Capture captureLeft;
 
         public ScreenS3D(RenderContext rc, Stereo3D s3D,  float3 pos)
         {
@@ -208,8 +192,8 @@ namespace Examples.DepthVideo
             _depthTextureShaderParam = _stereo3DShaderProgram.GetShaderParam("textureDepth");
             _depthShaderParamScale = _stereo3DShaderProgram.GetShaderParam("scale");
 
-            iTexLeft = _rc.CreateTexture(_rc.LoadImage("Assets/imL.png"));
-            iTexRight = _rc.CreateTexture(_rc.LoadImage("Assets/imR.png"));
+            //_iTexLeft = _rc.CreateTexture(_rc.LoadImage("Assets/imL.png"));
+           // _iTexRight = _rc.CreateTexture(_rc.LoadImage("Assets/imR.png"));
 
             Position = pos;
             var faktor = 10;
@@ -263,7 +247,7 @@ namespace Examples.DepthVideo
             ScreenMesh.UVs = uVs;
         }
 
-
+        private string path;
         /// <summary>
         /// Imort the videos to the ScreenS3D object
         /// </summary>
@@ -274,12 +258,25 @@ namespace Examples.DepthVideo
         /// <param name="videoLength">Length of the videos in frames. (All three videos must have the same amount of frames and recorded with the same frame rate)</param>
         public void SetVideo(string pathLeftVideo, string pathRightVideo, string pathDepthVideLeft, string pathDepthVideRight, int videoLength)
         {
+            //path = pathLeftVideo;
+            //captureLeft = new Capture(pathLeftVideo);
+
+
+            //if (imgDataL.PixelData != null)
+            //{
+            //    if (_iTexLeft == null)
+            //        _iTexLeft = _rc.CreateTexture(imgDataL);
+            //    _rc.UpdateTextureRegion(_iTexLeft, imgDataL, 0, 0, imgDataL.Width, imgDataL.Height);
+            //}
+            //_videoStreamL = VideoManager.Instance.LoadVideoFromFile(pathLeftVideo, true, false);
+            //_videoStreamR = VideoManager.Instance.LoadVideoFromFile(pathRightVideo, true, false);
+            //_videoStreamLD = VideoManager.Instance.LoadVideoFromFile(pathDepthVideLeft, true, false);
+            //_videoStreamRD = VideoManager.Instance.LoadVideoFromFile(pathDepthVideRight, true, false);
 
             ImportVideo(_framesListLeft, pathLeftVideo, ref _framesListLeftEnumerator, videoLength);
             ImportVideo(_framesListRight, pathRightVideo, ref _framesListRightEnumerator, videoLength);
             ImportVideo(_framesListDepthLeft, pathDepthVideLeft, ref _framesListDepthLeftEnumerator, videoLength);
             ImportVideo(_framesListDepthRight, pathDepthVideRight, ref _framesListDepthRightEnumerator, videoLength);
-
             VideoFrames _videoFrames = new VideoFrames();
             for (int i = 0; i < _framesListLeft.Count; i++)
             {
@@ -312,23 +309,26 @@ namespace Examples.DepthVideo
         /// <param name="videoLength"></param>
         private void ImportVideo(List<Image<Bgr, byte>> frameList, string path, ref IEnumerator<Image<Bgr, byte>> frameListEnumerator, int videoLength)
         {
-            using (Capture capture = new Capture(path))
-            { 
-                var tempFrame = capture.QueryFrame().ToImage<Bgr, byte>();
 
-            var framecounter = 0;
-            while (tempFrame != null)
+            using (Capture capture = new Capture(path))
             {
-                frameList.Add(tempFrame);
-                tempFrame = capture.QueryFrame().ToImage<Bgr, byte>();
-                framecounter++;
-                if (framecounter >= videoLength)
+                var  c = capture.GetCaptureProperty(Emgu.CV.CvEnum.CapProp.PosFrames);
+                var tempFrame = capture.QueryFrame().ToImage<Bgr, byte>();
+                var TotalFrames = capture.GetCaptureProperty(Emgu.CV.CvEnum.CapProp.FrameCount);
+                   
+                var framecounter = 0;
+                while (tempFrame != null)
                 {
-                    break;
+                    frameList.Add(tempFrame);
+                    tempFrame = capture.QueryFrame().ToImage<Bgr, byte>();
+                    framecounter++;
+                    if (framecounter >= videoLength)
+                    {
+                        break;
+                    }
                 }
-            }
   
-            frameListEnumerator = frameList.GetEnumerator();
+                frameListEnumerator = frameList.GetEnumerator();
             }
         }
 
@@ -589,16 +589,88 @@ namespace Examples.DepthVideo
             }
         }
 
+        private int count = 0;
         public void Update()
         {
-            // _videoFrames = GetCurrentVideoFrames();
-            // CrateTextures(_videoFrames);
+            //_videoFrames = GetCurrentVideoFrames();
+            //CrateTextures(_videoFrames);
 
             // _videoFrames = GetCurrentVideoITextures();
+            //Image<Bgr, byte> left;
+            //if (count < 300)
+            //{
+            //    left = captureLeft.QueryFrame().ToImage<Bgr, byte>();
 
+            //    var imgDataLeft = new ImageData();
+            //    imgDataLeft.Width = left.Width;
+            //    imgDataLeft.Height = left.Height;
+            //    imgDataLeft.PixelFormat = ImagePixelFormat.RGB;
+            //    imgDataLeft.PixelData = left.Bytes;
+            //    if (imgDataLeft.PixelData != null)
+            //    {
+            //        if (_iTexLeft == null)
+            //            _iTexLeft = _rc.CreateTexture(imgDataLeft);
+            //        _rc.UpdateTextureRegion(_iTexLeft, imgDataLeft, 0, 0, imgDataLeft.Width, imgDataLeft.Height);
+            //    }
+            //    count++;
+            //}
+            //else
+            //{
+            //    captureLeft = new Capture(path);
+            //    count = 0;
+
+            //    left = captureLeft.QueryFrame().ToImage<Bgr, byte>();
+
+            //    var imgDataLeft = new ImageData();
+            //    imgDataLeft.Width = left.Width;
+            //    imgDataLeft.Height = left.Height;
+            //    imgDataLeft.PixelFormat = ImagePixelFormat.RGB;
+            //    imgDataLeft.PixelData = left.Bytes;
+            //    if (imgDataLeft.PixelData != null)
+            //    {
+            //        if (_iTexLeft == null)
+            //            _iTexLeft = _rc.CreateTexture(imgDataLeft);
+            //        _rc.UpdateTextureRegion(_iTexLeft, imgDataLeft, 0, 0, imgDataLeft.Width, imgDataLeft.Height);
+            //    }
+            //}
 
             //preloaded videos
             _currentVideoTextures = GetCurrentVideoITextures();
+            
+            //var imgDataL = _videoStreamL.GetCurrentFrame();
+            
+            //if (imgDataL.PixelData != null)
+            //{
+            //    if (_iTexLeft == null)
+            //        _iTexLeft = _rc.CreateTexture(imgDataL);
+            //    _rc.UpdateTextureRegion(_iTexLeft, imgDataL, 0, 0, imgDataL.Width, imgDataL.Height);
+            //}
+
+            //var imgDataR = _videoStreamR.GetCurrentFrame();
+            //if (imgDataR.PixelData != null)
+            //{
+            //    if (_iTexRight == null)
+            //        _iTexRight = _rc.CreateTexture(imgDataR);
+            //    _rc.UpdateTextureRegion(_iTexRight, imgDataR, 0, 0, imgDataR.Width, imgDataR.Height);
+            //}
+     
+
+            //var imgDataLD = _videoStreamLD.GetCurrentFrame();
+            //if (imgDataLD.PixelData != null)
+            //{
+            //    if (_iTexLeftDepth == null)
+            //        _iTexLeftDepth = _rc.CreateTexture(imgDataLD);
+            //    _rc.UpdateTextureRegion(_iTexLeftDepth, imgDataLD, 0, 0, imgDataLD.Width, imgDataLD.Height);
+            //}
+
+
+            //var imgDataRD = _videoStreamLD.GetCurrentFrame();
+            //if (imgDataRD.PixelData != null)
+            //{
+            //    if (_iTexRightDepth == null)
+            //        _iTexRightDepth = _rc.CreateTexture(imgDataRD);
+            //    _rc.UpdateTextureRegion(_iTexRightDepth, imgDataRD, 0, 0, imgDataRD.Width, imgDataRD.Height);
+            //}
 
             if (Input.Instance.IsKey(KeyCodes.W))
                 Position += new float3(0, 0, 0.5f);
@@ -635,7 +707,7 @@ namespace Examples.DepthVideo
                     hit = (-Hit/2);
                     break;
                 case Stereo3DEye.Right:
-                    textureColor = _currentVideoTextures.ITextureRight;
+                    textureColor =  _currentVideoTextures.ITextureRight;
                     textureDepth = _currentVideoTextures.ITextureDepthRight;
                     hit = (Hit/2);
                     break;
@@ -656,6 +728,35 @@ namespace Examples.DepthVideo
 
            
              
+        }
+
+        ~ScreenS3D()
+        {
+            Dispose(false);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+                
+            }
+
+            if (disposing)
+            {
+                _videoStreamL.Dispose();
+                _videoStreamR.Dispose();
+            }
+
+            // Free any unmanaged objects here.
+            //
+            disposed = true;
+        }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

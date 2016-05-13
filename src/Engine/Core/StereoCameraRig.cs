@@ -5,7 +5,7 @@ namespace Fusee.Engine
 {
     public class StereoCameraRig : Stereo3D
     {
-        public float4x4 CurrentProjection { get; private set; }
+       // public float4x4 CurrentProjection { get; private set; }
 
        // public float3 CurrentOffest { get; private set; }
         private float4x4 _leftFrustum, _rightFrustum;
@@ -18,13 +18,12 @@ namespace Fusee.Engine
 
         public StereoCameraRig(Stereo3DMode mode, int width, int height, float iod = 0.065f) : base(mode, width, height)
         {
-            Stereo3DParams.EyeDistance = iod;
+            Iod = iod;
         }
 
         public override void Prepare(Stereo3DEye eye)
         {
-
-            CurrentProjection = (eye == Stereo3DEye.Left) ? _leftFrustum : _rightFrustum;
+            _rc.Projection = (eye == Stereo3DEye.Left) ? _leftFrustum : _rightFrustum;
             base.Prepare(eye);
         }
 
@@ -33,18 +32,14 @@ namespace Fusee.Engine
         {
             //shifttranslation
             var x = (eye == Stereo3DEye.Left)
-                ? eyeV.x - Stereo3DParams.EyeDistance/2
-                : eyeV.x + Stereo3DParams.EyeDistance/2;
+                ? eyeV.x -Iod/2
+                : eyeV.x + Iod/2;
 
             //set frustum
-            _rc.Projection = eye == Stereo3DEye.Left ? _leftFrustum : _rightFrustum;
-          
-            
+            //_rc.Projection = eye == Stereo3DEye.Left ? _leftFrustum : _rightFrustum;
         
             var newEye = new float3(x, eyeV.y, eyeV.z);
             var newTarget = new float3(x, target.y, target.z);
-
-
 
             return float4x4.LookAt(newEye, newTarget, up);
         }
@@ -55,13 +50,6 @@ namespace Fusee.Engine
             var u = float3.Normalize(float3.Cross(up, n));//x
             var v = float3.Cross(n, u);//y
 
-            // Row order notation
-            //return new float4x4(new float4(x.x, y.x, z.x, 0),
-            //                    new float4(x.y, y.y, z.y, 0),
-            //                    new float4(x.z, y.z, z.z, 0),
-            //                    new float4(-float3.Dot(x, eye), -float3.Dot(y, eye), -float3.Dot(z, eye), 1));
-
-            // Column order notation
             float3 d = new float3(float3.Dot(-eye, u), float3.Dot(-eye, v), float3.Dot(-eye, n));
             return new float4x4(u.x, u.y, u.z, d.x,
                                 v.x, v.y, v.z, d.y,
@@ -71,12 +59,9 @@ namespace Fusee.Engine
 
         public void SetFrustums(RenderContext rc, float fovy, float aspectRatio, float zNear, float zFar, float screenZero)
         {
-            Console.WriteLine("SetFrustums");
-            _leftFrustum = CreatePerspectiveFieldOfViewFrustumShift(fovy, aspectRatio, zNear, zFar,
-                Stereo3DParams.EyeDistance, screenZero, true);
-            _rightFrustum = CreatePerspectiveFieldOfViewFrustumShift(fovy, aspectRatio, zNear, zFar,
-                Stereo3DParams.EyeDistance, screenZero, false);
-            CurrentProjection = _leftFrustum;
+            _leftFrustum = ViewFrustumShifted(fovy, aspectRatio, zNear, zFar,screenZero, true);
+            _rightFrustum = ViewFrustumShifted(fovy, aspectRatio, zNear, zFar, screenZero, false);
+            rc.Projection = _leftFrustum;
         }
 
 
@@ -101,10 +86,9 @@ namespace Fusee.Engine
         ///         <item>zNear is larger than zFar</item>
         ///     </list>
         /// </exception>
-        public float4x4 CreatePerspectiveFieldOfViewFrustumShift(float fovy, float aspect, float zNear, float zFar,
-            float IOD, float screenZero, bool lefteye)
+        private float4x4 ViewFrustumShifted(float fovy, float aspect, float zNear, float zFar, float screenZero,
+            bool lefteye)
         {
-
             //Allgemein
             if (fovy <= 0 || fovy > System.Math.PI)
                 throw new ArgumentOutOfRangeException("fovy");
@@ -118,13 +102,13 @@ namespace Fusee.Engine
                 throw new ArgumentOutOfRangeException("zNear");
 
 
-            var top = (float)System.Math.Tan(fovy * 0.5f) * zNear;
+            var top = (float) System.Math.Tan(fovy*0.5f)*zNear;
             var bottom = -top;
-            
-            float shift = lefteye ? -1 : 1;             
 
-            float left = -aspect * top + ((IOD * 0.5f) * (zNear / screenZero))*shift;
-            float right = aspect * top + ((IOD * 0.5f) * (zNear / screenZero)) * shift;
+            var shiftLr = lefteye ? -1 : 1;
+            var shiftOffset = (Iod * 0.5f) * (zNear / screenZero);
+            var left = -aspect*top + shiftOffset*shiftLr;
+            var right = aspect*top + shiftOffset*shiftLr;
 
             float4x4 result;
             float4x4.CreatePerspectiveOffCenter(left, right, bottom, top, zNear, zFar, out result);

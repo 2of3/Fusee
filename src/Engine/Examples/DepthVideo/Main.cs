@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net.Mime;
 using Emgu.CV;
 using Emgu.CV.Structure;
 using Fusee.Engine;
@@ -427,7 +428,10 @@ namespace Examples.DepthVideo
 
             //Esc -> close Application
             if (Input.Instance.IsKey(KeyCodes.Escape))
+            {
                 CloseGameWindow();
+                System.Environment.Exit(-1);//Forcing VideoStreams stop!!
+            }
             // move per keyboard
             if (Input.Instance.IsKey(KeyCodes.Left))
                 _move.x += 0.1f;
@@ -603,13 +607,14 @@ namespace Examples.DepthVideo
             _stereoCameraRig.UpdateOnResize(Width,Height);
            // RC.Projection = float4x4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, aspectRatio, 1, 50);
              _stereoCameraRig.SetFrustums(RC, MathHelper.PiOver4, aspectRatio, 10, 80, 25);
-             RC.Projection = _stereoCameraRig.CurrentProjection;
+             //RC.Projection = _stereoCameraRig.CurrentProjection;
         }
 
         public static void Main()
         {
             var app = new DepthVideo();
             app.Run();
+           
         }
     }
 }
