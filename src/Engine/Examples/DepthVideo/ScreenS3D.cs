@@ -95,7 +95,7 @@ namespace Examples.DepthVideo
                     gl_FragDepth =  coordZ;              
                 }
                 //write color 
-                gl_FragColor =  dot(vColor, vec4(0, 0, 0, 1))  *colTex * dot(vNormal, vec3(0, 0, -1));                            
+                gl_FragColor =  dot(vColor, vec4(0,0,0, 1))  *colTex * dot(vNormal, vec3(0, 0, -1));                            
             }";
 
         #endregion
@@ -163,7 +163,7 @@ namespace Examples.DepthVideo
         private readonly VideoConfig _config;
 
 
-        public ScreenS3D(RenderContext rc, Stereo3D s3D,  float3 pos, VideoConfig videoConfig) : this(rc,s3D,pos)
+        public ScreenS3D(RenderContext rc, Stereo3D s3D, VideoConfig videoConfig) : this(rc,s3D)
         {
             _config = videoConfig;
             SetVideo(videoConfig.VideoDirectory + "/" + videoConfig.LeftVideoRgb,
@@ -174,7 +174,7 @@ namespace Examples.DepthVideo
             ScaleFactor = new float3(_framesListLeft[0].Width * _config.ScalePlane, _framesListLeft[0].Height * _config.ScalePlane, 1f);
         }
 
-        private ScreenS3D(RenderContext rc, Stereo3D s3D,  float3 pos)
+        private ScreenS3D(RenderContext rc, Stereo3D s3D)
         {
             ScreenMesh = new Mesh();
             //Hit = 0.065f*2f;
@@ -186,7 +186,7 @@ namespace Examples.DepthVideo
             _depthTextureShaderParam = _stereo3DShaderProgram.GetShaderParam("textureDepth");
             _depthShaderParamScale = _stereo3DShaderProgram.GetShaderParam("scale");
 
-            Position = pos;
+   
             DepthScale = 5;
 
             CreatePlaneMesh();
@@ -485,6 +485,7 @@ namespace Examples.DepthVideo
             if (Input.Instance.IsKey(KeyCodes.S))
                 _config.PositionZ += -0.5f;
 
+ 
             if (Input.Instance.IsKeyUp(KeyCodes.P))
             {
                 VideoConfigParser.WriteConfigToDisk(_config);
@@ -550,9 +551,6 @@ namespace Examples.DepthVideo
                 _rc.ModelView = mv;
                 _rc.Render(ScreenMesh);
             }
-
-           
-             
         }
 
         ~ScreenS3D()

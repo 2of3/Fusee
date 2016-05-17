@@ -370,7 +370,7 @@ namespace Examples.DepthVideo
         // is called on startup
         public override void Init()
         {
-
+           
             Console.WriteLine("Init");
             RC.ClearColor = new float4(1f, 1f, 1f, 1);
 
@@ -403,7 +403,7 @@ namespace Examples.DepthVideo
             //Set up screen object
             foreach (var config in videoConfigs)
             {
-                _screenS3Ds.Add(new ScreenS3D(RC, _stereoCameraRig, new float3(0, 0, -25), config));
+                _screenS3Ds.Add(new ScreenS3D(RC, _stereoCameraRig, config));
             }
            
             //Create Objects3D
@@ -551,9 +551,11 @@ namespace Examples.DepthVideo
 
             if (Input.Instance.IsKeyUp(KeyCodes.Tab))
             {
-                if (_screenS3Ds.Count != _selectedScreen)
+               
+                if (_screenS3Ds.Count > _selectedScreen)
                 {
-                    _selectedScreen ++;
+                   
+                    _selectedScreen++;
                 }
                 else
                 {
@@ -563,6 +565,8 @@ namespace Examples.DepthVideo
             _screenS3Ds[_selectedScreen].SetHit();
             _screenS3Ds[_selectedScreen].SetDepthScale();
             _screenS3Ds[_selectedScreen].SetPosition();
+           
+            
         }
 
         // is called when the window was resized
