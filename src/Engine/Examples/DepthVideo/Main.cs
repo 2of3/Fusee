@@ -364,7 +364,7 @@ namespace Examples.DepthVideo
         //private Stereo3D _stereoCameraRig;
 
         private List<Object3D> _object3DList = new List<Object3D>();
-
+        private List<ScreenS3D> _screenS3Ds = new List<ScreenS3D>(); 
 
         // is called on startup
         public override void Init()
@@ -397,9 +397,16 @@ namespace Examples.DepthVideo
             _stereoCameraRig.AttachToContext(RC);
 
 
+
+            var videoConfigs =VideoConfigParser.ParseConfigs("Assets");
             //Set up screen object
-            _screenS3D = new ScreenS3D(RC, _stereoCameraRig, new float3(0,0,-25));
-            _screenS3D.SetVideo("Assets/left.mkv", "Assets/right.mkv", "Assets/depthLeft.mkv", "Assets/depthRight.mkv", 300);
+            foreach (var config in videoConfigs)
+            {
+                _screenS3Ds.Add(new ScreenS3D(RC, _stereoCameraRig, new float3(0, 0, -25), config));
+            }
+            //_screenS3D = new ScreenS3D(RC, _stereoCameraRig, new float3(0,0,-25));
+            //_screenS3D.SetVideo("Assets/left.mkv", "Assets/right.mkv", "Assets/depthLeft.mkv", "Assets/depthRight.mkv", 300);
+            //_screenS3Ds.Add(_screenS3D);
             //_screenS3D_1 = new ScreenS3D(RC, _stereoCameraRig, new float3(-5, 0, -30));
             //_screenS3D_1.SetVideo("Assets/left.mkv", "Assets/right.mkv", "Assets/depthLeft.mkv", "Assets/depthRight.mkv", 300);
             //_screenS3D_2 = new ScreenS3D(RC, _stereoCameraRig, new float3(5, 0, -20));
@@ -529,7 +536,7 @@ namespace Examples.DepthVideo
                     RC.SetShaderParam(_s3dColorParam, new float4(new float3(0.5f, 0.5f, 0.5f), 1));
                     RC.SetShaderParamTexture(_s3dTextureParam, _iTexture);
                     RC.ModelView = lookAt * mtx * float4x4.CreateTranslation(new float3(5, 0,-25)) * float4x4.CreateRotationY((float)Math.PI) * float4x4.CreateScale(new float3(0.64f * 7, 0.48f * 7, 1f));
-                    RC.Render(_screenS3D.ScreenMesh);
+                    RC.Render(_screenS3Ds[0].ScreenMesh);
                 }
                 else
                 {
@@ -544,7 +551,7 @@ namespace Examples.DepthVideo
                     RC.SetShaderParam(_s3dColorParam, new float4(new float3(0.5f, 0.5f, 0.5f), 1));
                     RC.SetShaderParamTexture(_s3dTextureParam, _iTexture);
                     RC.ModelView = lookAt * mtx * float4x4.CreateTranslation(new float3(5,0,-25)) * float4x4.CreateRotationY((float)Math.PI) * float4x4.CreateScale(new float3(0.64f * 7, 0.48f * 7, 1f));
-                    RC.Render(_screenS3D.ScreenMesh);
+                    RC.Render(_screenS3Ds[0].ScreenMesh);
 
                     if (Input.Instance.IsKeyDown(KeyCodes.D3))
                     {
@@ -557,7 +564,7 @@ namespace Examples.DepthVideo
                     }
                 }
                
-                _screenS3D.Render3DScreen(lookAt, mtx);
+               // _screenS3D.Render3DScreen(lookAt, mtx);
                 //_screenS3D_2.Render3DScreen(mtx, lookAt);
                 //_screenS3D_1.Render3DScreen(mtx, lookAt);
 
@@ -567,7 +574,10 @@ namespace Examples.DepthVideo
                 //RC.ModelView = lookAt * rot * float4x4.CreateTranslation(0, 0, 0) * float4x4.CreateRotationY((float)Math.PI / 4) * float4x4.CreateRotationX((float)Math.PI / 4) * float4x4.CreateScale(0.01f);
                 //RC.Render(_meshCube);
 
-
+                foreach (var screen in _screenS3Ds)
+                {
+                    screen.Render3DScreen(lookAt, mtx);
+                }
 
                 foreach (var obj3d in _object3DList)
                 {
@@ -592,7 +602,11 @@ namespace Examples.DepthVideo
 
         private void Update()
         {
-            _screenS3D.Update();
+            foreach (var screen in _screenS3Ds)
+            {
+                screen.Update();
+            }
+           // _screenS3D.Update();
             //_screenS3D_1.Update();
             //_screenS3D_2.Update();
         }

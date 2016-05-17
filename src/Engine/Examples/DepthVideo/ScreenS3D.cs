@@ -180,10 +180,19 @@ namespace Examples.DepthVideo
         private IVideoStreamImp _videoStreamL, _videoStreamLD, _videoStreamR, _videoStreamRD;
         private Capture captureLeft;
 
+        public ScreenS3D(RenderContext rc, Stereo3D s3D,  float3 pos, VideoConfig videoConfig) : this(rc,s3D,pos)
+        {
+            SetVideo(videoConfig.VideoDirectory + "/" + videoConfig.LeftVideoRgb,
+                videoConfig.VideoDirectory +"/"+ videoConfig.RightVideoRgb,
+                videoConfig.VideoDirectory + "/" + videoConfig.LeftVideoDepth,
+                videoConfig.VideoDirectory + "/" + videoConfig.RightVideoDepth, videoConfig.FrameCount);
+            Hit = videoConfig.Hit;
+        }
+
         public ScreenS3D(RenderContext rc, Stereo3D s3D,  float3 pos)
         {
             ScreenMesh = new Mesh();
-            Hit = 0.065f*2f;
+            //Hit = 0.065f*2f;
             _rc = rc;
             _stereo3D = s3D;
             _stereo3DShaderProgram = _rc.CreateShader(VsS3dDepth, PsS3dDepth);
@@ -192,15 +201,12 @@ namespace Examples.DepthVideo
             _depthTextureShaderParam = _stereo3DShaderProgram.GetShaderParam("textureDepth");
             _depthShaderParamScale = _stereo3DShaderProgram.GetShaderParam("scale");
 
-            //_iTexLeft = _rc.CreateTexture(_rc.LoadImage("Assets/imL.png"));
-           // _iTexRight = _rc.CreateTexture(_rc.LoadImage("Assets/imR.png"));
 
             Position = pos;
             var faktor = 10;
             _scaleFactor = new float3(0.64f* faktor, 0.48f* faktor, 1f);
             CreatePlaneMesh();
 
-        //    CalcEpipolar();
         }
 
        
@@ -247,7 +253,7 @@ namespace Examples.DepthVideo
             ScreenMesh.UVs = uVs;
         }
 
-        private string path;
+
         /// <summary>
         /// Imort the videos to the ScreenS3D object
         /// </summary>
@@ -258,20 +264,7 @@ namespace Examples.DepthVideo
         /// <param name="videoLength">Length of the videos in frames. (All three videos must have the same amount of frames and recorded with the same frame rate)</param>
         public void SetVideo(string pathLeftVideo, string pathRightVideo, string pathDepthVideLeft, string pathDepthVideRight, int videoLength)
         {
-            //path = pathLeftVideo;
-            //captureLeft = new Capture(pathLeftVideo);
 
-
-            //if (imgDataL.PixelData != null)
-            //{
-            //    if (_iTexLeft == null)
-            //        _iTexLeft = _rc.CreateTexture(imgDataL);
-            //    _rc.UpdateTextureRegion(_iTexLeft, imgDataL, 0, 0, imgDataL.Width, imgDataL.Height);
-            //}
-            //_videoStreamL = VideoManager.Instance.LoadVideoFromFile(pathLeftVideo, true, false);
-            //_videoStreamR = VideoManager.Instance.LoadVideoFromFile(pathRightVideo, true, false);
-            //_videoStreamLD = VideoManager.Instance.LoadVideoFromFile(pathDepthVideLeft, true, false);
-            //_videoStreamRD = VideoManager.Instance.LoadVideoFromFile(pathDepthVideRight, true, false);
 
             ImportVideo(_framesListLeft, pathLeftVideo, ref _framesListLeftEnumerator, videoLength);
             ImportVideo(_framesListRight, pathRightVideo, ref _framesListRightEnumerator, videoLength);
@@ -467,85 +460,6 @@ namespace Examples.DepthVideo
             return cvt;
         }
 
-        private void CalcEpipolar()
-        {
-
-            Image<Bgr, byte> left = CvInvoke.Imread("Assets/imL.png", LoadImageType.Color).ToImage<Bgr, byte>();
-            Image<Bgr, byte> right = CvInvoke.Imread("Assets/imR.png", LoadImageType.Color).ToImage<Bgr, byte>();
-            //  var diff = left.AbsDiff(right);
-
-            VectorOfVectorOfDMatch matches = new VectorOfVectorOfDMatch();
-            SURF surfCPU = new SURF(300);
-            int k = 2;
-            UMat leftDescriptors = new UMat();
-            UMat rightDescriptors = new UMat();
-            VectorOfKeyPoint leftKeyPoints = new VectorOfKeyPoint();
-            VectorOfKeyPoint rightKeyPoints = new VectorOfKeyPoint();
-            surfCPU.DetectAndCompute(left, null, leftKeyPoints, leftDescriptors, false);
-            surfCPU.DetectAndCompute(right, null, rightKeyPoints, rightDescriptors, false);
-
-            BFMatcher matcher = new BFMatcher(DistanceType.L2);
-            matcher.Add(leftDescriptors);
-
-            matcher.KnnMatch(rightDescriptors, matches, k, null);
-            Mat mask = new Mat(matches.Size, 1, DepthType.Cv8U, 1);
-            mask.SetTo(new MCvScalar(255));
-
-              CvInvoke.Imshow("Diff", mask);
-
-            Mat _left = CvInvoke.Imread("Assets/imL.png", LoadImageType.Color);
-            Mat _right = CvInvoke.Imread("Assets/imR.png", LoadImageType.Color);
-            
-            // computeCorrespondEpilines
-            Feature2D f2d = new FastDetector();
-            var kpL = f2d.Detect(_left);
-            var kpR = f2d.Detect(_right);
-
-            for (int i = 0; i < kpL.Length; i++)
-            {
-
-                
-                var dx = kpL[i].Point.X - kpR[i].Point.X;
-                var dy = kpL[i].Point.Y - kpR[i].Point.Y;
-
-                if (dy != 0)
-                {
-                    Console.WriteLine(i+": L: "+ kpL[i].Point + ",  R: "+ kpR[i].Point + ", diff: "+ dx);
-                }
-            }
-            
-        }
-
-
-        private void CreateDisparityMap(Mat left, Mat right)
-        {
-            Mat _left = CvInvoke.Imread("Assets/imL.png", LoadImageType.Color);
-            Mat _right = CvInvoke.Imread("Assets/imR.png", LoadImageType.Color);
-            UMat leftGray = new UMat();
-            UMat rightGray = new UMat();
-
-            
-            //CvInvoke.CvtColor(left, leftGray, ColorConversion.Bgr2Gray);
-            //CvInvoke.CvtColor(right, rightGray, ColorConversion.Bgr2Gray);
-            Mat disparityMap = new Mat();
-
-            Disparity(left, right, disparityMap);
-            
-            CvInvoke.Imshow("Disp", disparityMap.ToImage<Gray,byte>());
-        }
-
-        public void Disparity(IInputArray left, IInputArray right,  Mat outputDisparityMap)
-        {
-            using (StereoBM stereoSolver = new StereoBM())
-            {
-  
-                
-                stereoSolver.Compute(left, right, outputDisparityMap);
-                
-            }
-
-        }
-
       
 
         private void CrateTextures(VideoFrames vf)
@@ -592,85 +506,11 @@ namespace Examples.DepthVideo
         private int count = 0;
         public void Update()
         {
-            //_videoFrames = GetCurrentVideoFrames();
-            //CrateTextures(_videoFrames);
-
-            // _videoFrames = GetCurrentVideoITextures();
-            //Image<Bgr, byte> left;
-            //if (count < 300)
-            //{
-            //    left = captureLeft.QueryFrame().ToImage<Bgr, byte>();
-
-            //    var imgDataLeft = new ImageData();
-            //    imgDataLeft.Width = left.Width;
-            //    imgDataLeft.Height = left.Height;
-            //    imgDataLeft.PixelFormat = ImagePixelFormat.RGB;
-            //    imgDataLeft.PixelData = left.Bytes;
-            //    if (imgDataLeft.PixelData != null)
-            //    {
-            //        if (_iTexLeft == null)
-            //            _iTexLeft = _rc.CreateTexture(imgDataLeft);
-            //        _rc.UpdateTextureRegion(_iTexLeft, imgDataLeft, 0, 0, imgDataLeft.Width, imgDataLeft.Height);
-            //    }
-            //    count++;
-            //}
-            //else
-            //{
-            //    captureLeft = new Capture(path);
-            //    count = 0;
-
-            //    left = captureLeft.QueryFrame().ToImage<Bgr, byte>();
-
-            //    var imgDataLeft = new ImageData();
-            //    imgDataLeft.Width = left.Width;
-            //    imgDataLeft.Height = left.Height;
-            //    imgDataLeft.PixelFormat = ImagePixelFormat.RGB;
-            //    imgDataLeft.PixelData = left.Bytes;
-            //    if (imgDataLeft.PixelData != null)
-            //    {
-            //        if (_iTexLeft == null)
-            //            _iTexLeft = _rc.CreateTexture(imgDataLeft);
-            //        _rc.UpdateTextureRegion(_iTexLeft, imgDataLeft, 0, 0, imgDataLeft.Width, imgDataLeft.Height);
-            //    }
-            //}
+           
 
             //preloaded videos
             _currentVideoTextures = GetCurrentVideoITextures();
-            
-            //var imgDataL = _videoStreamL.GetCurrentFrame();
-            
-            //if (imgDataL.PixelData != null)
-            //{
-            //    if (_iTexLeft == null)
-            //        _iTexLeft = _rc.CreateTexture(imgDataL);
-            //    _rc.UpdateTextureRegion(_iTexLeft, imgDataL, 0, 0, imgDataL.Width, imgDataL.Height);
-            //}
-
-            //var imgDataR = _videoStreamR.GetCurrentFrame();
-            //if (imgDataR.PixelData != null)
-            //{
-            //    if (_iTexRight == null)
-            //        _iTexRight = _rc.CreateTexture(imgDataR);
-            //    _rc.UpdateTextureRegion(_iTexRight, imgDataR, 0, 0, imgDataR.Width, imgDataR.Height);
-            //}
-     
-
-            //var imgDataLD = _videoStreamLD.GetCurrentFrame();
-            //if (imgDataLD.PixelData != null)
-            //{
-            //    if (_iTexLeftDepth == null)
-            //        _iTexLeftDepth = _rc.CreateTexture(imgDataLD);
-            //    _rc.UpdateTextureRegion(_iTexLeftDepth, imgDataLD, 0, 0, imgDataLD.Width, imgDataLD.Height);
-            //}
-
-
-            //var imgDataRD = _videoStreamLD.GetCurrentFrame();
-            //if (imgDataRD.PixelData != null)
-            //{
-            //    if (_iTexRightDepth == null)
-            //        _iTexRightDepth = _rc.CreateTexture(imgDataRD);
-            //    _rc.UpdateTextureRegion(_iTexRightDepth, imgDataRD, 0, 0, imgDataRD.Width, imgDataRD.Height);
-            //}
+           
 
             if (Input.Instance.IsKey(KeyCodes.W))
                 Position += new float3(0, 0, 0.5f);
