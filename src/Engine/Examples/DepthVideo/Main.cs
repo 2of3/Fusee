@@ -334,11 +334,11 @@ namespace Examples.DepthVideo
 
         #endregion
 
-        private Mesh _meshCube, _meshSphere, _meshTeapot;
+        private Mesh _meshCube;//, _meshSphere, _meshTeapot;
 
 
         private float3 _move = float3.Zero;
-        private float3 test = new float3(0,0,-25);
+  //      private float3 test = new float3(0,0,-25);
         // angle variables
         private static float _angleHorz, _angleVert, _angleVelHorz, _angleVelVert;
         private const float _rotationSpeed = 1f;
@@ -358,13 +358,14 @@ namespace Examples.DepthVideo
 
 
 
-        private ScreenS3D _screenS3D, _screenS3D_1, _screenS3D_2;
+     //   private ScreenS3D _screenS3D, _screenS3D_1, _screenS3D_2;
 
         private StereoCameraRig _stereoCameraRig;
         //private Stereo3D _stereoCameraRig;
 
         private List<Object3D> _object3DList = new List<Object3D>();
-        private List<ScreenS3D> _screenS3Ds = new List<ScreenS3D>(); 
+        private List<ScreenS3D> _screenS3Ds = new List<ScreenS3D>();
+        private int _selectedScreen;
 
         // is called on startup
         public override void Init()
@@ -376,8 +377,8 @@ namespace Examples.DepthVideo
 
             //init mesh
             _meshCube = MeshReader.LoadMesh(@"Assets/Cube.obj.model");
-            _meshTeapot = MeshReader.LoadMesh(@"Assets/Teapot.obj.model");
-            _meshSphere = MeshReader.LoadMesh(@"Assets/Sphere.obj.model");
+            //_meshTeapot = MeshReader.LoadMesh(@"Assets/Teapot.obj.model");
+            //_meshSphere = MeshReader.LoadMesh(@"Assets/Sphere.obj.model");
 
             //stereoshader -> color only
             _shaderProgram3DColor = RC.CreateShader(VsS3D, PsS3D);
@@ -398,20 +399,13 @@ namespace Examples.DepthVideo
 
 
 
-            var videoConfigs =VideoConfigParser.ParseConfigs("Assets");
+            var videoConfigs = VideoConfigParser.ParseConfigs();
             //Set up screen object
             foreach (var config in videoConfigs)
             {
                 _screenS3Ds.Add(new ScreenS3D(RC, _stereoCameraRig, new float3(0, 0, -25), config));
             }
-            //_screenS3D = new ScreenS3D(RC, _stereoCameraRig, new float3(0,0,-25));
-            //_screenS3D.SetVideo("Assets/left.mkv", "Assets/right.mkv", "Assets/depthLeft.mkv", "Assets/depthRight.mkv", 300);
-            //_screenS3Ds.Add(_screenS3D);
-            //_screenS3D_1 = new ScreenS3D(RC, _stereoCameraRig, new float3(-5, 0, -30));
-            //_screenS3D_1.SetVideo("Assets/left.mkv", "Assets/right.mkv", "Assets/depthLeft.mkv", "Assets/depthRight.mkv", 300);
-            //_screenS3D_2 = new ScreenS3D(RC, _stereoCameraRig, new float3(5, 0, -20));
-            //_screenS3D_2.SetVideo("Assets/left.mkv", "Assets/right.mkv", "Assets/depthLeft.mkv", "Assets/depthRight.mkv", 300);
-
+           
             //Create Objects3D
             var Cube3D_1 = new Object3D(RC, new float3(0, 0, -50), new float3((float)Math.PI / 4, (float)Math.PI / 4, 0), _meshCube, 0.01f, 0.01f);
             Cube3D_1.SimpleTextureMaterial(_shaderProgram3DColor, _s3dTextureParam, _s3dColorParam, _iTexture, new float4(1, 1, 1, 1));
@@ -433,83 +427,23 @@ namespace Examples.DepthVideo
             //Update
             Update();
 
-            //Esc -> close Application
-            if (Input.Instance.IsKey(KeyCodes.Escape))
-            {
-                CloseGameWindow();
-                System.Environment.Exit(-1);//Forcing VideoStreams stop!!
-            }
-            // move per keyboard
-            if (Input.Instance.IsKey(KeyCodes.Left))
-                _move.x += 0.1f;
 
-            if (Input.Instance.IsKey(KeyCodes.Right))
-                _move.x -= 0.1f;
-
-            if (Input.Instance.IsKey(KeyCodes.Up))
-                _move.z += 0.1f;
-
-            if (Input.Instance.IsKey(KeyCodes.Down))
-                _move.z -= 0.1f;
-
-            if (Input.Instance.IsKey(KeyCodes.D1))
-                test.z += 0.1f;
-            if (Input.Instance.IsKey(KeyCodes.D2))
-                test.z -= 0.1f;
 
            
 
-            // move per mouse
-            if (Input.Instance.IsButton(MouseButtons.Left))
-            {
-                _angleVelHorz = -_rotationSpeed*Input.Instance.GetAxis(InputAxis.MouseX);
-                _angleVelVert = -_rotationSpeed*Input.Instance.GetAxis(InputAxis.MouseY);
-            }
-            else
-            {
-                var curDamp = (float) Math.Exp(-_damping*Time.Instance.DeltaTime);
-                _angleVelHorz *= curDamp;
-                _angleVelVert *= curDamp;
-            }
-
-            _angleHorz += _angleVelHorz;
-            _angleVert += _angleVelVert;
+           
 
 
             var mtxRot = float4x4.CreateRotationX(_angleVert)*float4x4.CreateRotationY(_angleHorz);
-
-            if (Input.Instance.IsKey(KeyCodes.D4))
-            {
-                _move = new float3(0,0,-10);
-            }
-            if (Input.Instance.IsKey(KeyCodes.D5))
-            {
-                _move = new float3(0, 0, 0);
-            }
-
-
-            var move = float4x4.CreateTranslation(_move);
-
-
-
-            
-
-
-            //RC.SetShader(_colorShader);
-            //RC.SetShaderParam(_color, new float4(0,1,0,1));
-            //RC.ModelView = mtxCam * mtxRot * float4x4.CreateTranslation(0, 0, _cubePos.z)  * float4x4.CreateScale(0.01f);
-            //RC.Render(_meshCube);
-
-
-
-            RenderS3D(move*mtxRot);
+            var mtxMov = float4x4.CreateTranslation(_move);
+            RenderS3D(mtxMov*mtxRot);
             
             Present();
           
         }
 
 
-        ITexture _iTex = null;
+
         private void RenderS3D(float4x4 mtx)
         {
            
@@ -526,12 +460,6 @@ namespace Examples.DepthVideo
                 
                 if (_stereoCameraRig.CurrentEye == Stereo3DEye.Left)
                 {
-                    //RC.SetShader(_shaderProgram3DColor);
-                    //RC.SetShaderParam(_s3dColorParam, new float4(new float3(0.5f, 0.5f, 0.5f), 1));
-                    //RC.SetShaderParamTexture(_s3dTextureParam, _iTexture);
-                    //RC.ModelView = lookAt * mtx * float4x4.CreateTranslation(test) * float4x4.CreateRotationY((float)Math.PI)*float4x4.CreateScale(new float3(0.64f * 10, 0.48f * 10, 1f));
-                    //RC.Render(_screenS3D.ScreenMesh);
-
                     RC.SetShader(_shaderProgram3DColor);
                     RC.SetShaderParam(_s3dColorParam, new float4(new float3(0.5f, 0.5f, 0.5f), 1));
                     RC.SetShaderParamTexture(_s3dTextureParam, _iTexture);
@@ -540,43 +468,16 @@ namespace Examples.DepthVideo
                 }
                 else
                 {
-
-                    //RC.SetShader(_shaderProgram3DColor);
-                    //RC.SetShaderParam(_s3dColorParam, new float4(new float3(0.5f, 0.5f, 0.5f), 1));
-                    //RC.SetShaderParamTexture(_s3dTextureParam, _iTexture);
-                    //RC.ModelView = lookAt * mtx * float4x4.CreateTranslation(test) * float4x4.CreateRotationY((float)Math.PI)* float4x4.CreateScale(new float3(0.64f * 10, 0.48f * 10, 1f));
-                    //RC.Render(_screenS3D.ScreenMesh);
-
                     RC.SetShader(_shaderProgram3DColor);
                     RC.SetShaderParam(_s3dColorParam, new float4(new float3(0.5f, 0.5f, 0.5f), 1));
                     RC.SetShaderParamTexture(_s3dTextureParam, _iTexture);
                     RC.ModelView = lookAt * mtx * float4x4.CreateTranslation(new float3(5,0,-25)) * float4x4.CreateRotationY((float)Math.PI) * float4x4.CreateScale(new float3(0.64f * 7, 0.48f * 7, 1f));
                     RC.Render(_screenS3Ds[0].ScreenMesh);
-
-                    if (Input.Instance.IsKeyDown(KeyCodes.D3))
-                    {
-                        Console.WriteLine("test");
-                        Console.WriteLine(test);
-                        //Console.WriteLine("lookAt");
-                        //Console.WriteLine(lookAt);
-                        //Console.WriteLine("ModelView");
-                        //Console.WriteLine(RC.ModelView);
-                    }
                 }
                
-               // _screenS3D.Render3DScreen(lookAt, mtx);
-                //_screenS3D_2.Render3DScreen(mtx, lookAt);
-                //_screenS3D_1.Render3DScreen(mtx, lookAt);
-
-                //RC.SetShader(_shaderProgram3DColor);
-                //RC.SetShaderParam(_s3dColorParam, new float4(new float3(1, 1, 1), 0.2f));
-                //RC.SetShaderParamTexture(_s3dTextureParam, _iTex);
-                //RC.ModelView = lookAt * rot * float4x4.CreateTranslation(0, 0, 0) * float4x4.CreateRotationY((float)Math.PI / 4) * float4x4.CreateRotationX((float)Math.PI / 4) * float4x4.CreateScale(0.01f);
-                //RC.Render(_meshCube);
-
                 foreach (var screen in _screenS3Ds)
                 {
-                    screen.Render3DScreen(lookAt, mtx);
+                    screen.Render3DScreen(lookAt*mtx);
                 }
 
                 foreach (var obj3d in _object3DList)
@@ -594,8 +495,6 @@ namespace Examples.DepthVideo
             }
             
             _stereoCameraRig.Display();
-
-            //Console.WriteLine(RC.Projection);
           
         }
 
@@ -606,9 +505,65 @@ namespace Examples.DepthVideo
             {
                 screen.Update();
             }
-           // _screenS3D.Update();
-            //_screenS3D_1.Update();
-            //_screenS3D_2.Update();
+
+            ReadUserInput();
+
+        }
+
+        private void ReadUserInput()
+        {
+
+            // move per mouse
+            if (Input.Instance.IsButton(MouseButtons.Left))
+            {
+                _angleVelHorz = -_rotationSpeed * Input.Instance.GetAxis(InputAxis.MouseX);
+                _angleVelVert = -_rotationSpeed * Input.Instance.GetAxis(InputAxis.MouseY);
+            }
+            else
+            {
+                var curDamp = (float)Math.Exp(-_damping * Time.Instance.DeltaTime);
+                _angleVelHorz *= curDamp;
+                _angleVelVert *= curDamp;
+            }
+
+            _angleHorz += _angleVelHorz;
+            _angleVert += _angleVelVert;
+
+            //Esc -> close Application
+            if (Input.Instance.IsKey(KeyCodes.Escape))
+            {
+                CloseGameWindow();
+                System.Environment.Exit(-1);//Forcing VideoStreams stop!!
+            }
+            // move cam with arrows
+            if (Input.Instance.IsKey(KeyCodes.Left))
+                _move.x += 0.1f;
+
+            if (Input.Instance.IsKey(KeyCodes.Right))
+                _move.x -= 0.1f;
+
+            if (Input.Instance.IsKey(KeyCodes.Up))
+                _move.z += 0.1f;
+
+            if (Input.Instance.IsKey(KeyCodes.Down))
+                _move.z -= 0.1f;
+
+            //if (Input.Instance.IsKey(KeyCodes.D1))
+            //    test.z += 0.1f;
+            //if (Input.Instance.IsKey(KeyCodes.D2))
+            //    test.z -= 0.1f;
+            if (Input.Instance.IsKeyUp(KeyCodes.Tab))
+            {
+                if (_screenS3Ds.Count != _selectedScreen)
+                {
+                    _selectedScreen ++;
+                }
+                else
+                {
+                    _selectedScreen = 0;
+                }
+            }
+            _screenS3Ds[_selectedScreen].SetHit();
         }
 
         // is called when the window was resized
@@ -621,7 +576,6 @@ namespace Examples.DepthVideo
             _stereoCameraRig.UpdateOnResize(Width,Height);
            // RC.Projection = float4x4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, aspectRatio, 1, 50);
              _stereoCameraRig.SetFrustums(RC, MathHelper.PiOver4, aspectRatio, 10, 80, 25);
-             //RC.Projection = _stereoCameraRig.CurrentProjection;
         }
 
         public static void Main()

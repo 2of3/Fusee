@@ -17,9 +17,8 @@ namespace Examples.DepthVideo
         public float Brightness { get; set; }
         private CurrentShaderMaterial _currentMaterial;
 
-        private RenderContext _rc;
-  
-        // public float4x4 Position { get; set; }
+        private readonly RenderContext _rc;
+
 
         private struct CurrentShaderMaterial
         {

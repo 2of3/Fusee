@@ -56,10 +56,10 @@
     <Compile Include="VideoConfig.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\depthLeft.mkv">
+    <Content Include="Assets\S3DVideos\depthLeft.mkv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\depthRight.mkv">
+    <Content Include="Assets\S3DVideos\depthRight.mkv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\imL.png">
@@ -68,7 +68,7 @@
     <Content Include="Assets\imR.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\left.mkv">
+    <Content Include="Assets\S3DVideos\left.mkv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\left.png">
@@ -77,7 +77,7 @@
     <Content Include="Assets\leftDepth.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\right.mkv">
+    <Content Include="Assets\S3DVideos\right.mkv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\right.png">
@@ -176,6 +176,7 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)/Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

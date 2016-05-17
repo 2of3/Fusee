@@ -1,0 +1,10 @@
+{
+"Name":"TaurusKnot",
+"VideoDirectory":"",
+"LeftVideoRgb":"left.mkv",
+"LeftVideoDepth":"depthLeft.mkv",
+"RightVideoRgb":"right.mkv",
+"RightVideoDepth":"depthRight.mkv",
+"FrameCount":300,
+"Hit":0.0
+}
