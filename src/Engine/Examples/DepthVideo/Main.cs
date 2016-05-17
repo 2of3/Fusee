@@ -574,7 +574,6 @@ namespace Examples.DepthVideo
 
             var aspectRatio = Width/(float) Height;
             _stereoCameraRig.UpdateOnResize(Width,Height);
-           // RC.Projection = float4x4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, aspectRatio, 1, 50);
              _stereoCameraRig.SetFrustums(RC, MathHelper.PiOver4, aspectRatio, 10, 80, 25);
         }
 

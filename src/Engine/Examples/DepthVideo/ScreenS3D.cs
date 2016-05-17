@@ -103,21 +103,18 @@ namespace Examples.DepthVideo
         private bool disposed;
         private readonly RenderContext _rc;
         private readonly Stereo3D _stereo3D;
-        private ShaderProgram _stereo3DShaderProgram;
-        private IShaderParam _colorShaderParam;
-        private IShaderParam _colorTextureShaderParam;
-        private IShaderParam _depthTextureShaderParam;
-        private IShaderParam _depthShaderParamScale;
+        private readonly ShaderProgram _stereo3DShaderProgram;
+        private readonly IShaderParam _colorShaderParam;
+        private readonly IShaderParam _colorTextureShaderParam;
+        private readonly IShaderParam _depthTextureShaderParam;
+        private readonly IShaderParam _depthShaderParamScale;
 
 
         public Mesh ScreenMesh { get; set; }
         public float3 Position { get; set; }
-     //   private float Hit { get; set; }
         private float3 ScaleFactor { get; set; }
         private float ScalePlane { get; set; }
         private float DepthScale { get; set; }
-
-
 
         private struct VideoFrames
         {
@@ -164,7 +161,7 @@ namespace Examples.DepthVideo
 
         private CurrentVideoTextrures CurrentVideoTextures { get; set; }
         // private IVideoStreamImp _videoStreamL, _videoStreamLD, _videoStreamR, _videoStreamRD;
-        private VideoConfig _config;
+        private readonly VideoConfig _config;
 
 
         public ScreenS3D(RenderContext rc, Stereo3D s3D,  float3 pos, VideoConfig videoConfig) : this(rc,s3D,pos)
@@ -258,8 +255,8 @@ namespace Examples.DepthVideo
             ImportVideo(_framesListDepthRight, pathDepthVideRight, ref _framesListDepthRightEnumerator, videoLength);
             for (int i = 0; i < _framesListLeft.Count; i++)
             {
-                var _videoFrames = GetVideoFrames();
-                CrateTextures(_videoFrames);
+                var videoFrames = GetVideoFrames();
+                CrateTextures(videoFrames);
             }
             _iTexturesListLeftEnumerator = _iTexturesListLeft.GetEnumerator();
             _iTexturesListRightEnumerator = _iTexturesListRight.GetEnumerator();

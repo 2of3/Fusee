@@ -50,6 +50,7 @@ namespace Examples.DepthVideo
             {
                 using (var jsonWriter = new JsonTextWriter(streamWriter))
                 {
+                    jsonWriter.Formatting = Formatting.Indented;
                     serializer.Serialize(jsonWriter, config);
                 }
             }

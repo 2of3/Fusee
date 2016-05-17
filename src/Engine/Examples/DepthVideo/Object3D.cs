@@ -63,7 +63,7 @@ namespace Examples.DepthVideo
             }
             else
             {
-                Console.WriteLine("Woops");
+                Console.WriteLine("Couldn't render Object3D - Are all your Shader Settings correct?");
             }
         }
     }

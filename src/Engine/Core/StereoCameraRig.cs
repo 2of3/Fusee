@@ -5,10 +5,9 @@ namespace Fusee.Engine
 {
     public class StereoCameraRig : Stereo3D
     {
-       // public float4x4 CurrentProjection { get; private set; }
 
-       // public float3 CurrentOffest { get; private set; }
         private float4x4 _leftFrustum, _rightFrustum;
+        public float FocalLength { get; private set; }
 
         public float Iod
         {
@@ -57,10 +56,11 @@ namespace Fusee.Engine
                                 0, 0, 0, 1);
         }
 
-        public void SetFrustums(RenderContext rc, float fovy, float aspectRatio, float zNear, float zFar, float screenZero)
+        public void SetFrustums(RenderContext rc, float fovy, float aspectRatio, float zNear, float zFar, float focalLength)
         {
-            _leftFrustum = ViewFrustumShifted(fovy, aspectRatio, zNear, zFar,screenZero, true);
-            _rightFrustum = ViewFrustumShifted(fovy, aspectRatio, zNear, zFar, screenZero, false);
+            FocalLength = focalLength;
+            _leftFrustum = ViewFrustumShifted(fovy, aspectRatio, zNear, zFar, focalLength, true);
+            _rightFrustum = ViewFrustumShifted(fovy, aspectRatio, zNear, zFar, focalLength, false);
             rc.Projection = _leftFrustum;
         }
 
@@ -86,7 +86,7 @@ namespace Fusee.Engine
         ///         <item>zNear is larger than zFar</item>
         ///     </list>
         /// </exception>
-        private float4x4 ViewFrustumShifted(float fovy, float aspect, float zNear, float zFar, float screenZero,
+        private float4x4 ViewFrustumShifted(float fovy, float aspect, float zNear, float zFar, float focalLength,
             bool lefteye)
         {
             //Allgemein
@@ -106,7 +106,7 @@ namespace Fusee.Engine
             var bottom = -top;
 
             var shiftLr = lefteye ? -1 : 1;
-            var shiftOffset = (Iod * 0.5f) * (zNear / screenZero);
+            var shiftOffset = (Iod * 0.5f) * (zNear / focalLength);
             var left = -aspect*top + shiftOffset*shiftLr;
             var right = aspect*top + shiftOffset*shiftLr;
 
