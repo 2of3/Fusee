@@ -1,0 +1,15 @@
+{
+"Name": "KomplexScene",
+"VideoDirectory": "Assets/S3DVideos",
+"LeftVideoRgb": "leftk.mkv",
+"LeftVideoDepth": "depthLeftk.mkv",
+"RightVideoRgb": "rightk.mkv",
+"RightVideoDepth": "depthRightk.mkv",
+"FrameCount": 300,
+"Hit":0,
+"ScalePlane":0.02,
+"DepthScale":5.0,
+PositionX:20.0,
+PositionY:0.0,
+PositionZ:-25.0
+}
