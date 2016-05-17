@@ -113,7 +113,6 @@ namespace Examples.DepthVideo
         public Mesh ScreenMesh { get; set; }
         public float3 Position { get; set; }
         private float3 ScaleFactor { get; set; }
-        private float ScalePlane { get; set; }
         private float DepthScale { get; set; }
 
         private struct VideoFrames
@@ -166,12 +165,13 @@ namespace Examples.DepthVideo
 
         public ScreenS3D(RenderContext rc, Stereo3D s3D,  float3 pos, VideoConfig videoConfig) : this(rc,s3D,pos)
         {
+            _config = videoConfig;
             SetVideo(videoConfig.VideoDirectory + "/" + videoConfig.LeftVideoRgb,
                 videoConfig.VideoDirectory +"/"+ videoConfig.RightVideoRgb,
                 videoConfig.VideoDirectory + "/" + videoConfig.LeftVideoDepth,
                 videoConfig.VideoDirectory + "/" + videoConfig.RightVideoDepth, videoConfig.FrameCount);
-           // Hit = videoConfig.Hit;
-            _config = videoConfig;
+
+            ScaleFactor = new float3(_framesListLeft[0].Width * _config.ScalePlane, _framesListLeft[0].Height * _config.ScalePlane, 1f);
         }
 
         private ScreenS3D(RenderContext rc, Stereo3D s3D,  float3 pos)
@@ -187,7 +187,6 @@ namespace Examples.DepthVideo
             _depthShaderParamScale = _stereo3DShaderProgram.GetShaderParam("scale");
 
             Position = pos;
-            ScalePlane = 0.02f;
             DepthScale = 5;
 
             CreatePlaneMesh();
@@ -263,8 +262,7 @@ namespace Examples.DepthVideo
             _iTexturesListDepthLeftEnumerator = _iTexturesListDepthLeft.GetEnumerator();
             _iTexturesListDepthRightEnumerator = _iTexturesListDepthRight.GetEnumerator();
 
-            ScaleFactor = new float3(_framesListLeft[0].Width * ScalePlane, _framesListLeft[0].Height * ScalePlane, 1f);
-            //ScaleFactor = new float3(0.64f * ScalePlane, 0.48f * ScalePlane, 1f);
+           
         }
 
         /// <summary>
@@ -473,13 +471,25 @@ namespace Examples.DepthVideo
             CurrentVideoTextures = GetCurrentVideoITextures();
            
 
-            if (Input.Instance.IsKey(KeyCodes.W))
-                Position += new float3(0, 0, 0.5f);
-
-            if (Input.Instance.IsKey(KeyCodes.S))
-                Position += new float3(0, 0, -0.5f);
+           
         }
 
+        public void SetPosition()
+        {
+            if (Input.Instance.IsKey(KeyCodes.A))
+                _config.PositionX += 0.5f;
+            if (Input.Instance.IsKey(KeyCodes.D))
+                _config.PositionX += -0.5f;
+            if (Input.Instance.IsKey(KeyCodes.W))
+                _config.PositionZ += 0.5f;
+            if (Input.Instance.IsKey(KeyCodes.S))
+                _config.PositionZ += -0.5f;
+
+            if (Input.Instance.IsKeyUp(KeyCodes.P))
+            {
+                VideoConfigParser.WriteConfigToDisk(_config);
+            }
+        }
 
         public void SetHit()
         {
@@ -491,6 +501,20 @@ namespace Examples.DepthVideo
             if (Input.Instance.IsKeyUp(KeyCodes.H))
             {
                
+                VideoConfigParser.WriteConfigToDisk(_config);
+            }
+        }
+
+        public void SetDepthScale()
+        {
+            if (Input.Instance.IsKey(KeyCodes.N))
+                _config.DepthScale += 0.5f;
+            if (Input.Instance.IsKey(KeyCodes.M)&&_config.DepthScale>0)
+                _config.DepthScale -= 0.5f;
+
+            if (Input.Instance.IsKeyUp(KeyCodes.Enter))
+            {
+                Console.WriteLine("Saved Depth");
                 VideoConfigParser.WriteConfigToDisk(_config);
             }
         }
@@ -520,8 +544,8 @@ namespace Examples.DepthVideo
                 _rc.SetShaderParam(_colorShaderParam, new float4(new float3(1, 1, 1), 1));
                 _rc.SetShaderParamTexture(_colorTextureShaderParam, textureColor);
                 _rc.SetShaderParamTexture(_depthTextureShaderParam, textureDepth);
-                _rc.SetShaderParam(_depthShaderParamScale, DepthScale);
-                var mv =mtx *float4x4.CreateTranslation(Position) * float4x4.CreateRotationY((float)Math.PI)*float4x4.CreateTranslation(hit, 0, 0) * float4x4.CreateScale(ScaleFactor);
+                _rc.SetShaderParam(_depthShaderParamScale, _config.DepthScale);
+                var mv =mtx *float4x4.CreateTranslation(_config.PositionX, _config.PositionY, _config.PositionZ) * float4x4.CreateRotationY((float)Math.PI)* float4x4.CreateRotationZ((float)Math.PI) * float4x4.CreateTranslation(hit, 0, 0) * float4x4.CreateScale(ScaleFactor);
                
                 _rc.ModelView = mv;
                 _rc.Render(ScreenMesh);

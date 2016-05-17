@@ -410,7 +410,7 @@ namespace Examples.DepthVideo
             var Cube3D_1 = new Object3D(RC, new float3(0, 0, -50), new float3((float)Math.PI / 4, (float)Math.PI / 4, 0), _meshCube, 0.01f, 0.01f);
             Cube3D_1.SimpleTextureMaterial(_shaderProgram3DColor, _s3dTextureParam, _s3dColorParam, _iTexture, new float4(1, 1, 1, 1));
             _object3DList.Add(Cube3D_1);
-            var Cube3D_2 = new Object3D(RC, new float3(0, 0, -30), new float3(0, (float)Math.PI / 4, 0),  _meshCube, 0.01f, 0.01f);
+            var Cube3D_2 = new Object3D(RC, new float3(0, 0, -25), new float3(0, (float)Math.PI / 4, 0),  _meshCube, 0.01f, 0.01f);
             Cube3D_2.SimpleTextureMaterial(_shaderProgram3DColor, _s3dTextureParam, _s3dColorParam, _iTexture, new float4(1, 1, 1, 1));
             _object3DList.Add(Cube3D_2);
             var Cube3D_3 = new Object3D(RC, new float3(-5, 0, -9), new float3(0, (float)Math.PI / 4, 0),_meshCube, 0.01f, 0.01f);
@@ -548,10 +548,7 @@ namespace Examples.DepthVideo
             if (Input.Instance.IsKey(KeyCodes.Down))
                 _move.z -= 0.1f;
 
-            //if (Input.Instance.IsKey(KeyCodes.D1))
-            //    test.z += 0.1f;
-            //if (Input.Instance.IsKey(KeyCodes.D2))
-            //    test.z -= 0.1f;
+
             if (Input.Instance.IsKeyUp(KeyCodes.Tab))
             {
                 if (_screenS3Ds.Count != _selectedScreen)
@@ -564,6 +561,8 @@ namespace Examples.DepthVideo
                 }
             }
             _screenS3Ds[_selectedScreen].SetHit();
+            _screenS3Ds[_selectedScreen].SetDepthScale();
+            _screenS3Ds[_selectedScreen].SetPosition();
         }
 
         // is called when the window was resized
