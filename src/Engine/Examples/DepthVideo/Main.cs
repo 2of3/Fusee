@@ -427,13 +427,6 @@ namespace Examples.DepthVideo
             //Update
             Update();
 
-
-
-           
-
-           
-
-
             var mtxRot = float4x4.CreateRotationX(_angleVert)*float4x4.CreateRotationY(_angleHorz);
             var mtxMov = float4x4.CreateTranslation(_move);
             RenderS3D(mtxMov*mtxRot);
@@ -477,7 +470,7 @@ namespace Examples.DepthVideo
                
                 foreach (var screen in _screenS3Ds)
                 {
-                    screen.Render3DScreen(lookAt*mtx);
+                    screen.Render3DScreen(_stereoCameraRig, lookAt*mtx);
                 }
 
                 foreach (var obj3d in _object3DList)

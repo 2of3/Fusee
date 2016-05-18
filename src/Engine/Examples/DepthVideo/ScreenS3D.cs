@@ -102,18 +102,18 @@ namespace Examples.DepthVideo
 
         private bool disposed;
         private readonly RenderContext _rc;
-        private readonly Stereo3D _stereo3D;
-        private readonly ShaderProgram _stereo3DShaderProgram;
-        private readonly IShaderParam _colorShaderParam;
-        private readonly IShaderParam _colorTextureShaderParam;
-        private readonly IShaderParam _depthTextureShaderParam;
-        private readonly IShaderParam _depthShaderParamScale;
+       // private readonly Stereo3D _stereo3D;
+        private ShaderProgram _stereo3DShaderProgram;
+        private IShaderParam _colorShaderParam;
+        private IShaderParam _colorTextureShaderParam;
+        private IShaderParam _depthTextureShaderParam;
+        private IShaderParam _depthShaderParamScale;
 
 
-        public Mesh ScreenMesh { get; set; }
+        public Mesh ScreenMesh = new Mesh();
         public float3 Position { get; set; }
         private float3 ScaleFactor { get; set; }
-        private float DepthScale { get; set; }
+       // private float DepthScale { get; set; }
 
         private struct VideoFrames
         {
@@ -163,42 +163,34 @@ namespace Examples.DepthVideo
         private readonly VideoConfig _config;
 
 
-        public ScreenS3D(RenderContext rc, Stereo3D s3D, VideoConfig videoConfig) : this(rc,s3D)
+        public ScreenS3D(RenderContext rc, Stereo3D s3D, VideoConfig videoConfig)
         {
+            _rc = rc;
             _config = videoConfig;
             SetVideo(videoConfig.VideoDirectory + "/" + videoConfig.LeftVideoRgb,
                 videoConfig.VideoDirectory +"/"+ videoConfig.RightVideoRgb,
                 videoConfig.VideoDirectory + "/" + videoConfig.LeftVideoDepth,
                 videoConfig.VideoDirectory + "/" + videoConfig.RightVideoDepth, videoConfig.FrameCount);
-
+            InitializeShader();
+            ScreenMesh = CreatePlaneMesh();
             ScaleFactor = new float3(_framesListLeft[0].Width * _config.ScalePlane, _framesListLeft[0].Height * _config.ScalePlane, 1f);
         }
-
-        private ScreenS3D(RenderContext rc, Stereo3D s3D)
+        
+        private void InitializeShader()
         {
-            ScreenMesh = new Mesh();
-            //Hit = 0.065f*2f;
-            _rc = rc;
-            _stereo3D = s3D;
             _stereo3DShaderProgram = _rc.CreateShader(VsS3dDepth, PsS3dDepth);
             _colorShaderParam = _stereo3DShaderProgram.GetShaderParam("vColor");
             _colorTextureShaderParam = _stereo3DShaderProgram.GetShaderParam("vTexture");
             _depthTextureShaderParam = _stereo3DShaderProgram.GetShaderParam("textureDepth");
             _depthShaderParamScale = _stereo3DShaderProgram.GetShaderParam("scale");
-
-   
-            DepthScale = 5;
-
-            CreatePlaneMesh();
         }
-
 
         /// <summary>
         /// Creates the Mesh where the Videos are maped on as a texture
         /// </summary>
-        private void CreatePlaneMesh()
+        private Mesh CreatePlaneMesh()
         {
-
+            var mesh = new Mesh();
             var vertecies = new[]
             {
                 new float3 {x = +0.5f, y = -0.5f, z = +0.5f},
@@ -229,10 +221,11 @@ namespace Examples.DepthVideo
                 new float2(0, 0)
             };
 
-            ScreenMesh.Vertices = vertecies;
-            ScreenMesh.Triangles = triangles;
-            ScreenMesh.Normals = normals;
-            ScreenMesh.UVs = uVs;
+            mesh.Vertices = vertecies;
+            mesh.Triangles = triangles;
+            mesh.Normals = normals;
+            mesh.UVs = uVs;
+            return mesh;
         }
 
 
@@ -246,8 +239,6 @@ namespace Examples.DepthVideo
         /// <param name="videoLength">Length of the videos in frames. (All three videos must have the same amount of frames and recorded with the same frame rate)</param>
         public void SetVideo(string pathLeftVideo, string pathRightVideo, string pathDepthVideLeft, string pathDepthVideRight, int videoLength)
         {
-
-
             ImportVideo(_framesListLeft, pathLeftVideo, ref _framesListLeftEnumerator, videoLength);
             ImportVideo(_framesListRight, pathRightVideo, ref _framesListRightEnumerator, videoLength);
             ImportVideo(_framesListDepthLeft, pathDepthVideLeft, ref _framesListDepthLeftEnumerator, videoLength);
@@ -255,14 +246,12 @@ namespace Examples.DepthVideo
             for (int i = 0; i < _framesListLeft.Count; i++)
             {
                 var videoFrames = GetVideoFrames();
-                CrateTextures(videoFrames);
+                CreateTextures(videoFrames);
             }
             _iTexturesListLeftEnumerator = _iTexturesListLeft.GetEnumerator();
             _iTexturesListRightEnumerator = _iTexturesListRight.GetEnumerator();
             _iTexturesListDepthLeftEnumerator = _iTexturesListDepthLeft.GetEnumerator();
             _iTexturesListDepthRightEnumerator = _iTexturesListDepthRight.GetEnumerator();
-
-           
         }
 
         /// <summary>
@@ -433,7 +422,7 @@ namespace Examples.DepthVideo
         /// Creates Textures from ImageData and stores them in a list
         /// </summary>
         /// <param name="vf"></param>
-        private void CrateTextures(VideoFrames vf)
+        private void CreateTextures(VideoFrames vf)
         {
             //iTexture left
             if (vf.ImgDataLeft.PixelData != null)
@@ -520,12 +509,12 @@ namespace Examples.DepthVideo
             }
         }
 
-        public void Render3DScreen(float4x4 mtx)
+        public void Render3DScreen(StereoCameraRig cameraRig, float4x4 mtx)
         {
             float hit = 0;
             ITexture textureColor = null;
             ITexture textureDepth = null; 
-            switch (_stereo3D.CurrentEye)
+            switch (cameraRig.CurrentEye)
             {
                 case Stereo3DEye.Left:
                     textureColor = CurrentVideoTextures.TextureLeft;

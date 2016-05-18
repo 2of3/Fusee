@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Policy;
-using System.Text;
-using Fusee.Math;
-
-namespace Examples.DepthVideo
+﻿namespace Examples.DepthVideo
 {
     public class VideoConfig
     {
