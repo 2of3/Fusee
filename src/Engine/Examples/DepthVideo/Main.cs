@@ -403,7 +403,7 @@ namespace Examples.DepthVideo
             //Set up screen object
             foreach (var config in videoConfigs)
             {
-                _screenS3Ds.Add(new ScreenS3D(RC, _stereoCameraRig, config));
+                _screenS3Ds.Add(new ScreenS3D(RC, config));
             }
            
             //Create Objects3D
