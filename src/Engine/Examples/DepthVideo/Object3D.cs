@@ -13,7 +13,7 @@ namespace Examples.DepthVideo
         public float3 Position { get; set; }
         public float3 Rotation { get; set; }
         public Mesh Mesh { get; set; }
-        public float ScaleFactor { get; set; }
+        public float3 ScaleFactor { get; set; }
         public float Brightness { get; set; }
         private CurrentShaderMaterial _currentMaterial;
 
@@ -30,7 +30,7 @@ namespace Examples.DepthVideo
 
         }
 
-        public Object3D(RenderContext rc, float3 position, float3 rotation, Mesh mesh, float scalefactor, float brightness)
+        public Object3D(RenderContext rc, float3 position, float3 rotation, Mesh mesh, float3 scalefactor, float brightness)
         {
             _currentMaterial = new CurrentShaderMaterial() { ShaderProgram = null, ShaderTextureParam = null, ShaderColorParam = null, MatTexture = null, MatColor = float4.Zero};
             Position = position;

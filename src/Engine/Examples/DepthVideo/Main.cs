@@ -117,17 +117,9 @@ namespace Examples.DepthVideo
 
             void main()
             {
-                vec4 colTex = vColor * texture2D(vTexture, vUV);       
-                
-                //float ndcDepth = (clip.z/clip.w);
-                //float coordZ = (1-0)*0.5*ndcDepth+(gl_DepthRange.far-gl_DepthRange.near)*0.5; 
-                //vec4 temp = (1,1,1,1);
-                ////if(gl_FragCoord.z == coordZ)
-                ////{
-                ////    temp = vec4(0,1,0,1);
-                ////}
-                //gl_FragDepth =  coordZ;//gl_FragCoord.z;  
-                gl_FragColor = dot(vColor, vec4(0, 0, 0, 1)) * colTex * dot(vNormal, vec3(0, 0, -1));
+                vec4 colTex = vColor * texture2D(vTexture, vUV);      
+
+                gl_FragColor = dot(vColor, vec4(0, 0, 0, 1)) * colTex * dot(vNormal, vec3(0, 0, -1)* 0.5);
                
                 
             }";
@@ -407,13 +399,13 @@ namespace Examples.DepthVideo
             }
            
             //Create Objects3D
-            var Cube3D_1 = new Object3D(RC, new float3(0, 0, -50), new float3((float)Math.PI / 4, (float)Math.PI / 4, 0), _meshCube, 0.01f, 0.01f);
+            var Cube3D_1 = new Object3D(RC, new float3(0, 0, -50), new float3((float)Math.PI / 4, (float)Math.PI / 4, 0), _meshCube, new float3(0.01f, 0.01f, 0.01f), 0.01f);
             Cube3D_1.SimpleTextureMaterial(_shaderProgram3DColor, _s3dTextureParam, _s3dColorParam, _iTexture, new float4(1, 1, 1, 1));
             _object3DList.Add(Cube3D_1);
-            var Cube3D_2 = new Object3D(RC, new float3(0, 0, -25), new float3(0, (float)Math.PI / 4, 0),  _meshCube, 0.01f, 0.01f);
+            var Cube3D_2 = new Object3D(RC, new float3(0, 0, -25), new float3(0, (float)Math.PI / 4, 0),  _meshCube, new float3(0.01f, 0.01f, 0.01f), 0.01f);
             Cube3D_2.SimpleTextureMaterial(_shaderProgram3DColor, _s3dTextureParam, _s3dColorParam, _iTexture, new float4(1, 1, 1, 1));
             _object3DList.Add(Cube3D_2);
-            var Cube3D_3 = new Object3D(RC, new float3(-5, 0, -9), new float3(0, (float)Math.PI / 4, 0),_meshCube, 0.01f, 0.01f);
+            var Cube3D_3 = new Object3D(RC, new float3(-5, 0, -9), new float3(0, (float)Math.PI / 4, 0),_meshCube, new float3(0.01f, 0.01f, 0.01f), 0.01f);
             Cube3D_3.SimpleTextureMaterial(_shaderProgram3DColor, _s3dTextureParam, _s3dColorParam, _iTexture, new float4(1, 1, 1, 1));
             _object3DList.Add(Cube3D_3);
 
@@ -464,7 +456,7 @@ namespace Examples.DepthVideo
                     RC.SetShader(_shaderProgram3DColor);
                     RC.SetShaderParam(_s3dColorParam, new float4(new float3(0.5f, 0.5f, 0.5f), 1));
                     RC.SetShaderParamTexture(_s3dTextureParam, _iTexture);
-                    RC.ModelView = lookAt * mtx * float4x4.CreateTranslation(new float3(5,0,-25)) * float4x4.CreateRotationY((float)Math.PI) * float4x4.CreateScale(new float3(0.64f * 7, 0.48f * 7, 1f));
+                    RC.ModelView = lookAt * mtx * float4x4.CreateTranslation(new float3(5, 0, -25)) * float4x4.CreateRotationY((float)Math.PI) * float4x4.CreateScale(new float3(0.64f * 7, 0.48f * 7, 1f));
                     RC.Render(_screenS3Ds[0].ScreenMesh);
                 }
                
