@@ -52,6 +52,7 @@ namespace Examples.DepthVideo
             uniform sampler2D vTexture;
             uniform sampler2D textureDepth;
             uniform float scale;
+            uniform int invert;
             uniform mat4 FUSEE_MV;
             uniform mat4 FUSEE_P;
             uniform mat4 FUSEE_MVP;
@@ -65,7 +66,11 @@ namespace Examples.DepthVideo
                 //Read Texture Value (RGB)
                 vec4 colTex = texture2D(vTexture, vUV);    
                 //Read Texture Value (Grey/Depth)                  
-                float depthTexValue = (1-texture(textureDepth, vUV));
+                float depthTexValue = (texture(textureDepth, vUV));
+                if(invert == 1)
+                {
+                    depthTexValue = 1- depthTexValue;
+                }   
                 //homogenous vertex coordinates               
                 vec4 vertex = FuVertex;             
     
@@ -91,6 +96,7 @@ namespace Examples.DepthVideo
                     //Viewport transformation
                     coordZ  = (gl_DepthRange.diff)*0.5*ndcDepth+(gl_DepthRange.diff)*0.5; 
                     //Fragment Depth Value
+
                     gl_FragDepth =  coordZ;              
                 }
                 //write color 
@@ -106,6 +112,7 @@ namespace Examples.DepthVideo
         private IShaderParam _colorTextureShaderParam;
         private IShaderParam _depthTextureShaderParam;
         private IShaderParam _depthShaderParamScale;
+        private IShaderParam _invertDepthShaderParam;
 
 
         public Mesh ScreenMesh;
@@ -174,6 +181,7 @@ namespace Examples.DepthVideo
             _colorTextureShaderParam = _stereo3DShaderProgram.GetShaderParam("vTexture");
             _depthTextureShaderParam = _stereo3DShaderProgram.GetShaderParam("textureDepth");
             _depthShaderParamScale = _stereo3DShaderProgram.GetShaderParam("scale");
+            _invertDepthShaderParam = _stereo3DShaderProgram.GetShaderParam("invert");
         }
 
         /// <summary>
@@ -522,6 +530,7 @@ namespace Examples.DepthVideo
                 _rc.SetShaderParamTexture(_colorTextureShaderParam, textureColor);
                 _rc.SetShaderParamTexture(_depthTextureShaderParam, textureDepth);
                 _rc.SetShaderParam(_depthShaderParamScale, _config.DepthScale);
+                _rc.SetShaderParam(_invertDepthShaderParam, 1);
                 var mv =mtx *float4x4.CreateTranslation(_config.PositionX, _config.PositionY, _config.PositionZ) * float4x4.CreateRotationY((float)Math.PI)* float4x4.CreateRotationZ((float)Math.PI) * float4x4.CreateTranslation(hit, 0, 0) * float4x4.CreateScale(ScaleFactor);
                
                 _rc.ModelView = mv;
