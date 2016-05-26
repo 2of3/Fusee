@@ -184,147 +184,11 @@ namespace Examples.DepthVideo
 
         #endregion
 
-        #region custom depth shader
 
-        private const string VsDepthCustom = @"
-            #ifdef GL_ES
-                precision mediump float;
-            #endif
 
-            attribute vec3 fuVertex;
-            attribute vec3 fuNormal;
-            attribute vec2 fuUV;
+        
 
-            varying vec3 vNormal;
-            varying vec2 vUV;
-            
-            uniform mat4 FUSEE_MVP;
-            uniform mat4 FUSEE_ITMV;      
-            uniform mat4 FUSEE_P; 
-            uniform mat4 FUSEE_MV;        
-            
-            varying vec4 pos;
-            void main(){
-    
-                vUV = fuUV;
-                pos = FUSEE_MV[3];
-                gl_Position = FUSEE_MVP * vec4(fuVertex, 1.0);
-                vNormal = mat3(FUSEE_ITMV[0].xyz, FUSEE_ITMV[1].xyz, FUSEE_ITMV[2].xyz) * fuNormal;
-            }";
 
-        private const string PsDepthCustom = @"
-            #ifdef GL_ES
-                precision mediump float;
-            #endif
-
-            uniform sampler2D textureColor, textureDepth;
-            uniform float scale;
-            varying vec3 vNormal;
-            varying vec2 vUV;
-            float zFar = 10;
-            float zNear =1;
-            varying vec4 pos;
-            uniform mat4 FUSEE_P;         
-            
-            
-            float linDepthToZ(float d)
-            {
-                return (2*zFar*zNear)/(-d*zFar+d*zNear+zFar+zNear);
-            }
-            float depthToZ(float din)
-            {
-                float d= (din-0.5)*2;
-                return (2*zFar*zNear)/(-d*zFar+d*zNear+zFar+zNear);
-
-             }
-
-            void main(){                               
-           
-  
-                
-                //get gray depthvalue form depth texture
-                float depthTexValue =1-texture2D(textureDepth, vUV).r;               
-//                float z = linDepthToZ(depthTexValue);
-//            
-//                vec4 pTemp = pos;
-//                pTemp.z += linDepthToZ(depthTexValue);
-//                vec4 clipPos = FUSEE_P * vec4(pTemp.xyz, 1.0);
-//                float ndcDepth = clipPos.z / clipPos.w;
-//                gl_FragDepth = ((9 * ndcDepth) +1 + 10) / 2.0;
-//    
-                float z3 = depthToZ(gl_FragCoord.z);
-                float DEPTH = (depthTexValue*2)-1;
-                vec4 col;
-                if(depthTexValue <=0.5)
-                {
-                    col = vec4(0,1,0,1);
-                }
-                else
-                {
-                    col = vec4(1,0,0,1);
-                }
-                gl_FragColor = texture2D(textureColor, vUV)*col;         
-            
-                //gl_FragDepth = gl_FragCoord.z + (depthTexValue/(log(10*24 -1)));
-               // gl_FragDepth= gl_FragCoord.z + ((depthTexValue+0.5)/(log(10*24 -1)));    
-                if(depthTexValue == 1)          
-                {
-                    gl_FragDepth = 1;
-                }
-                else
-                {
-
-                    gl_FragDepth = gl_FragCoord.z + (depthTexValue-(log(zFar*24 -1)*(pos.z/zFar)))*scale*0.01;
-                }
-            }";
-
-        #endregion
-
-        #region colordepth
-
-        private const string VsDrawDepth = @"
-            #ifdef GL_ES
-                precision mediump float;
-            #endif
-
-            attribute vec3 fuVertex;
-            attribute vec3 fuNormal;
-            attribute vec2 fuUV;
-
-            varying vec3 vNormal;
-            varying vec2 vUV;
-            
-            uniform mat4 FUSEE_MVP;
-
-            void main(){
-    
-               gl_Position = (FUSEE_MVP)* vec4(fuVertex, 1.0);
- 
- 
-            }";
-
-        private const string PsDrawDepth = @"
-            #ifdef GL_ES
-                precision mediump float;
-            #endif
-            
-            void main(){
-                
-            float temp = gl_FragCoord.z;
-            vec4 col;
-            if(temp >0)
-            {
-                col = vec4(0,1,0,1);
-            }
-            if(temp >0.5)
-            {
-                col = vec4(0,0,1,1);
-            }
-
-            gl_FragColor = col;
-            }";
-
-        #endregion
 
         private Mesh _meshCube;//, _meshSphere, _meshTeapot;
 
@@ -386,7 +250,7 @@ namespace Examples.DepthVideo
             _iTexture = RC.CreateTexture(RC.LoadImage("Assets/world_map.jpg"));
 
             //StereoCameraRig
-            _stereoCameraRig = new StereoCameraRig(Stereo3DMode.Anaglyph, Width, Height, 0.63f);
+            _stereoCameraRig = new StereoCameraRig(Stereo3DMode.Anaglyph, Width, Height, 0.065f);
             _stereoCameraRig.AttachToContext(RC);
 
 
@@ -562,7 +426,7 @@ namespace Examples.DepthVideo
 
             var aspectRatio = Width/(float) Height;
             _stereoCameraRig.UpdateOnResize(Width,Height);
-             _stereoCameraRig.SetFrustums(RC, MathHelper.PiOver4, aspectRatio, 10, 150, 25);
+             _stereoCameraRig.SetFrustums(RC, MathHelper.PiOver4, aspectRatio, 5, 150, 18);
         }
 
         public static void Main()

@@ -451,11 +451,7 @@ namespace Examples.DepthVideo
 
         public void Update()
         {
-            //preloaded videos
             CurrentVideoTextures = GetCurrentVideoTextures();
-           
-
-           
         }
 
         public void SetPosition()
