@@ -9,7 +9,5 @@
         ImageData GetCurrentFrame();
         void Start();
         void Stop();
-        void Dispose();
-
     }
 }

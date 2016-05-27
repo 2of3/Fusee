@@ -83,7 +83,6 @@ namespace Fusee.Engine
             _source.NewFrame += NextFrame;
             _source.PlayingFinished += PlayingFinished;
             _source.Start();
-
         }
 
         /// <summary>
@@ -125,11 +124,6 @@ namespace Fusee.Engine
         }
         #endregion
 
-        public void Dispose()
-        {
-           
-            _source.Stop();
-        }
     }
 }
 

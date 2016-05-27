@@ -64,9 +64,9 @@ namespace Examples.DepthVideo
             void main()
             {
                 //Read Texture Value (RGB)
-                vec4 colTex = texture2D(vTexture, vUV);    
+                vec4 colTex = texture(vTexture, vUV);    
                 //Read Texture Value (Grey/Depth)                  
-                float depthTexValue = (texture(textureDepth, vUV));
+                float depthTexValue = texture(textureDepth, vUV);
                 if(invert == 1)
                 {
                     depthTexValue = 1- depthTexValue;

@@ -45,10 +45,5 @@ namespace Fusee.Engine
             _videoCaptureDevice = new VideoCaptureDevice(videosources[cameraIndex].MonikerString);
             return _stream = new VideoStreamImp(_videoCaptureDevice, useAudio);
         }
-
-        public void Dispose()
-        {
-            _stream.Dispose();
-        }
     }
 }

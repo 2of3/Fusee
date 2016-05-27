@@ -72,8 +72,7 @@ namespace Fusee.Engine
         /// <param name="aspect">Aspect ratio of the view (width / height)</param>
         /// <param name="zNear">Distance to the near clip plane</param>
         /// <param name="zFar">Distance to the far clip plane</param>
-        /// <param name="IOD">intraocular distance</param>
-        /// <param name="screenZero">distance to convergence plane</param>
+        /// <param name="focalLength">distance to convergence plane</param>
         /// <param name="lefteye">defines if frustum is created for left odr right camera</param>
         /// <returns>A projection matrix that transforms camera space to raster space</returns>
         /// <exception cref="System.ArgumentOutOfRangeException">

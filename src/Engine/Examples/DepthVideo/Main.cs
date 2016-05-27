@@ -400,15 +400,13 @@ namespace Examples.DepthVideo
 
             if (Input.Instance.IsKeyUp(KeyCodes.Tab))
             {
-               
-                if (_screenS3Ds.Count > _selectedScreen)
+                if (_screenS3Ds.Count-1 > _selectedScreen)
                 {
-                   
-                    _selectedScreen++;
+                    _selectedScreen ++;
                 }
                 else
                 {
-                    _selectedScreen = 0;
+                    _selectedScreen=0;
                 }
             }
             _screenS3Ds[_selectedScreen].SetHit();
