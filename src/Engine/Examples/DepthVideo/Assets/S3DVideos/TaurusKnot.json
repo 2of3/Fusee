@@ -6,7 +6,7 @@
 "RightVideoRgb":"right.mkv",
 "RightVideoDepth":"depthRight.mkv",
 "FrameCount": 300,
-"Hit":0,
+"Hit":0.0,
 "ScalePlane":0.02,
 "DepthScale":5.0,
 "PositionX":-10.0,

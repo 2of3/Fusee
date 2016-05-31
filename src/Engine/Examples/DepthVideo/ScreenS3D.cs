@@ -7,11 +7,7 @@ using Fusee.Math;
 
 namespace Examples.DepthVideo
 {
-   
-
-    
-
-    public class ScreenS3D : IDisposable
+    public class ScreenS3D 
     {
 
         #region S3D-Shader + Depth
@@ -75,14 +71,7 @@ namespace Examples.DepthVideo
                 vec4 vertex = FuVertex;             
     
                 if(depthTexValue >0.9)          
-                {                   
-                    ////ClipSpce
-                    //vec4 clip = FUSEE_P*FUSEE_MV*FuVertex;
-                    ////Noramlized Device Coordinates
-                    //float ndcDepth = (clip.z/clip.w);  
-                    ////Fragment Depth Value
-                    //float coordZ = (gl_DepthRange.far-gl_DepthRange.near)*0.5*ndcDepth+(gl_DepthRange.far-gl_DepthRange.near)*0.5; 
-                    //gl_FragDepth =  gl_FragCoord.z;  
+                {                
                     discard;
                 }
                 else
@@ -105,10 +94,8 @@ namespace Examples.DepthVideo
 
         #endregion
 
-        private bool disposed;
         private readonly RenderContext _rc;
         private ShaderProgram _stereo3DShaderProgram;
-        private IShaderParam _colorShaderParam;
         private IShaderParam _colorTextureShaderParam;
         private IShaderParam _depthTextureShaderParam;
         private IShaderParam _depthShaderParamScale;
@@ -177,7 +164,6 @@ namespace Examples.DepthVideo
         private void InitializeShader()
         {
             _stereo3DShaderProgram = _rc.CreateShader(VsS3dDepth, PsS3dDepth);
-           // _colorShaderParam = _stereo3DShaderProgram.GetShaderParam("vColor");
             _colorTextureShaderParam = _stereo3DShaderProgram.GetShaderParam("vTexture");
             _depthTextureShaderParam = _stereo3DShaderProgram.GetShaderParam("textureDepth");
             _depthShaderParamScale = _stereo3DShaderProgram.GetShaderParam("scale");
@@ -475,13 +461,13 @@ namespace Examples.DepthVideo
         public void SetHit()
         {
             if (Input.Instance.IsKey(KeyCodes.Add))
-                _config.Hit += 0.01f;
+                _config.Hit += 0.001f;
             if (Input.Instance.IsKey(KeyCodes.Subtract))
-                _config.Hit -= 0.01f;
+                _config.Hit -= 0.001f;
         
             if (Input.Instance.IsKeyUp(KeyCodes.H))
             {
-               
+                Console.WriteLine("Saved Hit");
                 VideoConfigParser.WriteConfigToDisk(_config);
             }
         }
@@ -522,7 +508,6 @@ namespace Examples.DepthVideo
             if (textureColor != null && textureDepth != null)
             {
                 _rc.SetShader(_stereo3DShaderProgram);
-                //_rc.SetShaderParam(_colorShaderParam, new float4(new float3(1, 1, 1), 1));
                 _rc.SetShaderParamTexture(_colorTextureShaderParam, textureColor);
                 _rc.SetShaderParamTexture(_depthTextureShaderParam, textureDepth);
                 _rc.SetShaderParam(_depthShaderParamScale, _config.DepthScale);
@@ -534,33 +519,5 @@ namespace Examples.DepthVideo
             }
         }
 
-        ~ScreenS3D()
-        {
-            Dispose(false);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposed)
-            {
-                return;
-                
-            }
-
-            if (disposing)
-            {
-               // _videoStreamL.Dispose();
-               // _videoStreamR.Dispose();
-            }
-
-            // Free any unmanaged objects here.
-            //
-            disposed = true;
-        }
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
     }
 }

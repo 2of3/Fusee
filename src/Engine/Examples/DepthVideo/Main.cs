@@ -228,13 +228,11 @@ namespace Examples.DepthVideo
         {
            
             Console.WriteLine("Init");
-            RC.ClearColor = new float4(1f, 1f, 1f, 1);
+            RC.ClearColor = new float4(1f, 1f,1f, 1);
 
 
             //init mesh
             _meshCube = MeshReader.LoadMesh(@"Assets/Cube.obj.model");
-            //_meshTeapot = MeshReader.LoadMesh(@"Assets/Teapot.obj.model");
-            //_meshSphere = MeshReader.LoadMesh(@"Assets/Sphere.obj.model");
 
             //stereoshader -> color only
             _shaderProgram3DColor = RC.CreateShader(VsS3D, PsS3D);
@@ -250,7 +248,7 @@ namespace Examples.DepthVideo
             _iTexture = RC.CreateTexture(RC.LoadImage("Assets/world_map.jpg"));
 
             //StereoCameraRig
-            _stereoCameraRig = new StereoCameraRig(Stereo3DMode.Anaglyph, Width, Height, 0.065f);
+            _stereoCameraRig = new StereoCameraRig(Stereo3DMode.Anaglyph, Width, Height, 0.2f);
             _stereoCameraRig.AttachToContext(RC);
 
 
@@ -261,15 +259,15 @@ namespace Examples.DepthVideo
             {
                 _screenS3Ds.Add(new ScreenS3D(RC, config));
             }
-           
+
             //Create Objects3D
             var Cube3D_1 = new Object3D(RC, new float3(0, 0, -50), new float3((float)Math.PI / 4, (float)Math.PI / 4, 0), _meshCube, new float3(0.01f, 0.01f, 0.01f), 0.01f);
             Cube3D_1.SimpleTextureMaterial(_shaderProgram3DColor, _s3dTextureParam, _s3dColorParam, _iTexture, new float4(1, 1, 1, 1));
             _object3DList.Add(Cube3D_1);
-            var Cube3D_2 = new Object3D(RC, new float3(0, 0, -25), new float3(0, (float)Math.PI / 4, 0),  _meshCube, new float3(0.01f, 0.01f, 0.01f), 0.01f);
+            var Cube3D_2 = new Object3D(RC, new float3(1, 0, -11), new float3(0, (float)Math.PI / 4, (float)Math.PI / 4), _meshCube, new float3(0.01f, 0.01f, 0.01f), 0.01f);
             Cube3D_2.SimpleTextureMaterial(_shaderProgram3DColor, _s3dTextureParam, _s3dColorParam, _iTexture, new float4(1, 1, 1, 1));
             _object3DList.Add(Cube3D_2);
-            var Cube3D_3 = new Object3D(RC, new float3(-5, 0, -9), new float3(0, (float)Math.PI / 4, 0),_meshCube, new float3(0.01f, 0.01f, 0.01f), 0.01f);
+            var Cube3D_3 = new Object3D(RC, new float3(-5, 0, -9), new float3(0, (float)Math.PI / 4, 0), _meshCube, new float3(0.01f, 0.01f, 0.01f), 0.01f);
             Cube3D_3.SimpleTextureMaterial(_shaderProgram3DColor, _s3dTextureParam, _s3dColorParam, _iTexture, new float4(1, 1, 1, 1));
             _object3DList.Add(Cube3D_3);
 
@@ -280,7 +278,6 @@ namespace Examples.DepthVideo
         {
             RC.Clear(ClearFlags.Color | ClearFlags.Depth);
 
-            //Update
             Update();
 
             var mtxRot = float4x4.CreateRotationX(_angleVert)*float4x4.CreateRotationY(_angleHorz);
@@ -288,7 +285,6 @@ namespace Examples.DepthVideo
             RenderS3D(mtxMov*mtxRot);
             
             Present();
-          
         }
 
 
@@ -307,22 +303,22 @@ namespace Examples.DepthVideo
                 var lookAt = _stereoCameraRig.LookAt3D(_stereoCameraRig.CurrentEye, eyeF, targetF, upF);
 
                 
-                if (_stereoCameraRig.CurrentEye == Stereo3DEye.Left)
-                {
-                    RC.SetShader(_shaderProgram3DColor);
-                    RC.SetShaderParam(_s3dColorParam, new float4(new float3(0.5f, 0.5f, 0.5f), 1));
-                    RC.SetShaderParamTexture(_s3dTextureParam, _iTexture);
-                    RC.ModelView = lookAt * mtx * float4x4.CreateTranslation(new float3(5, 0,-25)) * float4x4.CreateRotationY((float)Math.PI) * float4x4.CreateScale(new float3(0.64f * 7, 0.48f * 7, 1f));
-                    RC.Render(_screenS3Ds[0].ScreenMesh);
-                }
-                else
-                {
-                    RC.SetShader(_shaderProgram3DColor);
-                    RC.SetShaderParam(_s3dColorParam, new float4(new float3(0.5f, 0.5f, 0.5f), 1));
-                    RC.SetShaderParamTexture(_s3dTextureParam, _iTexture);
-                    RC.ModelView = lookAt * mtx * float4x4.CreateTranslation(new float3(5, 0, -25)) * float4x4.CreateRotationY((float)Math.PI) * float4x4.CreateScale(new float3(0.64f * 7, 0.48f * 7, 1f));
-                    RC.Render(_screenS3Ds[0].ScreenMesh);
-                }
+                //if (_stereoCameraRig.CurrentEye == Stereo3DEye.Left)
+                //{
+                //    RC.SetShader(_shaderProgram3DColor);
+                //    RC.SetShaderParam(_s3dColorParam, new float4(new float3(0.5f, 0.5f, 0.5f), 1));
+                //    RC.SetShaderParamTexture(_s3dTextureParam, _iTexture);
+                //    RC.ModelView = lookAt * mtx * float4x4.CreateTranslation(new float3(5, 0,-25)) * float4x4.CreateRotationY((float)Math.PI) * float4x4.CreateScale(new float3(0.64f * 7, 0.48f * 7, 1f));
+                //    RC.Render(_screenS3Ds[0].ScreenMesh);
+                //}
+                //else
+                //{
+                //    RC.SetShader(_shaderProgram3DColor);
+                //    RC.SetShaderParam(_s3dColorParam, new float4(new float3(0.5f, 0.5f, 0.5f), 1));
+                //    RC.SetShaderParamTexture(_s3dTextureParam, _iTexture);
+                //    RC.ModelView = lookAt * mtx * float4x4.CreateTranslation(new float3(5, 0, -25)) * float4x4.CreateRotationY((float)Math.PI) * float4x4.CreateScale(new float3(0.64f * 7, 0.48f * 7, 1f));
+                //    RC.Render(_screenS3Ds[0].ScreenMesh);
+               // }
                
                 foreach (var screen in _screenS3Ds)
                 {
@@ -382,7 +378,6 @@ namespace Examples.DepthVideo
             if (Input.Instance.IsKey(KeyCodes.Escape))
             {
                 CloseGameWindow();
-                System.Environment.Exit(-1);//Forcing VideoStreams stop!!
             }
             // move cam with arrows
             if (Input.Instance.IsKey(KeyCodes.Left))
@@ -424,7 +419,7 @@ namespace Examples.DepthVideo
 
             var aspectRatio = Width/(float) Height;
             _stereoCameraRig.UpdateOnResize(Width,Height);
-             _stereoCameraRig.SetFrustums(RC, MathHelper.PiOver4, aspectRatio, 5, 150, 18);
+             _stereoCameraRig.SetFrustums(RC, MathHelper.PiOver4, aspectRatio, 5, 150, 25);
         }
 
         public static void Main()

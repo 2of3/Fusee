@@ -386,7 +386,7 @@ namespace Fusee.Engine
             _rc.SetShaderParamTexture(_shaderTexture, eye == Stereo3DEye.Left ? _contentLTex : _contentRTex);
             _rc.ColorMask(red, green, blue, alpha);
 
-			// change lookat ?? lefthanded change
+
             _rc.Render(_guiLImage.GUIMesh);
         }
 

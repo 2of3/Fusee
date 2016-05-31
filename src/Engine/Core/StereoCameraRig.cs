@@ -33,27 +33,11 @@ namespace Fusee.Engine
             var x = (eye == Stereo3DEye.Left)
                 ? eyeV.x -Iod/2
                 : eyeV.x + Iod/2;
-
-            //set frustum
-            //_rc.Projection = eye == Stereo3DEye.Left ? _leftFrustum : _rightFrustum;
-        
+       
             var newEye = new float3(x, eyeV.y, eyeV.z);
             var newTarget = new float3(x, target.y, target.z);
 
             return float4x4.LookAt(newEye, newTarget, up);
-        }
-
-        private float4x4 LookAt3D(float3 eye, float3 target, float3 up)
-        {
-            var n = float3.Normalize(target  -eye);//z
-            var u = float3.Normalize(float3.Cross(up, n));//x
-            var v = float3.Cross(n, u);//y
-
-            float3 d = new float3(float3.Dot(-eye, u), float3.Dot(-eye, v), float3.Dot(-eye, n));
-            return new float4x4(u.x, u.y, u.z, d.x,
-                                v.x, v.y, v.z, d.y,
-                                n.x, n.y, n.z, d.z,
-                                0, 0, 0, 1);
         }
 
         public void SetFrustums(RenderContext rc, float fovy, float aspectRatio, float zNear, float zFar, float focalLength)
@@ -64,7 +48,6 @@ namespace Fusee.Engine
             rc.Projection = _leftFrustum;
         }
 
-
         /// <summary>
         ///     Creates a left handed perspective projection matrix when using SteroCameraRig -> Frustrum shift / Off-axis.
         /// </summary>
@@ -72,7 +55,7 @@ namespace Fusee.Engine
         /// <param name="aspect">Aspect ratio of the view (width / height)</param>
         /// <param name="zNear">Distance to the near clip plane</param>
         /// <param name="zFar">Distance to the far clip plane</param>
-        /// <param name="focalLength">distance to convergence plane</param>
+        /// <param name="focalLength">distance to convergence plane. </param>
         /// <param name="lefteye">defines if frustum is created for left odr right camera</param>
         /// <returns>A projection matrix that transforms camera space to raster space</returns>
         /// <exception cref="System.ArgumentOutOfRangeException">
@@ -113,5 +96,7 @@ namespace Fusee.Engine
             float4x4.CreatePerspectiveOffCenter(left, right, bottom, top, zNear, zFar, out result);
             return result;
         }
+
+
     }
 }
