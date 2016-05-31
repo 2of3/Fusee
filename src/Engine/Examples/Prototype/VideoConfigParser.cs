@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using Newtonsoft.Json;
 
-namespace Examples.DepthVideo
+namespace Examples.Prototype
 {
     public static class VideoConfigParser
     {

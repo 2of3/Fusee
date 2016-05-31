@@ -5,7 +5,7 @@ using Emgu.CV.Structure;
 using Fusee.Engine;
 using Fusee.Math;
 
-namespace Examples.DepthVideo
+namespace Examples.Prototype
 {
     public class ScreenS3D 
     {

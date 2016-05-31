@@ -1,16 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Net.Mime;
-using Emgu.CV;
-using Emgu.CV.Structure;
 using Fusee.Engine;
 using Fusee.Math;
 
-namespace Examples.DepthVideo
+namespace Examples.Prototype
 {
 
 
-    [FuseeApplication(Name = "DepthVideo", Description = "Integtrating a video with depth information.")]
+    [FuseeApplication(Name = "Prototype", Description = "Integtrating a video with depth information.")]
     public class DepthVideo : RenderCanvas
     {
         #region S3D-Shader + Depth
@@ -264,10 +261,10 @@ namespace Examples.DepthVideo
             var Cube3D_1 = new Object3D(RC, new float3(0, 0, -50), new float3((float)Math.PI / 4, (float)Math.PI / 4, 0), _meshCube, new float3(0.01f, 0.01f, 0.01f), 0.01f);
             Cube3D_1.SimpleTextureMaterial(_shaderProgram3DColor, _s3dTextureParam, _s3dColorParam, _iTexture, new float4(1, 1, 1, 1));
             _object3DList.Add(Cube3D_1);
-            var Cube3D_2 = new Object3D(RC, new float3(1, 0, -11), new float3(0, (float)Math.PI / 4, (float)Math.PI / 4), _meshCube, new float3(0.01f, 0.01f, 0.01f), 0.01f);
+            var Cube3D_2 = new Object3D(RC, new float3(1, 0, -18), new float3(0, (float)Math.PI / 4, (float)Math.PI / 4), _meshCube, new float3(0.01f, 0.01f, 0.01f), 0.01f);
             Cube3D_2.SimpleTextureMaterial(_shaderProgram3DColor, _s3dTextureParam, _s3dColorParam, _iTexture, new float4(1, 1, 1, 1));
             _object3DList.Add(Cube3D_2);
-            var Cube3D_3 = new Object3D(RC, new float3(-5, 0, -9), new float3(0, (float)Math.PI / 4, 0), _meshCube, new float3(0.01f, 0.01f, 0.01f), 0.01f);
+            var Cube3D_3 = new Object3D(RC, new float3(-10, 0, -18), new float3(0, (float)Math.PI / 4, 0), _meshCube, new float3(0.01f, 0.01f, 0.01f), 0.01f);
             Cube3D_3.SimpleTextureMaterial(_shaderProgram3DColor, _s3dTextureParam, _s3dColorParam, _iTexture, new float4(1, 1, 1, 1));
             _object3DList.Add(Cube3D_3);
 

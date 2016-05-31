@@ -1,4 +1,4 @@
-﻿namespace Examples.DepthVideo
+﻿namespace Examples.Prototype
 {
     public class VideoConfig
     {

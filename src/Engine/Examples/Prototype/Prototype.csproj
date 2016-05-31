@@ -6,11 +6,11 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{14F62E17-BE31-42AC-A744-CCC9F05BC5BA}</ProjectGuid>
+    <ProjectGuid>{3246F198-6213-4B93-9891-B75FBD0284C2}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Examples.DepthVideo</RootNamespace>
-    <AssemblyName>Examples.DepthVideo</AssemblyName>
+    <RootNamespace>Examples.Prototype</RootNamespace>
+    <AssemblyName>Examples.Prototype</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <UseVSHostingProcess>false</UseVSHostingProcess>
@@ -20,7 +20,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\..\Bin\Debug\Examples\DepthVideo\</OutputPath>
+    <OutputPath>..\..\..\..\Bin\Debug\Examples\Prototype\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
